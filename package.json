@@ -1,0 +1,27 @@
+{
+  "name": "webdev_backend_one",
+  "version": "0.0.1",
+  "description": "rest api for web development backend",
+  "main": "api/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JavaTheNutt/web_app_dev_project_backend.git"
+  },
+  "author": "joe wemyss <joe.wemyss@javathenutt.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/JavaTheNutt/web_app_dev_project_backend/issues"
+  },
+  "homepage": "https://github.com/JavaTheNutt/web_app_dev_project_backend#readme",
+  "dependencies": {
+    "chai": "^4.1.2",
+    "express": "^4.16.1",
+    "express-winston": "^2.4.0",
+    "mocha": "^3.5.3",
+    "mongoose": "^4.11.14",
+    "winston": "^2.4.0"
+  }
+}
