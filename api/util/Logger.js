@@ -1,6 +1,13 @@
+/**
+ * This module is used to configure Winston for logging in the application
+ * It will write to files while in development, but just the console in production
+ * It will also export request and error loggers for express.
+ */
+
 const winston        = require('winston');
 const config         = require('../../config/config');
 const expressWinston = require('express-winston');
+//create console logger regardless of environment
 const Logger         = new (winston.Logger)({
   transports: [new (winston.transports.Console)({
     colorize: true,
@@ -9,6 +16,7 @@ const Logger         = new (winston.Logger)({
 });
 
 if (config.env !== 'production') {
+  //if development mode, log verbosely to files ...
   Logger.level = 'verbose';
   Logger.add(winston.transports.File, {
     name: 'debug-log',
@@ -29,6 +37,7 @@ if (config.env !== 'production') {
     json: false
   })
 } else {
+  //... if production, no file logging and only errors in console
   Logger.level = 'error';
 }
 /*These two logger instances must be exported, so that they can be added before and after the routes */
@@ -39,8 +48,10 @@ const expressErrorLogger = new (expressWinston.errorLogger)({
   winstonInstance: Logger
 });
 
+// export logger as a function so that a module name can be passed when instantiating logger
 module.exports = function (moduleName) {
   'use strict';
+  moduleName = moduleName || 'UNSPECIFIED_MODULE'; //handle undefined module name
   return {
     error(text) {
       Logger.error(`${moduleName}: ${text}`)
