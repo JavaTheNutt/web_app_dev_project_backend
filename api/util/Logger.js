@@ -16,8 +16,6 @@ const Logger         = new (winston.Logger)({
 });
 
 if (config.env !== 'production') {
-  //if development mode, log verbosely to files ...
-  Logger.level = 'verbose';
   Logger.add(winston.transports.File, {
     name: 'debug-log',
     filename: './log/server_debug_log.log',
@@ -36,10 +34,9 @@ if (config.env !== 'production') {
     timestamp: true,
     json: false
   })
-} else {
-  //... if production, no file logging and only errors in console
-  Logger.level = 'error';
 }
+//if log level connot be ascertained, use error
+Logger.level = config.logLevel || 'error';
 /*These two logger instances must be exported, so that they can be added before and after the routes */
 const expressLogger      = new (expressWinston.logger)({
   winstonInstance: Logger
