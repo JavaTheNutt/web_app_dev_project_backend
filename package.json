@@ -4,9 +4,10 @@
   "description": "rest api for web development backend",
   "main": "api/index.js",
   "scripts": {
-    "unit": "cross-env NODE_ENV=test find ./test/unit -name '*_test.js' | xargs nyc mocha -R spec",
+    "unit": "find ./test/unit -name '*_test.js' | cross-env NODE_ENV=test xargs nyc mocha -R spec",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon api/index.js"
+    "dev": "nodemon api/index.js",
+    "start": "cross-env NODE_ENV=production node api/index.js"
   },
   "repository": {
     "type": "git",

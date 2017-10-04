@@ -10,7 +10,7 @@ const app    = require('express')();
 const config = require('../config/config');
 const Logger = require('@util/Logger')('INDEX');
 const _      = require('lodash');
-
+Logger.info(`log level : ${config.logLevel}`);
 //set the app to log every request
 app.use(Logger.requestLogger);
 //test route
