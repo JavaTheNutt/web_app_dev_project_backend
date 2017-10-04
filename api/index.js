@@ -6,10 +6,10 @@
 //This module allows me to set aliases in my package.json, to let me use absolute
 // paths https://github.com/ilearnio/module-alias
 require('module-alias/register');
-const app = require('express')();
-const config  = require('../config/config');
-const Logger  = require('@util/Logger')('INDEX');
-const _       = require('lodash');
+const app    = require('express')();
+const config = require('../config/config');
+const Logger = require('@util/Logger')('INDEX');
+const _      = require('lodash');
 
 //set the app to log every request
 app.use(Logger.requestLogger);

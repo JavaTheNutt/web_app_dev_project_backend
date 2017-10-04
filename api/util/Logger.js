@@ -41,7 +41,7 @@ if (config.env !== 'production') {
   Logger.level = 'error';
 }
 /*These two logger instances must be exported, so that they can be added before and after the routes */
-const expressLogger = new (expressWinston.logger)({
+const expressLogger      = new (expressWinston.logger)({
   winstonInstance: Logger
 });
 const expressErrorLogger = new (expressWinston.errorLogger)({
