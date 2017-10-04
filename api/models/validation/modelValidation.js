@@ -1,3 +1,6 @@
+/**
+ * This module contains validations that will be shared between Models
+ */
 const Logger         = require('@root/util/Logger')('MODEL_VALIDATION');
 const emailValidator = require('email-validator');
 

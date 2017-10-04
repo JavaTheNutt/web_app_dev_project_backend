@@ -1,3 +1,6 @@
+/**
+ * User Model
+ */
 const mongoose = require('mongoose');
 const Logger = require('@root/util/Logger');
 const emailValidation = require('@root/models/validation/modelValidation').validateEmail;
@@ -14,8 +17,11 @@ const UserSchema = mongoose.Schema({
   },
   firstName: String,
   surname: String,
-  addresses:[Address]
+  addresses: [Address]
 });
-const UserModel = mongoose.model('User', UserSchema);
+const UserModel  = mongoose.model('User', UserSchema);
 
-module.exports = {schema: UserSchema, model: UserModel};
+module.exports = {
+  schema: UserSchema,
+  model: UserModel
+};

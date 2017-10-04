@@ -1,3 +1,6 @@
+/**
+ * This is the test suite for the model validations that will be shared between models
+ */
 require('module-alias/register');
 const expect = require('chai').expect;
 

@@ -1,3 +1,6 @@
+/**
+ * This is the test suite for the Address model
+ */
 require('module-alias/register');
 const expect = require('chai').expect;
 

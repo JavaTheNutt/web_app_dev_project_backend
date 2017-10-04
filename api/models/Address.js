@@ -1,3 +1,8 @@
+/**
+ * Address model
+ * @type {*|Mongoose}
+ */
+
 const mongoose = require('mongoose');
 const Logger   = require('@util/Logger')('ADDRESS_MODEL');
 
