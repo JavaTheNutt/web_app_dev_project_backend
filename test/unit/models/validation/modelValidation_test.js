@@ -5,7 +5,7 @@ const validationService = require('@root/models/validation/modelValidation');
 
 describe('model validation', function () {
   describe('email validation', function () {
-    it('returns false with incorrect emails', function (done) {
+    it('returns false with incorrect emails', function () {
       let tmpEmail = 'joe';
       let res      = validationService.validateEmail(tmpEmail);
       expect(res, `thought "${tmpEmail}" was a correct email`).to.be.false;
@@ -27,9 +27,9 @@ describe('model validation', function () {
       tmpEmail = 'joe@joe.';
       res      = validationService.validateEmail(tmpEmail);
       expect(res, `thought "${tmpEmail}" was a correct email`).to.be.false;
-      return done();
+
     });
-    it('returns true for valid emails', function (done) {
+    it('returns true for valid emails', function () {
       let tmpEmail = 'joewemyss@gmail.com';
       let res      = validationService.validateEmail(tmpEmail);
       expect(res, `thought "${tmpEmail} was an invalid email`).to.be.true;
@@ -42,7 +42,6 @@ describe('model validation', function () {
       tmpEmail = 'joewemyss+social@gmail.co.uk';
       res      = validationService.validateEmail(tmpEmail);
       expect(res, `thought "${tmpEmail} was an invalid email`).to.be.true;
-      return done();
     })
   })
-})
+});

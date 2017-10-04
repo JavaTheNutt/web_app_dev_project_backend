@@ -37,7 +37,6 @@ describe('user model', function () {
       coordinates: [20, 20]
     }});
     const user = new User(userDetails);
-    console.log(JSON.stringify(user));
     expect(user.validateSync()).to.not.exist;
     expect(user.email).to.equal(userDetails.email);
     expect(user.firstName).to.equal(userDetails.firstName);
@@ -50,5 +49,18 @@ describe('user model', function () {
     expect(user.addresses[1].text).to.equal(userDetails.addresses[1].text);
     expect(user.addresses[1].loc.type).to.equal(userDetails.addresses[1].loc.type);
   });
-
+  it('should fail when no email is passed', function () {
+    userDetails.email = '';
+    const user = new User(userDetails);
+    const err = user.validateSync();
+    expect(err).to.exist;
+    expect(err.message).to.equal('User validation failed: email: Path `email` is required.');
+  });
+  it('should fail when a poorly formed email is passed', function () {
+    userDetails.email = 'joe';
+    const user = new User(userDetails);
+    const err = user.validateSync();
+    expect(err).to.exist;
+    expect(err.message).to.equal('User validation failed: email: Email is poorly formatted');
+  })
 });
