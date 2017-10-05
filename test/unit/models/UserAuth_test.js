@@ -29,10 +29,11 @@ describe('UserAuth model', function () {
     expect(err).to.exist;
     expect(err.message).to.equal('UserAuth validation failed: email: Path `email` is required.');
   });
-  it('should fail when there is no email passed', function () {
+  it('should fail when there is no firebase id passed', function () {
     userAuthDetails.firebaseId = '';
     const err = new UserAuth(userAuthDetails).validateSync();
     expect(err).to.exist;
     expect(err.message).to.equal('UserAuth validation failed: firebaseId: Path `firebaseId` is required.');
   });
+
 });
