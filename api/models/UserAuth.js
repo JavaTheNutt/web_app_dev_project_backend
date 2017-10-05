@@ -3,11 +3,15 @@
  */
 const mongoose = require('mongoose');
 const Logger   = require('@util/Logger')('AUTH_MODEL');
-
+const validator = require('@root/models/validation/modelValidation');
 const UserAuthSchema = mongoose.Schema({
   email: {
     type: String,
-    required: true
+    required: true,
+    validate: {
+      validator: validator.validateEmail,
+      message: 'Email is poorly formatted'
+    }
   },
   user: mongoose.Schema.ObjectId,
   firebaseId: {

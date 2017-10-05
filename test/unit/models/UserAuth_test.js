@@ -35,5 +35,10 @@ describe('UserAuth model', function () {
     expect(err).to.exist;
     expect(err.message).to.equal('UserAuth validation failed: firebaseId: Path `firebaseId` is required.');
   });
-
+  it('should fail when email address is poorly formed', function () {
+    userAuthDetails.email = 'joe';
+    const err = new UserAuth(userAuthDetails).validateSync();
+    expect(err).to.exist;
+    expect(err.message).to.equal('UserAuth validation failed: email: Email is poorly formatted');
+  });
 });

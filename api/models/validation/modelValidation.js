@@ -4,6 +4,7 @@
 const Logger         = require('@root/util/Logger')('MODEL_VALIDATION');
 const emailValidator = require('email-validator');
 const ObjectId = require('mongoose').Types.ObjectId;
+
 function validateEmail(emailAddress) {
   Logger.info(`checking if ${emailAddress} is valid`);
   return emailValidator.validate(emailAddress);
