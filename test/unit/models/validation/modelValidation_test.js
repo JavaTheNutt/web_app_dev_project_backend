@@ -72,4 +72,26 @@ describe('model validation', function () {
       expect(result).to.be.false;
     })
   })
+  describe('optional object id validation', function () {
+    it('should return true if a valid id is passed', function () {
+      const res = validationService.validateOptionalObjectId(ObjectId());
+      expect(res).to.be.true;
+    });
+    it('should return true when params are undefined', function () {
+      const res = validationService.validateOptionalObjectId();
+      expect(res).to.be.true;
+    });
+    it('should return true when params are null', function () {
+      const res = validationService.validateOptionalObjectId(null);
+      expect(res).to.be.true;
+    });
+    it('should return true when params are empty string', function () {
+      const res = validationService.validateOptionalObjectId('');
+      expect(res).to.be.true;
+    });
+    it('should return false when params are invalid object id', function () {
+      const res = validationService.validateOptionalObjectId('wwwwwwwwwwww');
+      expect(res).to.be.false;
+    });
+  })
 });

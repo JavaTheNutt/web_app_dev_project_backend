@@ -4,18 +4,24 @@
 const Logger         = require('@root/util/Logger')('MODEL_VALIDATION');
 const emailValidator = require('email-validator');
 const ObjectId = require('mongoose').Types.ObjectId;
+const mongoose = require('mongoose');
 
 function validateEmail(emailAddress) {
   Logger.info(`checking if ${emailAddress} is valid`);
   return emailValidator.validate(emailAddress);
 }
+function validateOptionalObjectId(id){
+  'use strict';
+  if(id === null || id === undefined || id === '') return true;
+  return validateObjectId(id);
 
+}
 function validateObjectId(strValue) {
   'use strict';
-  if(strValue.toString().length === 12) return false;
   try {
     Logger.info(`checking if ${strValue} is valid object id`);
-    return new RegExp(/^[a-fA-F0-9]{24}$/).test(strValue)
+    //pretty sure the second check is unnecessary.
+    return /^[a-fA-F0-9]{24}$/.test(strValue) /*&& mongoose.Types.ObjectId.isValid(strValue)*/;
   } catch (e) {
     Logger.warn(`not valid id`);
     Logger.warn(`${JSON.stringify(e)}`);
@@ -23,4 +29,4 @@ function validateObjectId(strValue) {
   }
 }
 
-module.exports = {validateEmail, validateObjectId};
+module.exports = {validateEmail, validateObjectId, validateOptionalObjectId};

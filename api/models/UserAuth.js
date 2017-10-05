@@ -19,7 +19,7 @@ const UserAuthSchema = mongoose.Schema({
                   // https://github.com/Automattic/mongoose/issues/1959
     required: false,
     validate: {
-      validator: validator.validateObjectId,
+      validator: validator.validateOptionalObjectId,
       message: 'Object Id is improperly formatted'
     }
   },
