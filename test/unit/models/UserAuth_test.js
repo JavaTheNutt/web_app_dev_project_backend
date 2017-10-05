@@ -18,7 +18,6 @@ describe('UserAuth model', function () {
   });
   it('should create a user auth model with all details', function () {
     const userAuth = new UserAuth(userAuthDetails);
-    console.log(JSON.stringify(userAuth.validateSync()));
     expect(userAuth.validateSync()).to.not.exist;
     expect(userAuth.user.toString()).to.equal(userId.toString());
     expect(userAuth.email).to.equal(userAuthDetails.email);
@@ -27,7 +26,6 @@ describe('UserAuth model', function () {
   it('should create a user auth model with no user id', function () {
     userAuthDetails.user = null;
     const userAuth = new UserAuth(userAuthDetails);
-    console.log(JSON.stringify(userAuth.validateSync()));
     expect(userAuth.validateSync()).to.not.exist;
     expect(userAuth.user).to.not.exist;
     expect(userAuth.email).to.equal(userAuthDetails.email);
