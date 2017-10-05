@@ -1,9 +1,9 @@
 /**
  * This Model will represent the authentication details for a User.
  */
-const mongoose = require('mongoose');
-const Logger   = require('@util/Logger')('AUTH_MODEL');
-const validator = require('@root/models/validation/modelValidation');
+const mongoose       = require('mongoose');
+const Logger         = require('@util/Logger')('AUTH_MODEL');
+const validator      = require('@root/models/validation/modelValidation');
 const UserAuthSchema = mongoose.Schema({
   email: {
     type: String,
@@ -13,7 +13,16 @@ const UserAuthSchema = mongoose.Schema({
       message: 'Email is poorly formatted'
     }
   },
-  user: mongoose.Schema.ObjectId,
+  user: {
+    type: String, //currently cannot store this as an ObjectId as any twelve character string will be parsed to a 24
+                  // character objectId, which will pass validation. see this:
+                  // https://github.com/Automattic/mongoose/issues/1959
+    required: false,
+    validate: {
+      validator: validator.validateObjectId,
+      message: 'Object Id is improperly formatted'
+    }
+  },
   firebaseId: {
     type: String,
     required: true

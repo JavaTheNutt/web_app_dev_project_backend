@@ -53,11 +53,11 @@ describe('model validation', function () {
       const oid1 = ObjectId();
       const oid2 = ObjectId();
       const oid3 = ObjectId();
-      let result = validationService.validateObjectId(oid1.toString());
+      let result = validationService.validateObjectId(oid1);
       expect(result).to.be.true;
-      result = validationService.validateObjectId(oid2.toString());
+      result = validationService.validateObjectId(oid2);
       expect(result).to.be.true;
-      result = validationService.validateObjectId(oid3.toString());
+      result = validationService.validateObjectId(oid3);
       expect(result).to.be.true;
     });
     it('should return false for invalid object ids', function () {

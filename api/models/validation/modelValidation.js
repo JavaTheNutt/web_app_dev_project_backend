@@ -12,12 +12,13 @@ function validateEmail(emailAddress) {
 
 function validateObjectId(strValue) {
   'use strict';
+  if(strValue.toString().length === 12) return false;
   try {
     Logger.info(`checking if ${strValue} is valid object id`);
-    Logger.verbose(`checking if ${new ObjectId(strValue).toString()} is equal to ${strValue}`);
-    return new ObjectId(strValue).toString() === strValue;
+    return new RegExp(/^[a-fA-F0-9]{24}$/).test(strValue)
   } catch (e) {
     Logger.warn(`not valid id`);
+    Logger.warn(`${JSON.stringify(e)}`);
     return false;
   }
 }

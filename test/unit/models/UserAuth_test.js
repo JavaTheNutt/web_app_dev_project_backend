@@ -18,6 +18,7 @@ describe('UserAuth model', function () {
   });
   it('should create a user model with correct details', function () {
     const userAuth = new UserAuth(userAuthDetails);
+    console.log(JSON.stringify(userAuth.validateSync()));
     expect(userAuth.validateSync()).to.not.exist;
     expect(userAuth.user.toString()).to.equal(userId.toString());
     expect(userAuth.email).to.equal(userAuthDetails.email);
@@ -40,5 +41,11 @@ describe('UserAuth model', function () {
     const err = new UserAuth(userAuthDetails).validateSync();
     expect(err).to.exist;
     expect(err.message).to.equal('UserAuth validation failed: email: Email is poorly formatted');
+  });
+  it('should fail when user id is poorly formed', function () {
+    userAuthDetails.user = 'wwwwwwwwwwww';
+    const err = new UserAuth(userAuthDetails).validateSync();
+    expect(err).to.exist;
+    expect(err.message).to.equal('UserAuth validation failed: user: Object Id is improperly formatted');
   });
 });
