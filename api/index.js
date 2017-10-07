@@ -10,6 +10,7 @@ const app    = require('express')();
 const bodyParser = require('body-parser');
 const config = require('../config/config');
 const Logger = require('@util/Logger')('INDEX');
+const mongoose = require('mongoose');
 
 Logger.info(`log level : ${config.logLevel}`);
 
@@ -18,6 +19,16 @@ app.use(Logger.requestLogger);
 
 //global middleware setup
 app.use(bodyParser.json());
+
+//mongoose setup
+mongoose.Promise = Promise;
+mongoose.connect(config.db.uri, {useMongoClient: true});
+const db = mongoose.connection;
+db.on('error', console.error.bind(console, 'connection error:'));
+db.on('open', ()=>{
+  'use strict';
+  Logger.info(`database connection opened`);
+});
 
 //load routes
 require('./routes')(app);
