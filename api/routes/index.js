@@ -8,6 +8,7 @@ const path   = require('path');
 const Logger = require('@util/Logger')('MAIN_ROUTER');
 /**
  * Configure router
+ *
  * @param server {Object} the server instance
  * @memberOf module:router
  */
@@ -28,6 +29,7 @@ const isDir          = source => fs.statSync(source).isDirectory();
  * Fetch the full list of route files to be required. This assumes that all of the route files are exported from an
  * index file in each component directory
  * @memberOf module:router
+ * @return {Array} list of directories in the 'components' directory
  */
 const getDirectories = () => {
   'use strict';
