@@ -4,7 +4,7 @@
 require('module-alias/register');
 const expect = require('chai').expect;
 
-const User = require('@root/User/models/User').model;
+const User = require('@user/models/User').model;
 
 let userDetails = {};
 describe('user model', function () {

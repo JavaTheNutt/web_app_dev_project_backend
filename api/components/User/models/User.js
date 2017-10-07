@@ -3,8 +3,8 @@
  */
 const mongoose = require('mongoose');
 const Logger = require('@root/util/Logger');
-const emailValidation = require('@root/User/models/validation/modelValidation').validateEmail;
-const Address = require('@root/User/models/Address').schema;
+const emailValidation = require('@user/models/validation/modelValidation').validateEmail;
+const Address = require('@user/models/Address').schema;
 
 const UserSchema = mongoose.Schema({
   email: {

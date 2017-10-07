@@ -3,7 +3,7 @@
  */
 const mongoose       = require('mongoose');
 const Logger         = require('@util/Logger')('AUTH_MODEL');
-const validator      = require('@root/User/models/validation/modelValidation');
+const validator      = require('@user/models/validation/modelValidation');
 const UserAuthSchema = mongoose.Schema({
   email: {
     type: String,

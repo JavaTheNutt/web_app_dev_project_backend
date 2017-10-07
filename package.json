@@ -43,6 +43,7 @@
   "_moduleAliases": {
     "@root": "./api",
     "@test": "./test",
-    "@util": "./api/util"
+    "@util": "./api/util",
+    "@user": "./api/components/User"
   }
 }

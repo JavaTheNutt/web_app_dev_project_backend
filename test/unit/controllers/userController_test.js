@@ -6,7 +6,7 @@ const sinon    = require('sinon');
 
 const sandbox = sinon.sandbox.create();
 
-const userController = require('@root/User/userController');
+const userController = require('@user/userController');
 
 describe('user controller', function () {
   describe('create new user', function () {
