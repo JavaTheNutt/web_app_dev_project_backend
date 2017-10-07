@@ -35,8 +35,8 @@ db.on('open', () => {
 
 //set up firebase
 admin.initializeApp({
-  credential: admin.credential.cert(firebaseServiceAccount),
-  databaseUrl: 'https://finance-tracker-1cc05.firebaseio.com/'
+  credential: admin.credential.cert(config.firebase.credential),
+  databaseUrl: config.firebase.databaseUrl
 });
 //load routes
 require('./routes')(app);
