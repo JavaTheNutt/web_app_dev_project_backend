@@ -3,9 +3,9 @@
  *
  * @module controllers/userController
  */
-const Logger = require('@util/Logger')('USER_CTRL');
-
-module.exports =  {
+const Logger   = require('@util/Logger')('USER_CTRL');
+const _        = require('lodash');
+module.exports = {
   /**
    * Create new User
    *
@@ -14,9 +14,17 @@ module.exports =  {
    * @param res {Object} Response the response object
    * @param next {Function} next callback
    */
-  createNewUser(req, res, next){
+  createNewUser(req, res, next) {
     'use strict';
-    res.send(200);
+    Logger.info(`request made to create new user`);
+    if (_.isEmpty(req.body) || !req.body.user.email || !req.body.user.firebaseId) {
+      Logger.warn(`there is data missing!`);
+      Logger.verbose(`request body: ${JSON.stringify(req.body)}`);
+      res.status(400);
+      return res.send('missing data');
+    }
+    res.status(200);
+    return res.send('user created');
   }
 
 };
