@@ -22,12 +22,17 @@ module.exports = {
       res.status(400);
       return res.send('missing data');
     }
-
     res.status(200);
     return res.send('user created');
   }
 
 };
+
+/**
+ * Check if required params are present on request to create user
+ * @param req {Object} the request object
+ * @returns {boolean} true if body fields present, false otherwise
+ */
 function checkCreateRequest(req){
   'use strict';
   Logger.info(`testing request params for create new user`);

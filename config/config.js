@@ -10,8 +10,18 @@ if(!process.env.LOG_LEVEL){
     logLevel = 'verbose';
   }
 }
+let connectionString;
+//configure mongo connection strings
+if(process.env.NODE_ENV === 'production'){
+  connectionString = require('./privateConfig').prodDb
+}else{
+  connectionString = process.env.NODE_ENV === 'test' ? 'mongodb://localhost:27017/finance_tracker_v1_test' : 'mongodb://localhost:27017/finance_tracker_v1';
+}
 module.exports = {
   port: process.env.PORT || 3000,
   env: process.env.NODE_ENV || 'development',
-  logLevel: process.env.LOG_LEVEL || logLevel || 'error'
+  logLevel: process.env.LOG_LEVEL || logLevel || 'error',
+  db:{
+    uri: connectionString
+  }
 };

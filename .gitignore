@@ -153,3 +153,4 @@ $RECYCLE.BIN/
 /node_modules/
 /log/
 /data/
+/config/privateConfig.js
