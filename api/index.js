@@ -39,7 +39,7 @@ admin.initializeApp({
   databaseUrl: config.firebase.databaseUrl
 });
 //load routes
-require('./routes')(app);
+require('./router')(app);
 
 //create server
 const server = app.listen(config.port, () => {

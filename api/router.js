@@ -33,7 +33,7 @@ const isDir          = source => fs.statSync(source).isDirectory();
  */
 const getDirectories = () => {
   'use strict';
-  const componentDir = path.join(__dirname, '../components');
+  const componentDir = path.join(__dirname, '/components');
   Logger.verbose(`component directory: ${componentDir}`);
   return fs.readdirSync(componentDir).map(name => path.join(componentDir, name)).filter(isDir);
   /*Logger.info(`fetching route directories`);
