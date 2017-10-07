@@ -1,6 +1,6 @@
 /**
  * Address model
- * @type {*|Mongoose}
+ * @module user/models
  */
 
 const mongoose = require('mongoose');

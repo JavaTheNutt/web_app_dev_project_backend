@@ -49,8 +49,10 @@ describe('user model', function () {
     expect(user.surname, 'surname does not match param surname').to.equal(userDetails.surname);
     expect(Array.isArray(user.addresses), 'addresses is not an array').to.be.true;
     expect(user.addresses.length, 'there are not two addresses in the addresses array').to.equal(2);
-    expect(user.addresses[0].text, 'address 1 text does not match param address 1 text').to.equal(userDetails.addresses[0].text);
-    expect(user.addresses[0].loc.type, 'address 1 text does not match param address 1 text').to.equal(userDetails.addresses[0].loc.type);
+    expect(user.addresses[0].text, 'address 1 text does not match param address 1 text').to.
+    equal(userDetails.addresses[0].text);
+    expect(user.addresses[0].loc.type, 'address 1 text does not match param address 1 text').to.
+    equal(userDetails.addresses[0].loc.type);
     expect(Array.isArray(user.addresses[0].loc.coordinates)).to.be.true;
     expect(user.addresses[1].text).to.equal(userDetails.addresses[1].text);
     expect(user.addresses[1].loc.type).to.equal(userDetails.addresses[1].loc.type);

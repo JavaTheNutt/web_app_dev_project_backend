@@ -1,9 +1,14 @@
 /**
  * This Model will represent the authentication details for a User.
+ *
+ * @module user/models
  */
 const mongoose       = require('mongoose');
 const Logger         = require('@util/Logger')('AUTH_MODEL');
 const validator      = require('@user/models/validation/modelValidation');
+/**
+ * Schema definition for user model
+ */
 const UserAuthSchema = mongoose.Schema({
   email: {
     type: String,
@@ -29,8 +34,15 @@ const UserAuthSchema = mongoose.Schema({
   }
 }, {collection: 'user_auth'});
 
+/**
+ * Model definition for user model
+ */
 const UserAuthModel = mongoose.model('UserAuth', UserAuthSchema);
 
+/**
+ * Export both module and schema
+ * @type {{schema: Schema, model: model}}
+ */
 module.exports = {
   schema: UserAuthSchema,
   model: UserAuthModel

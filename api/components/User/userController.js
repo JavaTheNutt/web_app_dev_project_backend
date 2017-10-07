@@ -1,7 +1,7 @@
 /**
  * This is the controller for dealing with the User model.
  *
- * @module controllers/userController
+ * @module user/userController
  */
 const Logger   = require('@util/Logger')('USER_CTRL');
 const _        = require('lodash');
@@ -9,7 +9,7 @@ module.exports = {
   /**
    * Create new User
    *
-   * @memberOf module:controllers/userController
+   * @memberOf module:user/userController
    * @param req {Object} the request object
    * @param res {Object} Response the response object
    * @param next {Function} next callback
