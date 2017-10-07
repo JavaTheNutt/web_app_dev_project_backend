@@ -13,8 +13,9 @@ const _      = require('lodash');
 Logger.info(`log level : ${config.logLevel}`);
 //set the app to log every request
 app.use(Logger.requestLogger);
+require('./routes')(app);
 //test route
-app.get('/', (req, res, next) => {
+/*app.get('/', (req, res, next) => {
   'use strict';
   Logger.info(`request received to application root`);
   if (!req.query || !req.query.user || _.isEmpty(req.query.user)) {
@@ -23,7 +24,7 @@ app.get('/', (req, res, next) => {
   }
   Logger.info(`request has query`);
   res.status(200).send('request sent')
-});
+});*/
 //create server
 const server = app.listen(config.port, () => {
   'use strict';
