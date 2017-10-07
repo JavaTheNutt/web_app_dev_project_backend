@@ -7,6 +7,7 @@
 // paths https://github.com/ilearnio/module-alias
 require('module-alias/register');
 const app    = require('express')();
+const bodyParser = require('body-parser');
 const config = require('../config/config');
 const Logger = require('@util/Logger')('INDEX');
 
@@ -14,6 +15,9 @@ Logger.info(`log level : ${config.logLevel}`);
 
 //set the app to log every request
 app.use(Logger.requestLogger);
+
+//global middleware setup
+app.use(bodyParser.json());
 
 //load routes
 require('./routes')(app);

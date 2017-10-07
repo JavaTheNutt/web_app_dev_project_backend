@@ -1,6 +1,6 @@
 /**
  * This module is used to configure Winston for logging in the application
- * It will write to files while in development, but just the console in production
+ * It will write to files while in development and writes to a different file when running verbose unit tests, but just the console in production
  * It will also export request and error loggers for express.
  */
 
