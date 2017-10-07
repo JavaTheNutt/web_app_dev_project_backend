@@ -154,3 +154,4 @@ $RECYCLE.BIN/
 /log/
 /data/
 /config/privateConfig.js
+/config/firebaseServiceKey.json
