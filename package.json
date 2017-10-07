@@ -28,6 +28,8 @@
     "lodash": "^4.17.4",
     "module-alias": "^2.0.1",
     "mongoose": "^4.11.14",
+    "sinon-chai": "^2.14.0",
+    "sinon-test": "^2.1.1",
     "winston": "^2.4.0"
   },
   "devDependencies": {

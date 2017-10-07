@@ -2,7 +2,10 @@
  * This is the test suite for the UserAuth model
  */
 require('module-alias/register');
-const expect = require('chai').expect;
+const chai     = require('chai');
+const expect = chai.expect;
+chai.use(require('sinon-chai'));
+const sinon    = require('sinon');
 const ObjectID = require('mongoose').Types.ObjectId;
 const UserAuth = require('@root/models/UserAuth').model;
 

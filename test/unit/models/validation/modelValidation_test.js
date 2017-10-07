@@ -47,7 +47,7 @@ describe('model validation', function () {
       res      = validationService.validateEmail(tmpEmail);
       expect(res, `thought "${tmpEmail} was an invalid email`).to.be.true;
     })
-  })
+  });
   describe('object id validation', function () {
     it('should return true for valid object ids', function () {
       const oid1 = ObjectId();
@@ -71,7 +71,7 @@ describe('model validation', function () {
       result = validationService.validateObjectId(test03);
       expect(result).to.be.false;
     })
-  })
+  });
   describe('optional object id validation', function () {
     it('should return true if a valid id is passed', function () {
       const res = validationService.validateOptionalObjectId(ObjectId());
@@ -93,5 +93,6 @@ describe('model validation', function () {
       const res = validationService.validateOptionalObjectId('wwwwwwwwwwww');
       expect(res).to.be.false;
     });
+
   })
 });
