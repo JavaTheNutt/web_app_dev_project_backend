@@ -4,7 +4,7 @@
 require('module-alias/register');
 const expect = require('chai').expect;
 
-const validationService = require('@root/models/validation/modelValidation');
+const validationService = require('@root/User/models/validation/modelValidation');
 
 const ObjectId = require('mongoose').Types.ObjectId;
 describe('model validation', function () {
