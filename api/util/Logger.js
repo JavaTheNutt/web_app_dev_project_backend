@@ -16,9 +16,10 @@ const Logger         = new (winston.Logger)({
 });
 
 if (config.env !== 'production') {
+  const filename = config.env === 'test' ? 'server_test_log.log': 'server_debug_log.log'; //if testing, write to test log
   Logger.add(winston.transports.File, {
     name: 'debug-log',
-    filename: './log/server_debug_log.log',
+    filename: `./log/${filename}`,
     level: 'verbose',
     handleExceptions: true,
     humanReadableUnhandledException: true,
