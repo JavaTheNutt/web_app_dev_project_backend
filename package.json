@@ -46,6 +46,7 @@
     "@root": "./api",
     "@test": "./test",
     "@util": "./api/util",
-    "@user": "./api/components/User"
+    "@user": "./api/components/User",
+    "@Auth": "./api/components/Auth"
   }
 }
