@@ -9,6 +9,12 @@ module.exports = {
       return false;
     }
     Logger.verbose(`token is valid format, testing validity`);
-    return await admin.auth().verifyIdToken(token);
+    try{
+      return await admin.auth().verifyIdToken(token);
+    }catch (err){
+      Logger.error(`an error has occurred while validating firebase token`);
+      return false;
+    }
+
   }
 };

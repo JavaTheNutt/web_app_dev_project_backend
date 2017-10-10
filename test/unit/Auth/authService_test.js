@@ -11,10 +11,6 @@ describe('auth service', function(){
   'use strict';
   describe('jwt validation', ()=>{
     let verifyStub;
-    /*beforeEach(function(){
-      verifyStub = {verifyIdToken: sandbox.stub().resolves(true)};
-      sandbox.stub(admin, 'auth').returns(verifyStub);
-    });*/
     afterEach(function(){
       sandbox.restore();
     });
@@ -33,5 +29,26 @@ describe('auth service', function(){
       expect(result).to.be.false;
       expect(verifyStub.verifyIdToken).to.not.be.called;
     });
+    it('should fail when passed an no params', async function(){
+      verifyStub = {verifyIdToken: sandbox.stub().resolves(false)};
+      sandbox.stub(admin, 'auth').returns(verifyStub);
+      const result = await authService.validateToken();
+      expect(result).to.be.false;
+      expect(verifyStub.verifyIdToken).to.not.be.called;
+    });
+    it('should fail when passed null', async function(){
+      verifyStub = {verifyIdToken: sandbox.stub().resolves(false)};
+      sandbox.stub(admin, 'auth').returns(verifyStub);
+      const result = await authService.validateToken(null);
+      expect(result).to.be.false;
+      expect(verifyStub.verifyIdToken).to.not.be.called;
+    });
+    it('should handle errors gracefully', async function () {
+      verifyStub = {verifyIdToken: sandbox.stub().throws(Error('a firebase error occurred'))};
+      sandbox.stub(admin, 'auth').returns(verifyStub);
+      const result = await authService.validateToken('testtoken');
+      expect(result).to.be.false;
+      expect(verifyStub.verifyIdToken).to.be.calledOnce;
+    })
   })
 });
