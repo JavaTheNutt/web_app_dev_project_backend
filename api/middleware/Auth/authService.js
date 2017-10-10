@@ -10,7 +10,9 @@ module.exports = {
     }
     Logger.verbose(`token is valid format, testing validity`);
     try{
-      return await admin.auth().verifyIdToken(token);
+      const decodedToken = await admin.auth().verifyIdToken(token);
+      //fixme need to check the format of returned tokens
+      return decodedToken;
     }catch (err){
       Logger.error(`an error has occurred while validating firebase token`);
       return false;

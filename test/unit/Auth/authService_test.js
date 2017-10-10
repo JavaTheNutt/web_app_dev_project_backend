@@ -11,16 +11,18 @@ describe('auth service', function(){
   'use strict';
   describe('jwt validation', ()=>{
     let verifyStub;
+    let decodedToken = {sub: 'test@test.com'};
     afterEach(function(){
       sandbox.restore();
     });
     it('should return true when it recieves a jwt to validate', async function (){
-      verifyStub = {verifyIdToken: sandbox.stub().resolves(true)};
+      verifyStub = {verifyIdToken: sandbox.stub().resolves(decodedToken)};
       sandbox.stub(admin, 'auth').returns(verifyStub);
       const result = await authService.validateToken('testtoken');
-      expect(result).to.be.true;
+      expect(result).to.exist;
       expect(verifyStub.verifyIdToken).to.be.calledWith('testtoken');
       expect(verifyStub.verifyIdToken).to.be.calledOnce;
+      expect(result.sub).to.equal(decodedToken.sub)
     });
     it('should fail when passed an empty string', async function(){
       verifyStub = {verifyIdToken: sandbox.stub().resolves(false)};
