@@ -47,6 +47,6 @@
     "@test": "./test",
     "@util": "./api/util",
     "@user": "./api/components/User",
-    "@Auth": "./api/components/Auth"
+    "@Auth": "./api/middleware/Auth"
   }
 }
