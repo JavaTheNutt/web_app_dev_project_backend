@@ -7,7 +7,7 @@ const expect = chai.expect;
 chai.use(require('sinon-chai'));
 const sinon    = require('sinon');
 const ObjectID = require('mongoose').Types.ObjectId;
-const UserAuth = require('@user/models/UserAuth').model;
+const UserAuth = require('@Auth/models/UserAuth').model;
 
 describe('UserAuth model', function () {
   let userAuthDetails = {};
