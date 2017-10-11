@@ -16,7 +16,7 @@ module.exports = (server) => {
   'use strict';
   getDirectories().forEach(componentPath => {
     require(componentPath)(server);
-  })
+  });
 };
 /**
  * Filter to determine if entry is a directory
@@ -36,14 +36,4 @@ const getDirectories = () => {
   const componentDir = path.join(__dirname, '/components');
   Logger.verbose(`component directory: ${componentDir}`);
   return fs.readdirSync(componentDir).map(name => path.join(componentDir, name)).filter(isDir);
-  /*Logger.info(`fetching route directories`);
-  const componentDir = path.join(__dirname, '../components');
-  Logger.verbose(`component directory: ${componentDir}`);
-  const dirs = fs.readdirSync(componentDir);
-  Logger.verbose(`dirs: ${JSON.stringify(dirs)}`);
-  const mappedDirs = dirs.map(name => path.join(componentDir, name));
-  Logger.verbose(`mapped dirs: ${JSON.stringify(mappedDirs)}`);
-  const filteredDirs = mappedDirs.filter(isDir);
-  Logger.verbose(`filtered dirs: ${JSON.stringify(filteredDirs)}`);
-  return filteredDirs;*/
 };

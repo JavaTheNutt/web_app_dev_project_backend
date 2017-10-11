@@ -4,7 +4,7 @@
  */
 
 const userController = require('@user/userController');
-module.exports = server => {
+module.exports       = server => {
   /**
    * Create new user route
    * @memberOf module:user/router

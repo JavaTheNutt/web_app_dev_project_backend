@@ -47,7 +47,8 @@ function validateObjectId(id) {
 
 /**
  * Export public functions
- * @type {{validateEmail: module:user/models/validation.validateEmail, validateObjectId: module.validateObjectId, validateOptionalObjectId: module.validateOptionalObjectId}}
+ * @type {{validateEmail: module:user/models/validation.validateEmail, validateObjectId: module.validateObjectId,
+ *     validateOptionalObjectId: module.validateOptionalObjectId}}
  */
 module.exports = {
   validateEmail,

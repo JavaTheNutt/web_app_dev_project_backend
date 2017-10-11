@@ -1,7 +1,7 @@
 /**
  * This module is used to configure Winston for logging in the application
- * It will write to files while in development and writes to a different file when running verbose unit tests, but just the console in production
- * It will also export request and error loggers for express.
+ * It will write to files while in development and writes to a different file when running verbose unit tests, but just
+ * the console in production It will also export request and error loggers for express.
  */
 
 const winston        = require('winston');
@@ -16,7 +16,8 @@ const Logger         = new (winston.Logger)({
 });
 
 if (config.env !== 'production') {
-  const filename = config.env === 'test' ? 'server_test_log.log': 'server_debug_log.log'; //if testing, write to test log
+  const filename = config.env === 'test' ? 'server_test_log.log' : 'server_debug_log.log'; //if testing, write to test
+                                                                                           // log
   Logger.add(winston.transports.File, {
     name: 'debug-log',
     filename: `./log/${filename}`,

@@ -1,6 +1,6 @@
-const Logger = require('@util/Logger');
+const Logger   = require('@util/Logger');
 module.exports = {
-  createUser(userDetails){
+  createUser(userDetails) {
     'use strict';
 
   }

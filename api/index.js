@@ -12,8 +12,8 @@ const bodyParser             = require('body-parser');
 const config                 = require('../config/config');
 const firebaseServiceAccount = require('../config/firebaseServiceKey.json'); //not included in repo, needs to be
                                                                              // created on clone
-const Logger                 = require('@util/Logger')('INDEX');
-const mongoose               = require('mongoose');
+const Logger      = require('@util/Logger')('INDEX');
+const mongoose    = require('mongoose');
 const authService = require('@Auth/authService');
 Logger.info(`log level : ${config.logLevel}`);
 

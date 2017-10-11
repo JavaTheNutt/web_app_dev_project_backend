@@ -17,7 +17,7 @@ module.exports = {
   createNewUser(req, res, next) {
     'use strict';
     Logger.info(`request made to create new user`);
-    if(!checkCreateRequest(req)){
+    if (!checkCreateRequest(req)) {
       Logger.warn(`error while validating params, returning 400`);
       res.status(400);
       return res.send('missing data');
@@ -34,7 +34,7 @@ module.exports = {
  * @param req {Object} the request object
  * @returns {boolean} true if body fields present, false otherwise
  */
-function checkCreateRequest(req){
+function checkCreateRequest(req) {
   'use strict';
   Logger.info(`testing request params for create new user`);
   if (_.isEmpty(req.body) || !req.body.customAuthUser || _.isEmpty(req.body.customAuthUser) || !req.body.customAuthUser.firebaseId || !req.body.customAuthUser.email) {
