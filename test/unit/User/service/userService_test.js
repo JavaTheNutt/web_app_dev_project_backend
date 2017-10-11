@@ -26,5 +26,10 @@ describe('user service', ()=>{
     expect(Array.isArray(res._doc.addresses)).to.be.true;
     expect(res._doc.addresses.length).to.equal(0);
     expect(res._doc.email).to.equal(userDetails.email);
+  });
+  it('should handle errors gracefully', async ()=>{
+    saveStub.throws(Error('an error has occurred'));
+    const res = await userService.createUser(userDetails);
+    expect(res).to.not.exist;
   })
 });
