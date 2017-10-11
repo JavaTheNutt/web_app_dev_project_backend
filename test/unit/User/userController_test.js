@@ -16,7 +16,7 @@ describe('user controller', function () {
       next = sandbox.spy();
       req  = {
         body: {
-          user: {
+          customAuthUser: {
             email: 'test@test.com',
             firebaseId: 'uu0SMEK2itPcoQrvpfKXXOjZ5cL2'
           }
@@ -35,7 +35,7 @@ describe('user controller', function () {
       expect(res.send).to.be.calledWith('user created');
     });
     it('should call res.send with a status of 400 when there is no user email', function () {
-      req.body.user.email = null;
+      req.body.customAuthUser.email = null;
       userController.createNewUser(req, res, next);
       expect(res.status).to.be.calledOnce;
       expect(res.status).to.be.calledWith(400);
@@ -43,7 +43,7 @@ describe('user controller', function () {
       expect(res.send).to.be.calledWith('missing data');
     });
     it('should call res.send with a status of 400 when there is no firebase id', function () {
-      req.body.user.firebaseId = null;
+      req.body.customAuthUser.firebaseId = null;
       userController.createNewUser(req, res, next);
       expect(res.status).to.be.calledOnce;
       expect(res.status).to.be.calledWith(400);

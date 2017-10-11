@@ -37,7 +37,7 @@ module.exports = {
 function checkCreateRequest(req){
   'use strict';
   Logger.info(`testing request params for create new user`);
-  if (_.isEmpty(req.body) || !req.body.user.email || !req.body.user.firebaseId) {
+  if (_.isEmpty(req.body) || !req.body.customAuthUser || _.isEmpty(req.body.customAuthUser) || !req.body.customAuthUser.firebaseId || !req.body.customAuthUser.email) {
     Logger.warn(`there is data missing!`);
     Logger.verbose(`request body: ${JSON.stringify(req.body)}`);
     return false;
