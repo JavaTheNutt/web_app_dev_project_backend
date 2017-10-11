@@ -10,37 +10,54 @@ const authService = require('@Auth/authService');
 describe('auth service', function(){
   'use strict';
   describe('app authentication', ()=>{
-    let req, verifyTokenStub;
+    let req, res, next, statusStub, sendStub, verifyTokenStub;
     beforeEach(()=>{
       req = {
         headers: {
           token: 'testtoken'
         }
       };
+      sendStub = {send: sandbox.stub()};
+      statusStub = sandbox.stub().returns(sendStub);
+      res = {
+        status: statusStub
+      };
+      next = sandbox.stub();
       verifyTokenStub = sandbox.stub(authService, 'validateToken');
     });
     afterEach(()=>{
       sandbox.restore();
     });
-    it('should return the required details when a token is present', async ()=>{
+    it('should call next with no params when details are valid', async ()=>{
       verifyTokenStub.resolves({sub: 'test@test.com'});
-      const result = await authService.authenticate(req);
-      expect(result.email).to.exist;
-    });
-    it('should fail when called with no params', async()=>{
-      const result = await authService.authenticate();
-      expect(result).to.be.false;
+      await authService.authenticate(req, res, next);
+      expect(next).to.be.calledOnce;
+      expect(next).to.be.calledWith();
     });
     it('should fail when no token is present', async function () {
       req.headers.token = null;
-      const result = await authService.authenticate(req);
-      expect(result).to.be.false;
+      await authService.authenticate(req, res, next);
+      expect(statusStub).to.be.calledOnce;
+      expect(statusStub).to.be.calledWith(401);
+      expect(sendStub.send).to.be.calledOnce;
+      expect(sendStub.send).to.be.calledWith('authentication failed');
     });
     it('should fail when no headers are present', async function () {
       req.headers = null;
-      const result = await authService.authenticate(req);
-      expect(result).to.be.false;
+      await authService.authenticate(req, res, next);
+      expect(statusStub).to.be.calledOnce;
+      expect(statusStub).to.be.calledWith(401);
+      expect(sendStub.send).to.be.calledOnce;
+      expect(sendStub.send).to.be.calledWith('authentication failed');
     });
+    it('should return 401 when token is deemed invalid', async function () {
+      verifyTokenStub.resolves(false);
+      await authService.authenticate(req, res, next);
+      expect(statusStub).to.be.calledOnce;
+      expect(statusStub).to.be.calledWith(401);
+      expect(sendStub.send).to.be.calledOnce;
+      expect(sendStub.send).to.be.calledWith('authentication failed');
+    })
   });
   describe('jwt validation', ()=>{
     let verifyStub;

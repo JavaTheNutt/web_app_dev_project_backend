@@ -40,21 +40,8 @@ admin.initializeApp({
 });
 
 //App authentication for every request.
-app.use(async (req, res, next)=>{
-  Logger.info(`testing auth token`);
-  const authResult = await authService.authenticate();
-  if(!authResult){
-    Logger.warn(`authentication request was unsuccessful`);
-    return res.status(401).send('authentication was unsuccessful');
-  }
-  if(!req.body){
-    Logger.verbose('request had no body, creating body as empty object');
-    req.body = {}
-  }
-  req.body.customAuthUser = auth;
-  Logger.verbose(`authentication succeeded, proceeding`);
-  return next();
-});
+app.use(authService.authenticate);
+
 //load routes
 require('./router')(app);
 
