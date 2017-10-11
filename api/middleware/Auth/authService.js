@@ -1,6 +1,27 @@
 const admin = require('firebase-admin');
 const Logger = require('@util/Logger')('AUTH_SERVICE');
 module.exports = {
+  async authenticate(req){
+    'use strict';
+    Logger.info(`authentication middleware invoked`);
+    if(!req || !req.headers || !req.headers.token){
+      Logger.warn(`there is data missing from the request`);
+      return false;
+    }
+    Logger.verbose(`required data is present`);
+    const decodedToken = await this.validateToken(req.headers.token);
+    if(!decodedToken){
+      Logger.warn(`returned token is not truthy`);
+      return false;
+    }
+    Logger.verbose(`token is assumed valid`);
+    Logger.verbose(`decoded token: ${JSON.stringify(decodedToken)}`);
+    if(!req.body){
+      Logger.info(`request does not contain a body, creating body`);
+      req.body = {};
+    }
+    return {email: decodedToken.sub};
+  },
   async validateToken(token){
     'use strict';
     Logger.info(`request received to validate authentication token`);

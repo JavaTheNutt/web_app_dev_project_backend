@@ -22,10 +22,11 @@ module.exports = {
       res.status(400);
       return res.send('missing data');
     }
+    //fixme insert user creation logic
+    Logger.verbose(`user has been successfully created`);
     res.status(200);
     return res.send('user created');
   }
-
 };
 
 /**

@@ -14,7 +14,7 @@ const firebaseServiceAccount = require('../config/firebaseServiceKey.json'); //n
                                                                              // created on clone
 const Logger                 = require('@util/Logger')('INDEX');
 const mongoose               = require('mongoose');
-
+const authService = require('@Auth/authService');
 Logger.info(`log level : ${config.logLevel}`);
 
 //set the app to log every request
@@ -38,8 +38,26 @@ admin.initializeApp({
   credential: admin.credential.cert(config.firebase.credential),
   databaseUrl: config.firebase.databaseUrl
 });
+
+//App authentication for every request.
+app.use(async (req, res, next)=>{
+  Logger.info(`testing auth token`);
+  const authResult = await authService.authenticate();
+  if(!authResult){
+    Logger.warn(`authentication request was unsuccessful`);
+    return res.status(401).send('authentication was unsuccessful');
+  }
+  if(!req.body){
+    Logger.verbose('request had no body, creating body as empty object');
+    req.body = {}
+  }
+  req.body.customAuthUser = auth;
+  Logger.verbose(`authentication succeeded, proceeding`);
+  return next();
+});
 //load routes
 require('./router')(app);
+
 
 //create server
 const server = app.listen(config.port, () => {

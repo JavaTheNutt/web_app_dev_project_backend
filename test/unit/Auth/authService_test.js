@@ -9,6 +9,39 @@ const sandbox = sinon.sandbox.create();
 const authService = require('@Auth/authService');
 describe('auth service', function(){
   'use strict';
+  describe('app authentication', ()=>{
+    let req, verifyTokenStub;
+    beforeEach(()=>{
+      req = {
+        headers: {
+          token: 'testtoken'
+        }
+      };
+      verifyTokenStub = sandbox.stub(authService, 'validateToken');
+    });
+    afterEach(()=>{
+      sandbox.restore();
+    });
+    it('should return the required details when a token is present', async ()=>{
+      verifyTokenStub.resolves({sub: 'test@test.com'});
+      const result = await authService.authenticate(req);
+      expect(result.email).to.exist;
+    });
+    it('should fail when called with no params', async()=>{
+      const result = await authService.authenticate();
+      expect(result).to.be.false;
+    });
+    it('should fail when no token is present', async function () {
+      req.headers.token = null;
+      const result = await authService.authenticate(req);
+      expect(result).to.be.false;
+    });
+    it('should fail when no headers are present', async function () {
+      req.headers = null;
+      const result = await authService.authenticate(req);
+      expect(result).to.be.false;
+    });
+  });
   describe('jwt validation', ()=>{
     let verifyStub;
     let decodedToken = {sub: 'test@test.com'};
