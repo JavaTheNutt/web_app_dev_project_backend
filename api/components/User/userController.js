@@ -3,10 +3,10 @@
  *
  * @module user/userController
  */
-const Logger      = require('@util/Logger')('USER_CTRL');
-const _           = require('lodash');
+const Logger = require('@util/Logger')('USER_CTRL');
+const _ = require('lodash');
 const userService = require('@user/service/userService');
-
+const authService = require('@Auth/authService');
 module.exports = {
   /**
    * Create new User
@@ -27,7 +27,16 @@ module.exports = {
     Logger.verbose(`new user details assumed correct`);
     //fixme insert user creation logic
     const savedUser = await userService.createUser(req.body.customAuthUser);
+    Logger.verbose(`user assumed created`);
+    Logger.verbose(`new user: ${JSON.stringify(savedUser)}`);
     //fixme insert auth creation logic
+    const savedAuth = await authService.createAuthUser({
+      email: req.body.customAuthUser.email,
+      user: savedUser._id,
+      firebaseId: req.body.customAuthUser.firebaseId
+    });
+    Logger.verbose(`auth object assumed created`);
+    Logger.verbose(`new auth: ${JSON.stringify(savedAuth)}`);
     Logger.verbose(`user has been successfully created`);
     res.status(200);
     return res.send('user created');

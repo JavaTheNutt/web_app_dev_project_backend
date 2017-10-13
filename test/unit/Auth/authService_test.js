@@ -126,7 +126,7 @@ describe('auth service', function () {
       expect(res.user.toString()).to.equal(authDetails.user.toString());
       expect(res.firebaseId).to.equal(authDetails.firebaseId);
     });
-    it('should handle errors gracefully', async ()=> {
+    it('should handle errors gracefully', async () => {
       saveStub.throws(Error('an error has occurred'));
       const res = await authService.createAuthUser(authDetails);
       expect(res).to.not.exist;
