@@ -3,8 +3,8 @@
  *
  * @module user/userController
  */
-const Logger   = require('@util/Logger')('USER_CTRL');
-const _        = require('lodash');
+const Logger      = require('@util/Logger')('USER_CTRL');
+const _           = require('lodash');
 const userService = require('@user/service/userService');
 
 module.exports = {

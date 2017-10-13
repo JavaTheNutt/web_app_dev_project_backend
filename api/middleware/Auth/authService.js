@@ -41,7 +41,7 @@ module.exports = {
       return false;
     }
   },
-  async createAuthUser(authDetails){
+  async createAuthUser(authDetails) {
     Logger.info(`request recieved to create new user auth object`);
     Logger.verbose(`new user auth details: ${JSON.stringify(authDetails)}`);
     const newAuth = new UserAuth(formatAuthDetails(authDetails));
@@ -58,11 +58,12 @@ module.exports = {
 
   }
 };
-function formatAuthDetails(details){
+
+function formatAuthDetails(details) {
   'use strict';
   Logger.info(`request recieved to format new auth details`);
   Logger.verbose(`details to be formatted: ${JSON.stringify(details)}`);
-  return{
+  return {
     email: details.email,
     firebaseId: details.firebaseId,
     user: details.user

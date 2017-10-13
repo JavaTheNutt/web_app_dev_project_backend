@@ -1,5 +1,5 @@
 const Logger   = require('@util/Logger')('USER_SERVICE');
-const User = require('@user/models/User').model;
+const User     = require('@user/models/User').model;
 module.exports = {
   async createUser(userDetails) {
     'use strict';
@@ -7,18 +7,19 @@ module.exports = {
     Logger.verbose(`details fo user to be created: ${JSON.stringify(userDetails)}`);
     const newUser = new User(formatDetails(userDetails));
     Logger.verbose(`created user: ${JSON.stringify(newUser)}`);
-    try{
+    try {
       await newUser.save();
       Logger.verbose(`user saved without error`);
       return newUser;
-    }catch(err){
+    } catch (err) {
       Logger.warn(`user save failed`);
       Logger.error(`error: ${err}`);
       return null;
     }
   }
 };
-function formatDetails(details){
+
+function formatDetails(details) {
   'use strict';
   return {
     email: details.email
