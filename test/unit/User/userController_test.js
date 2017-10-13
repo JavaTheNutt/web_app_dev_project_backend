@@ -7,10 +7,14 @@ const sinon = require('sinon');
 const sandbox = sinon.sandbox.create();
 
 const userController = require('@user/userController');
-
+const userService = require('@user/service/userService');
 describe('user controller', function () {
   describe('create new user', function () {
-    let req, res, next;
+    let req, res, next, createUserStub;
+    const returnedUser = {
+      _id: 'someidhere',
+      email: 'test@test.com'
+    };
     beforeEach(function () {
       'use strict';
       next = sandbox.spy();
@@ -26,9 +30,12 @@ describe('user controller', function () {
         send: sandbox.spy(),
         status: sandbox.spy()
       };
+      createUserStub = sandbox.stub(userService, 'createUser');
     });
-    it('should call res.send with a status of 200 when all details are present', function () {
-      userController.createNewUser(req, res, next);
+    it('should call res.send with a status of 200 when all details are present',async  function () {
+      createUserStub.resolves(returnedUser);
+      await userController.createNewUser(req, res, next);
+      expect(createUserStub).to.be.calledOnce;
       expect(res.status).to.be.calledOnce;
       expect(res.status).to.be.calledWith(200);
       expect(res.send).to.be.calledOnce;

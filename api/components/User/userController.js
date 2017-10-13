@@ -5,6 +5,8 @@
  */
 const Logger   = require('@util/Logger')('USER_CTRL');
 const _        = require('lodash');
+const userService = require('@user/service/userService');
+
 module.exports = {
   /**
    * Create new User
@@ -14,7 +16,7 @@ module.exports = {
    * @param res {Object} Response the response object
    * @param next {Function} next callback
    */
-  createNewUser(req, res, next) {
+  async createNewUser(req, res, next) {
     'use strict';
     Logger.info(`request made to create new user`);
     if (!checkCreateRequest(req)) {
@@ -22,7 +24,10 @@ module.exports = {
       res.status(400);
       return res.send('missing data');
     }
+    Logger.verbose(`new user details assumed correct`);
     //fixme insert user creation logic
+    const savedUser = await userService.createUser(req.body.customAuthUser);
+    //fixme insert auth creation logic
     Logger.verbose(`user has been successfully created`);
     res.status(200);
     return res.send('user created');
