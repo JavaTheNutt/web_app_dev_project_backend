@@ -1,34 +1,35 @@
 require('module-alias/register');
-const chai = require('chai');
+const chai   = require('chai');
 const expect = chai.expect;
 chai.use(require('sinon-chai'));
-const sinon = require('sinon');
-
-const admin = require('firebase-admin');
-const sandbox = sinon.sandbox.create();
+const sinon       = require('sinon');
+const ObjectID    = require('mongoose').Types.ObjectId;
+const admin       = require('firebase-admin');
+const sandbox     = sinon.sandbox.create();
 const authService = require('@Auth/authService');
-describe('auth service', function(){
+const userAuth    = require('@Auth/models/UserAuth').model;
+describe('auth service', function () {
   'use strict';
-  describe('app authentication', ()=>{
+  describe('app authentication', () => {
     let req, res, next, statusStub, sendStub, verifyTokenStub;
-    beforeEach(()=>{
-      req = {
+    beforeEach(() => {
+      req             = {
         headers: {
           token: 'testtoken'
         }
       };
-      sendStub = {send: sandbox.stub()};
-      statusStub = sandbox.stub().returns(sendStub);
-      res = {
+      sendStub        = {send: sandbox.stub()};
+      statusStub      = sandbox.stub().returns(sendStub);
+      res             = {
         status: statusStub
       };
-      next = sandbox.stub();
+      next            = sandbox.stub();
       verifyTokenStub = sandbox.stub(authService, 'validateToken');
     });
-    afterEach(()=>{
+    afterEach(() => {
       sandbox.restore();
     });
-    it('should call next with no params when details are valid', async ()=>{
+    it('should call next with no params when details are valid', async () => {
       verifyTokenStub.resolves({sub: 'test@test.com'});
       await authService.authenticate(req, res, next);
       expect(next).to.be.calledOnce;
@@ -59,13 +60,13 @@ describe('auth service', function(){
       expect(sendStub.send).to.be.calledWith('authentication failed');
     })
   });
-  describe('jwt validation', ()=>{
+  describe('jwt validation', () => {
     let verifyStub;
     let decodedToken = {sub: 'test@test.com'};
-    afterEach(function(){
+    afterEach(function () {
       sandbox.restore();
     });
-    it('should return true when it recieves a jwt to validate', async function (){
+    it('should return true when it recieves a jwt to validate', async function () {
       verifyStub = {verifyIdToken: sandbox.stub().resolves(decodedToken)};
       sandbox.stub(admin, 'auth').returns(verifyStub);
       const result = await authService.validateToken('testtoken');
@@ -74,21 +75,21 @@ describe('auth service', function(){
       expect(verifyStub.verifyIdToken).to.be.calledOnce;
       expect(result.sub).to.equal(decodedToken.sub)
     });
-    it('should fail when passed an empty string', async function(){
+    it('should fail when passed an empty string', async function () {
       verifyStub = {verifyIdToken: sandbox.stub().resolves(false)};
       sandbox.stub(admin, 'auth').returns(verifyStub);
       const result = await authService.validateToken('');
       expect(result).to.be.false;
       expect(verifyStub.verifyIdToken).to.not.be.called;
     });
-    it('should fail when passed an no params', async function(){
+    it('should fail when passed an no params', async function () {
       verifyStub = {verifyIdToken: sandbox.stub().resolves(false)};
       sandbox.stub(admin, 'auth').returns(verifyStub);
       const result = await authService.validateToken();
       expect(result).to.be.false;
       expect(verifyStub.verifyIdToken).to.not.be.called;
     });
-    it('should fail when passed null', async function(){
+    it('should fail when passed null', async function () {
       verifyStub = {verifyIdToken: sandbox.stub().resolves(false)};
       sandbox.stub(admin, 'auth').returns(verifyStub);
       const result = await authService.validateToken(null);
@@ -101,6 +102,34 @@ describe('auth service', function(){
       const result = await authService.validateToken('testtoken');
       expect(result).to.be.false;
       expect(verifyStub.verifyIdToken).to.be.calledOnce;
+    })
+  });
+  describe('user auth creation', () => {
+    let saveStub, authDetails;
+    beforeEach(() => {
+      saveStub    = sandbox.stub(userAuth.prototype, 'save');
+      authDetails = {
+        foo: 'bar',
+        email: 'test@test.com',
+        user: ObjectID().toString(),
+        firebaseId: 'somefirebaseidhere'
+      }
+    });
+    afterEach(() => {
+      sandbox.restore();
+    });
+    it('should create a new user when provided with correct details', async () => {
+      const res = await authService.createAuthUser(authDetails);
+      expect(res).to.exist;
+      expect(res.foo).to.not.exist;
+      expect(res.email).to.equal(authDetails.email);
+      expect(res.user.toString()).to.equal(authDetails.user.toString());
+      expect(res.firebaseId).to.equal(authDetails.firebaseId);
+    });
+    it('should handle errors gracefully', async ()=> {
+      saveStub.throws(Error('an error has occurred'));
+      const res = await authService.createAuthUser(authDetails);
+      expect(res).to.not.exist;
     })
   })
 });

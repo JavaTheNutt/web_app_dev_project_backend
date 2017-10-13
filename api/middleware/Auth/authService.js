@@ -1,5 +1,6 @@
 const admin    = require('firebase-admin');
 const Logger   = require('@util/Logger')('AUTH_SERVICE');
+const UserAuth = require('@Auth/models/UserAuth').model;
 module.exports = {
   async authenticate(req, res, next) {
     'use strict';
@@ -39,6 +40,31 @@ module.exports = {
       Logger.error(`an error has occurred while validating firebase token`);
       return false;
     }
+  },
+  async createAuthUser(authDetails){
+    Logger.info(`request recieved to create new user auth object`);
+    Logger.verbose(`new user auth details: ${JSON.stringify(authDetails)}`);
+    const newAuth = new UserAuth(formatAuthDetails(authDetails));
+    try {
+      await newAuth.save();
+      Logger.verbose(`auth details assumed saved`);
+      Logger.verbose(`new details: ${JSON.stringify(newAuth)}`);
+      return newAuth;
+    } catch (e) {
+      Logger.warn(`an error occurred while saving auth object`);
+      Logger.error(`error: ${e}`);
+      return null;
+    }
 
   }
 };
+function formatAuthDetails(details){
+  'use strict';
+  Logger.info(`request recieved to format new auth details`);
+  Logger.verbose(`details to be formatted: ${JSON.stringify(details)}`);
+  return{
+    email: details.email,
+    firebaseId: details.firebaseId,
+    user: details.user
+  }
+}
