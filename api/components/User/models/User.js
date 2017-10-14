@@ -19,7 +19,7 @@ const UserSchema = mongoose.Schema({
   firstName: String,
   surname: String,
   addresses: [Address]
-});
+}, {collection: 'users'});
 const UserModel  = mongoose.model('User', UserSchema);
 
 module.exports = {
