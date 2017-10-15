@@ -1,7 +1,7 @@
 const Logger   = require('@util/Logger')('USER_SERVICE');
 const User     = require('@user/models/User').model;
 const Address = require('@user/models/Address').model;
-module.exports = {
+module.exports= exports = {
   async createUser(userDetails) {
     'use strict';
     Logger.info(`request to create user recieved`);
@@ -37,10 +37,21 @@ module.exports = {
       Logger.verbose(`updated doc: ${JSON.stringify(updatedUser)}`);
       return updatedUser;
     } catch (e) {
-      Logger.warn(`erorr during object creation`);
+      Logger.warn(`error during object creation`);
       Logger.error(`error: ${e}`);
     }
 
+  },
+  async validateAddress(addressDetails){
+    'use strict';
+    Logger.info(`attempting to validate address`);
+    Logger.verbose(`details to be validated: ${JSON.stringify(addressDetails)}`);
+    try{
+
+    }catch(err){
+      Logger.warn(`there was an error while validating the address`);
+      Logger.error(`error: ${JSON.stringify(err)}`);
+    }
   }
 };
 
