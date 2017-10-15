@@ -1,7 +1,7 @@
 const admin    = require('firebase-admin');
 const Logger   = require('@util/Logger')('AUTH_SERVICE');
 const UserAuth = require('@Auth/models/UserAuth').model;
-module.exports = {
+module.exports = exports = {
   async authenticate(req, res, next) {
     'use strict';
     Logger.info(`authentication middleware invoked`);
@@ -10,7 +10,7 @@ module.exports = {
       return res.status(401).send('authentication failed');
     }
     Logger.verbose(`required data is present`);
-    const decodedToken = await validateToken(req.headers.token);
+    const decodedToken = await exports.validateToken(req.headers.token);
     if (!decodedToken) {
       Logger.warn(`returned token is not truthy`);
       return res.status(401).send('authentication failed');

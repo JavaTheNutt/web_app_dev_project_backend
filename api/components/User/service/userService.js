@@ -16,6 +16,10 @@ module.exports = {
       Logger.error(`error: ${err}`);
       return null;
     }
+  },
+  async addAddress(user, address){
+    'use strict';
+
   }
 };
 
