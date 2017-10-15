@@ -3,11 +3,11 @@
  *
  * @module user/userController
  */
-const Logger = require('@util/Logger')('USER_CTRL');
-const _ = require('lodash');
+const Logger      = require('@util/Logger')('USER_CTRL');
+const _           = require('lodash');
 const userService = require('@user/service/userService');
 const authService = require('@Auth/authService');
-module.exports = {
+module.exports    = {
   /**
    * Create new User
    *
@@ -27,6 +27,10 @@ module.exports = {
     Logger.verbose(`new user details assumed correct`);
     //fixme insert user creation logic
     const savedUser = await userService.createUser(req.body.customAuthUser);
+    if(!savedUser){
+      Logger.warn(`there was an error saving the user, returned user is null`);
+      return res.status(400).send('error creating user');
+    }
     Logger.verbose(`user assumed created`);
     Logger.verbose(`new user: ${JSON.stringify(savedUser)}`);
     //fixme insert auth creation logic

@@ -10,7 +10,7 @@ module.exports = {
       return res.status(401).send('authentication failed');
     }
     Logger.verbose(`required data is present`);
-    const decodedToken = await this.validateToken(req.headers.token);
+    const decodedToken = await validateToken(req.headers.token);
     if (!decodedToken) {
       Logger.warn(`returned token is not truthy`);
       return res.status(401).send('authentication failed');
@@ -21,26 +21,10 @@ module.exports = {
       Logger.info(`request does not contain a body, creating body`);
       req.body = {};
     }
-    req.body.customAuthUser = {email: decodedToken.sub};
+    req.body.customAuthUser = {email: decodedToken.email, firebaseId: decodedToken.sub};
     return next();
   },
-  async validateToken(token) {
-    'use strict';
-    Logger.info(`request received to validate authentication token`);
-    if (!token || typeof token !== 'string' || token.length < 1) {
-      Logger.warn(`token is not valid format`);
-      return false;
-    }
-    Logger.verbose(`token is valid format, testing validity`);
-    try {
-      const decodedToken = await admin.auth().verifyIdToken(token);
-      //fixme need to check the format of returned tokens
-      return decodedToken;
-    } catch (err) {
-      Logger.error(`an error has occurred while validating firebase token`);
-      return false;
-    }
-  },
+  validateToken,
   async createAuthUser(authDetails) {
     Logger.info(`request recieved to create new user auth object`);
     Logger.verbose(`new user auth details: ${JSON.stringify(authDetails)}`);
@@ -67,5 +51,24 @@ function formatAuthDetails(details) {
     email: details.email,
     firebaseId: details.firebaseId,
     user: details.user
+  }
+}
+async function validateToken(token){
+  'use strict';
+  Logger.info(`request received to validate authentication token`);
+  if (!token || typeof token !== 'string' || token.length < 1) {
+    Logger.warn(`token is not valid format`);
+    return false;
+  }
+  Logger.verbose(`token is valid format, testing validity`);
+  Logger.verbose(`token to validate: ${JSON.stringify(token)}`);
+  try {
+    const decodedToken = await admin.auth().verifyIdToken(token);
+    //fixme need to check the format of returned tokens
+    return decodedToken;
+  } catch (err) {
+    Logger.error(`an error has occurred while validating firebase token`);
+    Logger.error(`error: ${err}`);
+    return false;
   }
 }

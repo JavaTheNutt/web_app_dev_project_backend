@@ -22,6 +22,7 @@
   "homepage": "https://github.com/JavaTheNutt/web_app_dev_project_backend#readme",
   "dependencies": {
     "body-parser": "^1.18.2",
+    "cors": "^2.8.4",
     "cross-env": "^5.0.5",
     "email-validator": "^1.1.1",
     "express": "^4.16.1",

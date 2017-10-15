@@ -5,62 +5,41 @@ const config   = require('@config/config');
 mongoose.Promise = Promise;
 
 module.exports = {
-  initialSetup(collectionName, done) {
+  async initialSetup(collectionNames) {
     'use strict';
-    mongoose.connect(config.db.uri, {useMongoClient: true}, (err) => {
-      if (err) {
-        return done(err);
-      }
-      if (Array.isArray(collectionName)) {
-        collectionName.forEach((name, i) => {
-          if (mongoose.connection.collections[name]) {
-            mongoose.connection.collections[name].drop((err) => {
-              if (err && err.message !== 'ns not found') {
-                return done(err);
-              }
-              if (i === collectionName.length - 1) {
-                return done(null);
-              }
-            })
-          }
-        });
-      } else {
-        if (mongoose.connection.collections[collectionName]) {
-          mongoose.connection.collections[collectionName].drop((err) => {
-            if (err && err.message !== 'ns not found') {
-              return done(err);
+    try {
+      await mongoose.connect(config.db.uri, {useMongoClient: true});
+      for(let i = 0; i < collectionNames.length; i++){
+        if (mongoose.connection.collections[collectionNames[i]]) {
+          try {
+            await mongoose.connection.collections[collectionNames[i]].drop();
+            if (i === collectionNames.length - 1) {
+              return true;
             }
-            return done(null);
-          })
+          } catch (err) {
+            if (err.message !== 'ns not found') {
+              throw err;
+            }
+          }
         }
       }
-    })
+    } catch (e) {
+      throw e;
+    }
   },
-  clearCollection(collectionName, done) {
+  async clearCollection(collectionNames) {
     'use strict';
-    if (Array.isArray(collectionName)) {
-      collectionName.forEach((name, i) => {
-        if (mongoose.connection.collections[name]) {
-          mongoose.connection.collections[name].remove((err) => {
-            if (err) {
-              return done(err);
-            }
-            if (i === collectionName.length - 1) {
-              return done();
-            }
-          });
-        }
-      });
-    } else {
-      if (mongoose.connection.collections[collectionName]) {
-        mongoose.connection.collections[collectionName].remove((err) => {
-          if (err) {
-            return done(err);
+    for(let i = 0; i< collectionNames.length; i++){
+      if (mongoose.connection.collections[collectionNames[i]]) {
+        try {
+          await mongoose.connection.collections[collectionNames[i]].remove();
+          if (i === collectionNames.length - 1) {
+            return true;
           }
-          return done();
-        });
+        } catch (e) {
+          throw e
+        }
       }
-      return done();
     }
   },
   closeConnection(done) {

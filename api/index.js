@@ -8,6 +8,7 @@
 require('module-alias/register');
 const admin                  = require('firebase-admin');
 const app                    = require('express')();
+const cors                   = require('cors');
 const bodyParser             = require('body-parser');
 const config                 = require('../config/config');
 const firebaseServiceAccount = require('../config/firebaseServiceKey.json'); //not included in repo, needs to be
@@ -22,6 +23,7 @@ app.use(Logger.requestLogger);
 
 //global middleware setup
 app.use(bodyParser.json());
+app.use(cors());
 
 //mongoose setup
 mongoose.Promise = Promise;
@@ -58,5 +60,7 @@ app.use(Logger.errorLogger);
 //default error handler
 app.use((err, req, res, next) => {
   'use strict';
+  Logger.warn(`the default error handler has been invoked. An unexpected error has occurred.`);
+  Logger.error(`error: ${JSON.stringify(err)}`);
   res.status(500).send('there was an error here');
 });

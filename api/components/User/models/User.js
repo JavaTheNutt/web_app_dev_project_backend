@@ -11,6 +11,7 @@ const UserSchema = mongoose.Schema({
   email: {
     type: String,
     required: true,
+    unique: true,
     validate: {
       validator: emailValidation,
       message: 'Email is poorly formatted'
