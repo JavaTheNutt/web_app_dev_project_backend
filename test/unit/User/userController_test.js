@@ -70,5 +70,51 @@ describe('user controller', function () {
       'use strict';
       sandbox.restore();
     });
+  });
+  describe('add address', () => {
+    'use strict';
+    let handleAddAddressStub, sendContainer, sendStub, statusStub, req, res, next, amendedUser, savedAddress;
+    beforeEach(() => {
+      handleAddAddressStub = sandbox.stub(userService, 'handleAddAddress');
+      sendStub             = sandbox.stub();
+      sendContainer        = {send: sendStub};
+      statusStub           = sinon.stub().returns(sendContainer);
+      req                  = {
+        body: {
+          customAuthUser: {
+            email: 'test@test.com',
+            firebaseId: 'somefirebaseidhere'
+          },
+          address: {
+            text: '123 fake street'
+          }
+        }
+      };
+      res                  = {
+        send: sendStub,
+        status: statusStub
+      };
+      next                 = sandbox.stub();
+      savedAddress = {
+        _id: 'someotheridhere',
+        text: '123 fake street'
+      };
+      amendedUser = {
+        _id: 'someidhere',
+        email: req.body.customAuthUser.email,
+        addresses:[savedAddress]
+      }
+    });
+    it('should call res.send with a status of 200 when adding an address is successful'/*, async () => {
+      handleAddAddressStub.resolves(amendedUser);
+      await userController.addAddress(req, res, next);
+      expect(res.status).to.be.calledOnce;
+      expect(res.status).to.be.calledWith(200);
+      expect(res.send).to.be.calledOnce;
+      expect(res.send).to.be.calledWith(amendedUser);
+    }*/);
+    afterEach(() => {
+      sandbox.restore();
+    })
   })
 });

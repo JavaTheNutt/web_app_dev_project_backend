@@ -66,6 +66,7 @@ describe('user service', () => {
       addAddressStub.resolves(updatedUser);
       const result = await userService.handleAddAddress(fakeUserId, fakeAddress);
       expect(result).to.not.equal(false);
+      expect(result).to.eql(updatedUser._doc);
     });
     afterEach(()=>{
       sandbox.restore();

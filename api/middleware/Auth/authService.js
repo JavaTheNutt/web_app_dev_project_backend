@@ -1,4 +1,5 @@
 const admin    = require('firebase-admin');
+const _        = require('lodash');
 const Logger   = require('@util/Logger')('AUTH_SERVICE');
 const UserAuth = require('@Auth/models/UserAuth').model;
 module.exports = exports = {
@@ -40,6 +41,26 @@ module.exports = exports = {
       return null;
     }
 
+  },
+  async fetchAuthByFirebaseId(firebaseId){
+    'use strict';
+    Logger.info(`request made to fetch auth object by firebase id`);
+    Logger.verbose(`firebase id: ${firebaseId}`);
+    try{
+      const auth = await UserAuth.findOne({firebaseId});
+      Logger.verbose(`auth record fecthed without error`);
+      Logger.verbose(`fetched record: ${JSON.stringify(auth)}`);
+      if(!auth || _.isEmpty(auth)){
+        Logger.warn(`auth object is undefined`);
+        return false;
+      }
+      Logger.verbose(`auth fetch assumed successful`);
+      return auth;
+    }catch(err){
+      Logger.warn(`error while fetching auth object`);
+      Logger.error(`error: ${JSON.stringify(err)}`);
+      return false;
+    }
   }
 };
 

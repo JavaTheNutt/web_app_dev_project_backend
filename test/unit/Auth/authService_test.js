@@ -131,5 +131,36 @@ describe('auth service', function () {
       const res = await authService.createAuthUser(authDetails);
       expect(res).to.not.exist;
     })
+  });
+  describe('fetch user auth by firebase id', ()=>{
+    let findOneStub, authObject;
+    let firebaseId = 'somefirebaseid';
+    beforeEach(()=>{
+      findOneStub = sandbox.stub(userAuth, 'findOne');
+      authObject = {
+        firebaseId,
+        user: ObjectID(),
+        email: 'test@test.com'
+      }
+    });
+    it('should handle a successful save',async  ()=>{
+      findOneStub.resolves(authObject);
+      const result = await authService.fetchAuthByFirebaseId(firebaseId);
+      expect(result).to.exist;
+      expect(result).to.eql(authObject);
+    });
+    it('should handle errors while querying', async ()=>{
+      findOneStub.throws(new Error('an error has occurred'));
+      const result = await authService.fetchAuthByFirebaseId(firebaseId);
+      expect(result).to.be.false;
+    });
+    it('should handle empty responses gracefully', async ()=>{
+      findOneStub.resolves({});
+      const result = await authService.fetchAuthByFirebaseId(firebaseId);
+      expect(result).to.be.false;
+    });
+    afterEach(()=>{
+      sandbox.restore();
+    })
   })
 });

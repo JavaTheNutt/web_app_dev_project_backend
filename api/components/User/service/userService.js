@@ -37,7 +37,7 @@ module.exports= exports = {
       return false;
     }
     Logger.info(`address assumed added`);
-    return true;
+    return updatedUser._doc;
   },
   async addAddress(user, address){
     'use strict';

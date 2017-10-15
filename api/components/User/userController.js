@@ -25,7 +25,6 @@ module.exports    = {
       return res.send('missing data');
     }
     Logger.verbose(`new user details assumed correct`);
-    //fixme REFACTOR THIS!!!
     const savedUser = await userService.createUser(req.body.customAuthUser);
     if(!savedUser){
       Logger.warn(`there was an error saving the user, returned user is null`);
@@ -43,8 +42,17 @@ module.exports    = {
     Logger.verbose(`user has been successfully created`);
     res.status(200);
     return res.send('user created');
+  },
+  async addAddress(req, res, next){
+    'use strict';
+    Logger.info(`attempting to add address`);
+    const authDetails = req.body.customAuthUser;
+    Logger.verbose(`user: ${JSON.stringify(authDetails)}`);
+    const returnedUser = await userService.handleAddAddress();
   }
 };
+
+
 
 /**
  * Check if required params are present on request to create user
