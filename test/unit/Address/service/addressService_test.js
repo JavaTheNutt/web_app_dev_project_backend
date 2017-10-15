@@ -6,9 +6,9 @@ const sinon    = require('sinon');
 const ObjectId = require('mongoose').Types.ObjectId;
 
 const sandbox        = sinon.sandbox.create();
-const addressService = require('@user/service/addressService');
+const addressService = require('@Address/service/addressService');
 const User           = require('@user/models/User').model;
-const Address        = require('@user/models/Address').model;
+const Address        = require('@Address/models/Address').model;
 
 describe('address service', () => {
   'use strict';
@@ -37,4 +37,4 @@ describe('address service', () => {
       sandbox.restore();
     })
   })
-})
+});

@@ -1,6 +1,6 @@
 const Logger   = require('@util/Logger')('ADDRESS_SERVICE');
 const User     = require('@user/models/User').model;
-const Address = require('@user/models/Address').model;
+const Address = require('@Address/models/Address').model;
 module.exports = exports = {
   async validateAddress(addressDetails){
     'use strict';

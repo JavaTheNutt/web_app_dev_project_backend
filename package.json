@@ -49,6 +49,7 @@
     "@util": "./api/util",
     "@user": "./api/components/User",
     "@Auth": "./api/middleware/Auth",
-    "@config": "./config"
+    "@config": "./config",
+    "@Address": "./api/models/Address"
   }
 }

@@ -4,7 +4,7 @@
 require('module-alias/register');
 const expect = require('chai').expect;
 
-const AddressModel = require('@user/models/Address.js').model;
+const AddressModel = require('@Address/models/Address.js').model;
 
 describe('AddressModel', function () {
   describe('creation', function () {

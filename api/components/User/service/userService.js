@@ -1,6 +1,6 @@
 const Logger   = require('@util/Logger')('USER_SERVICE');
 const User     = require('@user/models/User').model;
-const Address = require('@user/models/Address').model;
+const Address = require('@Address/models/Address').model;
 module.exports= exports = {
   async createUser(userDetails) {
     'use strict';
