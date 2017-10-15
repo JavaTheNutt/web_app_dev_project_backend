@@ -11,7 +11,7 @@ const userAuth    = require('@Auth/models/UserAuth').model;
 describe('auth service', function () {
   'use strict';
   describe('app authentication', () => {
-    let req, res, next, statusStub, sendStub, verifyTokenStub;
+    let req, res, next, statusStub, sendStub, verifyTokenStub, fetchUserStub;
     beforeEach(() => {
       req             = {
         headers: {
@@ -25,15 +25,21 @@ describe('auth service', function () {
       };
       next            = sandbox.stub();
       verifyTokenStub = sandbox.stub(authService, 'validateToken');
+      fetchUserStub = sandbox.stub(authService, 'fetchAuthByFirebaseId');
     });
     afterEach(() => {
       sandbox.restore();
     });
     it('should call next with no params when details are valid', async () => {
-      verifyTokenStub.resolves({sub: 'test@test.com'});
+      verifyTokenStub.resolves({sub: 'somefirebaseidhere', email:'test@test.com'});
+      fetchUserStub.resolves({_id: 'somemongoidhere', firebaseId: 'somefirebaseidhere', user:'someothermongoidhere'});
       await authService.authenticate(req, res, next);
+      expect(verifyTokenStub).to.be.calledOnce;
+      expect(verifyTokenStub).to.be.calledWith(req.headers.token);
+      expect(fetchUserStub).to.be.calledOnce;
+      expect(fetchUserStub).to.be.calledWith('somefirebaseidhere');
       expect(next).to.be.calledOnce;
-      expect(next).to.be.calledWith();
+      
     });
     it('should fail when no token is present', async function () {
       req.headers.token = null;

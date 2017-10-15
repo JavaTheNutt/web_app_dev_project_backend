@@ -18,11 +18,13 @@ module.exports = exports = {
     }
     Logger.verbose(`token is assumed valid`);
     Logger.verbose(`decoded token: ${JSON.stringify(decodedToken)}`);
+    const userId = await exports.fetchAuthByFirebaseId(decodedToken.sub);
+
     if (!req.body) {
       Logger.info(`request does not contain a body, creating body`);
       req.body = {};
     }
-    req.body.customAuthUser = {email: decodedToken.email, firebaseId: decodedToken.sub};
+    req.body.customAuthUser = {email: decodedToken.email, firebaseId: decodedToken.sub, user: userId};
     return next();
   },
   validateToken,
