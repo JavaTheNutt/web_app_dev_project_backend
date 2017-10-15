@@ -25,7 +25,7 @@ module.exports    = {
       return res.send('missing data');
     }
     Logger.verbose(`new user details assumed correct`);
-    //fixme insert user creation logic
+    //fixme REFACTOR THIS!!!
     const savedUser = await userService.createUser(req.body.customAuthUser);
     if(!savedUser){
       Logger.warn(`there was an error saving the user, returned user is null`);
@@ -33,7 +33,6 @@ module.exports    = {
     }
     Logger.verbose(`user assumed created`);
     Logger.verbose(`new user: ${JSON.stringify(savedUser)}`);
-    //fixme insert auth creation logic
     const savedAuth = await authService.createAuthUser({
       email: req.body.customAuthUser.email,
       user: savedUser._id,
