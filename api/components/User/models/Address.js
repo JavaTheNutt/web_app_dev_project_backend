@@ -14,12 +14,10 @@ const AddressSchema = mongoose.Schema({
   loc: {
     type: {
       type: String,
-      enum: ['Point'],
-      default: 'Point'
+      enum: ['Point']
     },
     coordinates: {
-      type: [Number],
-      default: [0, 0]
+      type: [Number]
     }
   }
 });

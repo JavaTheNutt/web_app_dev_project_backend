@@ -14,8 +14,6 @@ describe('AddressModel', function () {
       });
       expect(address.validateSync()).to.not.exist;
       expect(address.text).to.equal('home');
-      expect(address.loc.type).to.equal('Point');
-      expect(address.loc.coordinates).to.have.members([0, 0]);
     });
     it('should create a valid Address model with geospatial coordinates', function () {
       const address = new AddressModel({
@@ -37,8 +35,6 @@ describe('AddressModel', function () {
       });
       expect(address.validateSync()).to.not.exist;
       expect(address.text).to.equal('home');
-      expect(address.loc.type).to.equal('Point');
-      expect(address.loc.coordinates).to.have.members([10, 10]);
     });
     it('should throw an error when there is no text specified', function () {
       const address = new AddressModel({
