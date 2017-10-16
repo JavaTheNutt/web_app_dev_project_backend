@@ -30,7 +30,7 @@ describe('auth service', function () {
     afterEach(() => {
       sandbox.restore();
     });
-    it('should call next with no params when details are valid and token is not custom', async () => {
+    it('should call next with no params when details are valid and token is not custom and not new', async () => {
       verifyTokenStub.resolves({
         sub: 'somefirebaseidhere',
         email: 'test@test.com'
@@ -75,9 +75,13 @@ describe('auth service', function () {
   });
   describe('jwt validation', () => {
     let decodeStub;
-    let decodedToken = {email: 'test@test.com', firebaseId: 'somefirebaseid', user: 'someuser'};
+    let decodedToken = {
+      email: 'test@test.com',
+      firebaseId: 'somefirebaseid',
+      user: 'someuser'
+    };
 
-    beforeEach(()=>{
+    beforeEach(() => {
       decodeStub = sandbox.stub(authService, 'decodeToken');
     });
     afterEach(function () {
@@ -163,10 +167,10 @@ describe('auth service', function () {
       email: 'test@test.com',
       sub: 'somefirebaseidhere'
     };
-    beforeEach(()=>{
-      verifyStub = sandbox.stub();
+    beforeEach(() => {
+      verifyStub          = sandbox.stub();
       verifyStubContainer = {verifyIdToken: verifyStub};
-      authStub = sandbox.stub(admin, 'auth').returns(verifyStubContainer);
+      authStub            = sandbox.stub(admin, 'auth').returns(verifyStubContainer);
     });
     afterEach(function () {
       sandbox.restore();
@@ -250,14 +254,124 @@ describe('auth service', function () {
       sandbox.restore();
     })
   });
-  describe('check custom claims', ()=>{
-    it('should return true when user claim is present', ()=>{
-      const result = authService.checkCustomClaims({sub: 'somefirebaseid', email: 'test@test.com', user: 'someobjectid'});
+  describe('check custom claims', () => {
+    it('should return true when user claim is present', () => {
+      const result = authService.checkCustomClaims({
+        sub: 'somefirebaseid',
+        email: 'test@test.com',
+        user: 'someobjectid'
+      });
       expect(result).to.be.true;
     });
-    it('should return false when user claim is not present', ()=>{
-      const result = authService.checkCustomClaims({sub: 'somefirebaseid', email: 'test@test.com'});
+    it('should return false when user claim is not present', () => {
+      const result = authService.checkCustomClaims({
+        sub: 'somefirebaseid',
+        email: 'test@test.com'
+      });
       expect(result).to.be.false;
     })
+  });
+  describe('handle claim validation', () => {
+    let token = {
+      sub: 'somefirebaseid',
+      email: 'test@test.com'
+    };
+    let fetchedAuth;
+    let checkCustomClaimsSpy, fetchUserIdFromFirebaseIdStub;
+    beforeEach(()=>{
+      fetchedAuth = {
+        _id: 'someidhere',
+        email: 'test@test.com',
+        user: 'someuseridhere',
+        firebaseId: 'somefirebaseidhere'
+
+      };
+      checkCustomClaimsSpy = sandbox.spy(authService, 'checkCustomClaims');
+      fetchUserIdFromFirebaseIdStub  = sandbox.stub(authService, 'fetchUserIdFromFirebaseId');
+
+    });
+    afterEach(()=>{
+      sandbox.restore();
+    });
+    it('should return the standard claims for new users', async () => {
+      const result = await authService.handleClaimValidation(token, true);
+      expect(result).to.eql({
+        firebaseId: token.sub,
+        email: token.email
+      });
+      expect(checkCustomClaimsSpy).to.not.be.called;
+    });
+    it('should add the custom claims to claims that are not for new users, but do not have custom claims', async () => {
+      fetchUserIdFromFirebaseIdStub.resolves(fetchedAuth.user);
+      const result = await authService.handleClaimValidation(token, false);
+      expect(result).to.eql({
+        firebaseId: token.sub,
+        email: token.email,
+        user: fetchedAuth.user
+      });
+      expect(fetchUserIdFromFirebaseIdStub).to.be.calledOnce;
+    });
+    it('should return the custom auth object to be appended to the request',async ()=>{
+      let token = {
+        sub: 'somefirebaseid',
+        email: 'test@test.com',
+        user: fetchedAuth.user
+      };
+      let claims = {
+        firebaseId: token.sub,
+        email: token.email,
+        user: token.user
+      };
+      fetchUserIdFromFirebaseIdStub.resolves(fetchedAuth.user);
+      const result = await authService.handleClaimValidation(token, false);
+      expect(result).to.eql(claims);
+      expect(fetchUserIdFromFirebaseIdStub).to.not.be.called;
+    });
+    it('should handle no user being returned gracefully',async ()=>{
+      let token = {
+        sub: 'somefirebaseid',
+        email: 'test@test.com'
+      };
+      let claims = {
+        firebaseId: token.sub,
+        email: token.email
+      };
+      fetchUserIdFromFirebaseIdStub.resolves(null);
+      const result = await authService.handleClaimValidation(token, false);
+      expect(result).to.eql(claims);
+      expect(fetchUserIdFromFirebaseIdStub).to.be.calledOnce;
+    });
+  });
+  describe('fetch user id from firebase id', ()=>{
+    let fetchAuthByFirebaseIdStub, returnedAuth;
+    beforeEach(()=>{
+      fetchAuthByFirebaseIdStub = sandbox.stub(authService, 'fetchAuthByFirebaseId');
+      returnedAuth = {
+        _id: 'someidhere',
+        email: 'test@test.com',
+        user: 'someuseridhere',
+        firebaseId: 'somefirebaseidhere'
+
+      };
+    });
+    afterEach(()=>{
+      sandbox.restore();
+    });
+    it('should recieve a firebase id and return a user id', async ()=>{
+      fetchAuthByFirebaseIdStub.resolves(returnedAuth);
+      const result = await authService.fetchUserIdFromFirebaseId(returnedAuth.firebaseId);
+      expect(result).to.equal(returnedAuth.user);
+    });
+    it('should handle errors non existant records',async () =>{
+      fetchAuthByFirebaseIdStub.resolves(false);
+      const result = await authService.fetchUserIdFromFirebaseId(returnedAuth.firebaseId);
+      expect(result).to.equal(null);
+    });
+    it('should handle records with no user field',async () =>{
+      returnedAuth.user = null;
+      fetchAuthByFirebaseIdStub.resolves(returnedAuth);
+      const result = await authService.fetchUserIdFromFirebaseId(returnedAuth.firebaseId);
+      expect(result).to.equal(null);
+    });
   })
 });

@@ -25,7 +25,18 @@ module.exports = exports = {
     }
     Logger.verbose(`token is assumed valid`);
     Logger.verbose(`decoded token: ${JSON.stringify(decodedToken)}`);
-    const userId = await exports.fetchAuthByFirebaseId(decodedToken.sub);
+    let userId;
+    //fixme add check if new user
+    if(!req.isNewUser){
+      Logger.verbose(`request is not new`);
+      userId = await exports.fetchAuthByFirebaseId(decodedToken.sub)._id;
+      Logger.verbose(`returned ID`);
+    }else{
+      Logger.verbose(`new user request detected in auth middleware, skipping userid step`);
+    }
+    //fixme add call to check if custom claims exist and handle
+
+    //const userId = await exports.fetchAuthByFirebaseId(decodedToken.sub);
 
     if (!req.body) {
       Logger.info(`request does not contain a body, creating body`);
@@ -38,6 +49,37 @@ module.exports = exports = {
     };
     return next();
   },
+  async handleClaimValidation(token, isNewUser){
+    'use strict';
+    Logger.info(`request recieved to validate custom claims`);
+    Logger.verbose(`is new user? ${isNewUser}`);
+    Logger.verbose(`token: ${JSON.stringify(token)}`);
+    const claims = {firebaseId:token.sub, email: token.email};
+    if(isNewUser){
+      Logger.verbose(`request is for new user, returning standard claims. claims: ${JSON.stringify(claims)}`);
+      return claims;
+    }
+    Logger.verbose(`request is not for new user, testing for custom claims`);
+    const userId = token.user || await exports.fetchUserIdFromFirebaseId(claims.firebaseId);
+    Logger.verbose(`user id fetched. user id : ${userId}`);
+    if(!userId){
+      Logger.warn(`no user id found, returning standard claims`);
+      return claims;
+    }
+    claims.user = userId;
+    return claims;
+  },
+  async fetchUserIdFromFirebaseId(firebaseId){
+    'use strict';
+    Logger.info(`request recieved to fetch user id from firebase id`);
+    const returnedAuth = await exports.fetchAuthByFirebaseId(firebaseId);
+    Logger.verbose(`auth returned: ${JSON.stringify(returnedAuth)}`);
+    if(!returnedAuth || !returnedAuth.user){
+      return null;
+    }
+    return returnedAuth.user.toString();
+  },
+
   async validateToken(token) {
     'use strict';
     Logger.info(`request received to validate authentication token`);
@@ -50,21 +92,11 @@ module.exports = exports = {
     const decodedToken = await exports.decodeToken(token);
     Logger.verbose(`decoded token fetched`);
     Logger.verbose(`decoded token: ${JSON.stringify(decodedToken)}`);
-    if(!decodedToken){
+    if (!decodedToken) {
       Logger.warn(`token is not valid`);
       return false;
     }
     return decodedToken;
-    /*try {
-      const decodedToken = await admin.auth().verifyIdToken(token);
-      Logger.verbose(`token decoded without error`);
-      Logger.verbose(`decoded token: ${decodedToken}`);
-      return decodedToken;
-    } catch (err) {
-      Logger.warn(`an error has occurred while validating firebase token`);
-      Logger.error(`error: ${err}`);
-      return false;
-    }*/
   },
   async decodeToken(token) {
     'use strict';

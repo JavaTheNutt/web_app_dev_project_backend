@@ -23,8 +23,8 @@ describe('user controller', function () {
     };
     beforeEach(function () {
       'use strict';
-      next           = sandbox.spy();
-      req            = {
+      next               = sandbox.spy();
+      req                = {
         body: {
           customAuthUser: {
             email: 'test@test.com',
@@ -32,12 +32,12 @@ describe('user controller', function () {
           }
         }
       };
-      res            = {
+      res                = {
         send: sandbox.spy(),
         status: sandbox.spy()
       };
-      createUserStub = sandbox.stub(userService, 'createUser');
-      createAuthStub = sandbox.stub(authService, 'createAuthUser');
+      createUserStub     = sandbox.stub(userService, 'createUser');
+      createAuthStub     = sandbox.stub(authService, 'createAuthUser');
       setCustomUserClaim = sandbox.stub(authService, 'createUserClaim');
     });
     it('should call res.send with a status of 200 when all details are present', async function () {
