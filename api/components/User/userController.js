@@ -40,7 +40,9 @@ module.exports    = {
     Logger.verbose(`auth object assumed created`);
     Logger.verbose(`new auth: ${JSON.stringify(savedAuth)}`);
     Logger.verbose(`user has been successfully created`);
-
+    if(!(await authService.createUserClaim(savedAuth.firebaseId))){
+      Logger.warn(`adding custom auth claim failed`);
+    }
     res.status(200);
     return res.send('user created');
   },

@@ -11,7 +11,7 @@ const userService    = require('@user/service/userService');
 const authService    = require('@Auth/authService');
 describe('user controller', function () {
   describe('create new user', function () {
-    let req, res, next, createUserStub, createAuthStub;
+    let req, res, next, createUserStub, createAuthStub, setCustomUserClaim;
     const returnedUser = {
       _id: 'someidhere',
       email: 'test@test.com'
@@ -38,6 +38,7 @@ describe('user controller', function () {
       };
       createUserStub = sandbox.stub(userService, 'createUser');
       createAuthStub = sandbox.stub(authService, 'createAuthUser');
+      setCustomUserClaim = sandbox.stub(authService, 'createUserClaim');
     });
     it('should call res.send with a status of 200 when all details are present', async function () {
       createUserStub.resolves(returnedUser);
@@ -45,6 +46,8 @@ describe('user controller', function () {
       await userController.createNewUser(req, res, next);
       expect(createUserStub).to.be.calledOnce;
       expect(createAuthStub).to.be.calledOnce;
+      expect(setCustomUserClaim).to.be.calledOnce;
+      expect(setCustomUserClaim).to.be.calledWith(returnedAuth.firebaseId);
       expect(res.status).to.be.calledOnce;
       expect(res.status).to.be.calledWith(200);
       expect(res.send).to.be.calledOnce;
@@ -54,6 +57,7 @@ describe('user controller', function () {
       req.body.customAuthUser.email = null;
       userController.createNewUser(req, res, next);
       expect(res.status).to.be.calledOnce;
+      expect(setCustomUserClaim).to.not.be.called;
       expect(res.status).to.be.calledWith(400);
       expect(res.send).to.be.calledOnce;
       expect(res.send).to.be.calledWith('missing data');
@@ -62,6 +66,7 @@ describe('user controller', function () {
       req.body.customAuthUser.firebaseId = null;
       userController.createNewUser(req, res, next);
       expect(res.status).to.be.calledOnce;
+      expect(setCustomUserClaim).to.not.be.called;
       expect(res.status).to.be.calledWith(400);
       expect(res.send).to.be.calledOnce;
       expect(res.send).to.be.calledWith('missing data');

@@ -186,7 +186,9 @@ describe('auth service', function () {
       verifyStub = {verifyIdToken: sandbox.stub()};
       sandbox.stub(admin, 'auth').returns(verifyStub)
     });
-    it('it should call create custom claims when there are no custom claims');
+    it('it should call create custom claims when there are no custom claims', ()=>{
+      
+    });
     afterEach(() => {
       sandbox.restore();
     })
