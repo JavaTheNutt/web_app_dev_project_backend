@@ -95,14 +95,14 @@ describe('user controller', function () {
         status: statusStub
       };
       next                 = sandbox.stub();
-      savedAddress = {
+      savedAddress         = {
         _id: 'someotheridhere',
         text: '123 fake street'
       };
-      amendedUser = {
+      amendedUser          = {
         _id: 'someidhere',
         email: req.body.customAuthUser.email,
-        addresses:[savedAddress]
+        addresses: [savedAddress]
       }
     });
     it('should call res.send with a status of 200 when adding an address is successful'/*, async () => {

@@ -26,7 +26,7 @@ module.exports    = {
     }
     Logger.verbose(`new user details assumed correct`);
     const savedUser = await userService.createUser(req.body.customAuthUser);
-    if(!savedUser){
+    if (!savedUser) {
       Logger.warn(`there was an error saving the user, returned user is null`);
       return res.status(400).send('error creating user');
     }
@@ -40,10 +40,11 @@ module.exports    = {
     Logger.verbose(`auth object assumed created`);
     Logger.verbose(`new auth: ${JSON.stringify(savedAuth)}`);
     Logger.verbose(`user has been successfully created`);
+
     res.status(200);
     return res.send('user created');
   },
-  async addAddress(req, res, next){
+  async addAddress(req, res, next) {
     'use strict';
     Logger.info(`attempting to add address`);
     const authDetails = req.body.customAuthUser;
@@ -51,7 +52,6 @@ module.exports    = {
     const returnedUser = await userService.handleAddAddress();
   }
 };
-
 
 
 /**

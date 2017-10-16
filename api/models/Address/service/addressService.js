@@ -1,29 +1,30 @@
 const Logger   = require('@util/Logger')('ADDRESS_SERVICE');
 const User     = require('@user/models/User').model;
-const Address = require('@Address/models/Address').model;
+const Address  = require('@Address/models/Address').model;
 module.exports = exports = {
-  async validateAddress(addressDetails){
+  async validateAddress(addressDetails) {
     'use strict';
     Logger.info(`attempting to validate address`);
     Logger.verbose(`details to be validated: ${JSON.stringify(addressDetails)}`);
-    try{
+    try {
       const newAddress = new Address(formatDetails(addressDetails));
       Logger.verbose(`address created without error`);
       Logger.verbose(`new address: ${JSON.stringify(newAddress)}`);
       await newAddress.validate();
       Logger.verbose(`address assumed valid`);
       return newAddress;
-    }catch(err){
+    } catch (err) {
       Logger.warn(`there was an error while validating the address`);
       Logger.error(`error: ${JSON.stringify(err)}`);
     }
   }
 };
-function formatDetails(addressDetails){
+
+function formatDetails(addressDetails) {
   'use strict';
   Logger.info(`attempting to format address details`);
   Logger.verbose(`details: ${JSON.stringify(addressDetails)}`);
-  return{
+  return {
     text: addressDetails.text,
     loc: addressDetails.loc
   }

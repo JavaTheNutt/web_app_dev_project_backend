@@ -25,21 +25,28 @@ describe('auth service', function () {
       };
       next            = sandbox.stub();
       verifyTokenStub = sandbox.stub(authService, 'validateToken');
-      fetchUserStub = sandbox.stub(authService, 'fetchAuthByFirebaseId');
+      fetchUserStub   = sandbox.stub(authService, 'fetchAuthByFirebaseId');
     });
     afterEach(() => {
       sandbox.restore();
     });
-    it('should call next with no params when details are valid', async () => {
-      verifyTokenStub.resolves({sub: 'somefirebaseidhere', email:'test@test.com'});
-      fetchUserStub.resolves({_id: 'somemongoidhere', firebaseId: 'somefirebaseidhere', user:'someothermongoidhere'});
+    it('should call next with no params when details are valid and token is not custom', async () => {
+      verifyTokenStub.resolves({
+        sub: 'somefirebaseidhere',
+        email: 'test@test.com'
+      });
+      fetchUserStub.resolves({
+        _id: 'somemongoidhere',
+        firebaseId: 'somefirebaseidhere',
+        user: 'someothermongoidhere'
+      });
       await authService.authenticate(req, res, next);
       expect(verifyTokenStub).to.be.calledOnce;
       expect(verifyTokenStub).to.be.calledWith(req.headers.token);
       expect(fetchUserStub).to.be.calledOnce;
       expect(fetchUserStub).to.be.calledWith('somefirebaseidhere');
       expect(next).to.be.calledOnce;
-      
+
     });
     it('should fail when no token is present', async function () {
       req.headers.token = null;
@@ -138,34 +145,112 @@ describe('auth service', function () {
       expect(res).to.not.exist;
     })
   });
-  describe('fetch user auth by firebase id', ()=>{
+  describe('fetch user auth by firebase id', () => {
     let findOneStub, authObject;
     let firebaseId = 'somefirebaseid';
-    beforeEach(()=>{
+    beforeEach(() => {
       findOneStub = sandbox.stub(userAuth, 'findOne');
-      authObject = {
+      authObject  = {
         firebaseId,
         user: ObjectID(),
         email: 'test@test.com'
       }
     });
-    it('should handle a successful save',async  ()=>{
+    it('should handle a successful save', async () => {
       findOneStub.resolves(authObject);
       const result = await authService.fetchAuthByFirebaseId(firebaseId);
       expect(result).to.exist;
       expect(result).to.eql(authObject);
     });
-    it('should handle errors while querying', async ()=>{
+    it('should handle errors while querying', async () => {
       findOneStub.throws(new Error('an error has occurred'));
       const result = await authService.fetchAuthByFirebaseId(firebaseId);
       expect(result).to.be.false;
     });
-    it('should handle empty responses gracefully', async ()=>{
+    it('should handle empty responses gracefully', async () => {
       findOneStub.resolves({});
       const result = await authService.fetchAuthByFirebaseId(firebaseId);
       expect(result).to.be.false;
     });
-    afterEach(()=>{
+    afterEach(() => {
+      sandbox.restore();
+    })
+  });
+  describe('decode token', () => {
+    let verifyStub;
+    let decodedToken = {
+      email: 'test@test.com',
+      sub: 'somefirebaseidhere'
+    };
+    beforeEach(() => {
+      verifyStub = {verifyIdToken: sandbox.stub()};
+      sandbox.stub(admin, 'auth').returns(verifyStub)
+    });
+    it('it should call create custom claims when there are no custom claims');
+    afterEach(() => {
+      sandbox.restore();
+    })
+  });
+  describe('set custom claims', () => {
+    let setCustomClaimsStub, claimsStubContainer, authStub, claims;
+    beforeEach(() => {
+      setCustomClaimsStub = sandbox.stub();
+      claimsStubContainer = {setCustomUserClaims: setCustomClaimsStub};
+      authStub            = sandbox.stub(admin, 'auth').returns(claimsStubContainer);
+      claims              = {
+        user: ObjectID()
+      }
+    });
+    it('should call set custom claims', async () => {
+      await authService.setCustomClaims('thisisafirebaseid', claims);
+      expect(setCustomClaimsStub).to.be.calledOnce;
+      expect(setCustomClaimsStub).to.be.calledWith('thisisafirebaseid', claims);
+    });
+    it('should handle errors gracefully', async () => {
+      setCustomClaimsStub.throws('an error has occurred');
+      await authService.setCustomClaims('thisisafirebaseid', claims);
+      expect(setCustomClaimsStub).to.be.calledOnce;
+
+    });
+    afterEach(() => {
+      sandbox.restore();
+    })
+  });
+  describe('create user claim', () => {
+    let fetchAuthByFirebaseIdStub, returnedAuth, userId, returnedClaims, setCustomClaimsStub;
+    beforeEach(() => {
+      fetchAuthByFirebaseIdStub = sandbox.stub(authService, 'fetchAuthByFirebaseId');
+      setCustomClaimsStub       = sandbox.stub(authService, 'setCustomClaims');
+      userId                    = ObjectID();
+      returnedAuth              = {
+        _id: '59e3e63ef17c602994629669',
+        email: 'test@test.com',
+        firebaseId: 'somefirebaseid',
+        user: userId.toString()
+      };
+      returnedClaims            = {
+        user: userId.toString()
+      }
+    });
+    it('returns a valid claim object', async () => {
+      fetchAuthByFirebaseIdStub.resolves(returnedAuth);
+      const result = await authService.createUserClaim(returnedAuth.firebaseId);
+      expect(result).to.exist;
+      expect(fetchAuthByFirebaseIdStub).to.be.calledOnce;
+      expect(fetchAuthByFirebaseIdStub).to.be.calledWith(returnedAuth.firebaseId);
+      expect(setCustomClaimsStub).to.be.calledOnce;
+      expect(setCustomClaimsStub).to.be.calledWith(returnedAuth.firebaseId, returnedClaims);
+      expect(result).to.eql(returnedClaims);
+    });
+    it('handles empty responses gracefully', async () => {
+      fetchAuthByFirebaseIdStub.resolves(false);
+      const result = await authService.createUserClaim(returnedAuth.firebaseId);
+      expect(result).to.be.false;
+      expect(fetchAuthByFirebaseIdStub).to.be.calledOnce;
+      expect(fetchAuthByFirebaseIdStub).to.be.calledWith(returnedAuth.firebaseId);
+      expect(setCustomClaimsStub).to.not.be.called;
+    });
+    afterEach(() => {
       sandbox.restore();
     })
   })

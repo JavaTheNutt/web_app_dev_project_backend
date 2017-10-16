@@ -42,38 +42,39 @@ describe('user service', () => {
   });
   describe('handle add address', () => {
     let validateAddressStub, addAddressStub, fakeUserId, fakeAddress, validatedAddress, updatedUser;
-    beforeEach(()=>{
+    beforeEach(() => {
       validateAddressStub = sandbox.stub(userService, 'validateAddress');
-      addAddressStub  = sandbox.stub(userService, 'addAddress');
-      fakeUserId = ObjectId();
-      fakeAddress = {text: '123 fake street'};
-      validatedAddress = new Address(fakeAddress);
-      updatedUser = new User({email: 'test@test.com', addresses:[validatedAddress]});
+      addAddressStub      = sandbox.stub(userService, 'addAddress');
+      fakeUserId          = ObjectId();
+      fakeAddress         = {text: '123 fake street'};
+      validatedAddress    = new Address(fakeAddress);
+      updatedUser         = new User({
+        email: 'test@test.com',
+        addresses: [validatedAddress]
+      });
     });
-    it('should handle address validation errors gracefully', async ()=>{
+    it('should handle address validation errors gracefully', async () => {
       validateAddressStub.resolves(false);
       const result = await userService.handleAddAddress(fakeUserId, fakeAddress);
       expect(result).to.equal(false);
     });
-    it('should handle user update errors gracefully', async ()=>{
+    it('should handle user update errors gracefully', async () => {
       validateAddressStub.resolves(validatedAddress);
       addAddressStub.resolves(false);
       const result = await userService.handleAddAddress(fakeUserId, fakeAddress);
       expect(result).to.equal(false);
     });
-    it('should return an saved user object when passed correct details', async () =>{
+    it('should return an saved user object when passed correct details', async () => {
       validateAddressStub.resolves(validatedAddress);
       addAddressStub.resolves(updatedUser);
       const result = await userService.handleAddAddress(fakeUserId, fakeAddress);
       expect(result).to.not.equal(false);
       expect(result).to.eql(updatedUser._doc);
     });
-    afterEach(()=>{
+    afterEach(() => {
       sandbox.restore();
     });
   });
-
-
   describe('add address', () => {
     let addressDetails, updateStub, fakeUserId, fakeUser;
     beforeEach(() => {

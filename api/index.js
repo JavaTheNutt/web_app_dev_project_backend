@@ -41,12 +41,14 @@ admin.initializeApp({
   databaseUrl: config.firebase.databaseUrl
 });
 
+//set flag on new user request
+app.use('/user/new', authService.authenticateNew);
+
 //App authentication for every request.
 app.use(authService.authenticate);
 
 //load routes
 require('./router')(app);
-
 
 //create server
 const server = app.listen(config.port, () => {

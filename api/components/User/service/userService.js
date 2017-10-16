@@ -1,9 +1,9 @@
-const Logger   = require('@util/Logger')('USER_SERVICE');
-const User     = require('@user/models/User').model;
-const Address = require('@Address/models/Address').model;
+const Logger         = require('@util/Logger')('USER_SERVICE');
+const User           = require('@user/models/User').model;
+const Address        = require('@Address/models/Address').model;
 const addressService = require('@Address/service/addressService');
 
-module.exports= exports = {
+module.exports = exports = {
   async createUser(userDetails) {
     'use strict';
     Logger.info(`request to create user recieved`);
@@ -20,32 +20,35 @@ module.exports= exports = {
       return null;
     }
   },
-  async handleAddAddress(user, address){
+  async handleAddAddress(user, address) {
     'use strict';
     Logger.info(`request`);
     Logger.info(`request made to add address to user`);
     Logger.verbose(`user: ${user}`);
     Logger.verbose(`address: ${JSON.stringify(address)}`);
     const validAddress = await exports.validateAddress(address);
-    if(!validAddress){
+    if (!validAddress) {
       Logger.warn(`address is not valid, aborting`);
       return false;
     }
     const updatedUser = await exports.addAddress(user, validAddress);
-    if(!updatedUser){
+    if (!updatedUser) {
       Logger.warn(`returend user is not valid, aborting`);
       return false;
     }
     Logger.info(`address assumed added`);
     return updatedUser._doc;
   },
-  async addAddress(user, address){
+  async addAddress(user, address) {
     'use strict';
     Logger.info(`request made to add address to user`);
     Logger.verbose(`user: ${user}`);
     Logger.verbose(`address: ${JSON.stringify(address)}`);
     try {
-      const updatedUser = await User.findByIdAndUpdate(user, {$push: {addresses: address}}, {safe: true, new: true});
+      const updatedUser = await User.findByIdAndUpdate(user, {$push: {addresses: address}}, {
+        safe: true,
+        new: true
+      });
       Logger.verbose(`update completed without error`);
       Logger.verbose(`updated doc: ${JSON.stringify(updatedUser)}`);
       return updatedUser;
@@ -56,13 +59,13 @@ module.exports= exports = {
     }
 
   },
-  async validateAddress(addressDetails){
+  async validateAddress(addressDetails) {
     'use strict';
     Logger.info(`attempting to validate address`);
     Logger.verbose(`details to be validated: ${JSON.stringify(addressDetails)}`);
-    try{
+    try {
       return await addressService.validateAddress(addressDetails);
-    }catch(err){
+    } catch (err) {
       Logger.warn(`there was an error while validating the address`);
       Logger.error(`error: ${JSON.stringify(err)}`);
       return false;

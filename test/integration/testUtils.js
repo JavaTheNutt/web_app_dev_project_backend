@@ -9,7 +9,7 @@ module.exports = {
     'use strict';
     try {
       await mongoose.connect(config.db.uri, {useMongoClient: true});
-      for(let i = 0; i < collectionNames.length; i++){
+      for (let i = 0; i < collectionNames.length; i++) {
         if (mongoose.connection.collections[collectionNames[i]]) {
           try {
             await mongoose.connection.collections[collectionNames[i]].drop();
@@ -29,7 +29,7 @@ module.exports = {
   },
   async clearCollection(collectionNames) {
     'use strict';
-    for(let i = 0; i< collectionNames.length; i++){
+    for (let i = 0; i < collectionNames.length; i++) {
       if (mongoose.connection.collections[collectionNames[i]]) {
         try {
           await mongoose.connection.collections[collectionNames[i]].remove();
