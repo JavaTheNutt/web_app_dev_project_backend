@@ -47,7 +47,15 @@ module.exports = exports = {
     }
     Logger.verbose(`token is valid format, testing validity`);
     Logger.verbose(`token to validate: ${JSON.stringify(token)}`);
-    try {
+    const decodedToken = await exports.decodeToken(token);
+    Logger.verbose(`decoded token fetched`);
+    Logger.verbose(`decoded token: ${JSON.stringify(decodedToken)}`);
+    if(!decodedToken){
+      Logger.warn(`token is not valid`);
+      return false;
+    }
+    return decodedToken;
+    /*try {
       const decodedToken = await admin.auth().verifyIdToken(token);
       Logger.verbose(`token decoded without error`);
       Logger.verbose(`decoded token: ${decodedToken}`);
@@ -56,7 +64,7 @@ module.exports = exports = {
       Logger.warn(`an error has occurred while validating firebase token`);
       Logger.error(`error: ${err}`);
       return false;
-    }
+    }*/
   },
   async decodeToken(token) {
     'use strict';
