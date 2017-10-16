@@ -60,11 +60,23 @@ module.exports = exports = {
   },
   async decodeToken(token) {
     'use strict';
-
+    Logger.info(`request recieved to decode firebase token`);
+    try {
+      const decodedToken = await admin.auth().verifyIdToken(token);
+      Logger.verbose(`token decoded without error`);
+      Logger.verbose(`decoded token: ${decodedToken}`);
+      return decodedToken;
+    } catch (err) {
+      Logger.warn(`an error has occurred while validating firebase token`);
+      Logger.error(`error: ${err}`);
+      return false;
+    }
   },
-  async checkCustomClaims(token) {
+  checkCustomClaims(token) {
     'use strict';
-
+    Logger.info(`request recieved to test if user claim exists`);
+    Logger.verbose(`token: ${JSON.stringify(token)}`);
+    return !!token.user;
   },
   async setCustomClaims(firebaseId, claims) {
     'use strict';

@@ -177,20 +177,33 @@ describe('auth service', function () {
     })
   });
   describe('decode token', () => {
-    let verifyStub;
+    let verifyStub, verifyStubContainer, authStub, checkCustomClaimsStub;
     let decodedToken = {
       email: 'test@test.com',
       sub: 'somefirebaseidhere'
     };
-    beforeEach(() => {
-      verifyStub = {verifyIdToken: sandbox.stub()};
-      sandbox.stub(admin, 'auth').returns(verifyStub)
+    beforeEach(()=>{
+      verifyStub = sandbox.stub();
+      verifyStubContainer = {verifyIdToken: verifyStub};
+      authStub = sandbox.stub(admin, 'auth').returns(verifyStubContainer);
     });
-    it('it should call create custom claims when there are no custom claims', ()=>{
-      
-    });
-    afterEach(() => {
+    afterEach(function () {
       sandbox.restore();
+    });
+    it('should return true when it recieves a jwt to validate', async function () {
+      verifyStub.resolves(decodedToken);
+      const result = await authService.decodeToken('testtoken');
+      expect(result).to.exist;
+      expect(verifyStub).to.be.calledWith('testtoken');
+      expect(verifyStub).to.be.calledOnce;
+      expect(result.sub).to.equal(decodedToken.sub);
+      expect(result.email).to.equal(decodedToken.email);
+    });
+    it('should handle errors gracefully', async function () {
+      verifyStub.throws('a firebase error has occured');
+      const result = await authService.decodeToken('testtoken');
+      expect(result).to.be.false;
+      expect(verifyStub).to.be.calledOnce;
     })
   });
   describe('set custom claims', () => {
@@ -254,6 +267,16 @@ describe('auth service', function () {
     });
     afterEach(() => {
       sandbox.restore();
+    })
+  });
+  describe('check custom claims', ()=>{
+    it('should return true when user claim is present', ()=>{
+      const result = authService.checkCustomClaims({sub: 'somefirebaseid', email: 'test@test.com', user: 'someobjectid'});
+      expect(result).to.be.true;
+    });
+    it('should return false when user claim is not present', ()=>{
+      const result = authService.checkCustomClaims({sub: 'somefirebaseid', email: 'test@test.com'});
+      expect(result).to.be.false;
     })
   })
 });
