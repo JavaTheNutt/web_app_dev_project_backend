@@ -51,7 +51,11 @@ module.exports    = {
     Logger.info(`attempting to add address`);
     const authDetails = req.body.customAuthUser;
     Logger.verbose(`user: ${JSON.stringify(authDetails)}`);
-    const returnedUser = await userService.handleAddAddress();
+    const returnedUser = await userService.handleAddAddress(authDetails.user, req.body.address);
+    if(!returnedUser){
+      return res.status(400).send('there was an error while adding an address')
+    }
+    res.status(200).send(returnedUser);
   }
 };
 

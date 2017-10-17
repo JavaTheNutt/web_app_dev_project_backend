@@ -110,14 +110,22 @@ describe('user controller', function () {
         addresses: [savedAddress]
       }
     });
-    it('should call res.send with a status of 200 when adding an address is successful'/*, async () => {
+    it('should call res.send with a status of 200 when adding an address is successful', async () => {
       handleAddAddressStub.resolves(amendedUser);
       await userController.addAddress(req, res, next);
       expect(res.status).to.be.calledOnce;
       expect(res.status).to.be.calledWith(200);
       expect(res.send).to.be.calledOnce;
       expect(res.send).to.be.calledWith(amendedUser);
-    }*/);
+    });
+    it('should handle a false response from add address service', async ()=>{
+      handleAddAddressStub.resolves(false);
+      await userController.addAddress(req, res, next);
+      expect(res.status).to.be.calledOnce;
+      expect(res.status).to.be.calledWith(400);
+      expect(res.send).to.be.calledOnce;
+      expect(res.send).to.be.calledWith('there was an error while adding an address');
+    });
     afterEach(() => {
       sandbox.restore();
     })
