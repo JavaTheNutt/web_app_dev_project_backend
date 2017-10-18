@@ -58,23 +58,56 @@ describe('user controller', function () {
       expect(sendStub).to.be.calledOnce;
       expect(sendStub).to.be.calledWith('user created');
     });
-    it('should call res.send with a status of 400 when there is no user email', function () {
+    it('should call res.send with a status of 400 when there is no user email',async function () {
       req.body.customAuthUser.email = null;
-      userController.createNewUser(req, res, next);
+      await userController.createNewUser(req, res, next);
       expect(res.status).to.be.calledOnce;
       expect(setCustomUserClaim).to.not.be.called;
       expect(res.status).to.be.calledWith(400);
       expect(res.send).to.be.calledOnce;
       expect(res.send).to.be.calledWith('missing data');
     });
-    it('should call res.send with a status of 400 when there is no firebase id', function () {
+    it('should call res.send with a status of 400 when there is no firebase id', async function () {
       req.body.customAuthUser.firebaseId = null;
-      userController.createNewUser(req, res, next);
+      await userController.createNewUser(req, res, next);
       expect(res.status).to.be.calledOnce;
       expect(setCustomUserClaim).to.not.be.called;
       expect(res.status).to.be.calledWith(400);
       expect(res.send).to.be.calledOnce;
       expect(res.send).to.be.calledWith('missing data');
+    });
+    it('should call res.send with 400 when user save fails',async ()=>{
+      'use strict';
+      createUserStub.resolves(false);
+      await userController.createNewUser(req, res, next);
+      expect(res.status).to.be.calledOnce;
+      expect(setCustomUserClaim).to.not.be.called;
+      expect(res.status).to.be.calledWith(400);
+      expect(res.send).to.be.calledOnce;
+      expect(res.send).to.be.calledWith('error creating user');
+    });
+    it('should call res.send with 400 when auth save fails', async ()=>{
+      'use strict';
+      createUserStub.resolves(returnedUser);
+      createAuthStub.resolves(false);
+      await userController.createNewUser(req, res, next);
+      expect(res.status).to.be.calledOnce;
+      expect(setCustomUserClaim).to.not.be.called;
+      expect(res.status).to.be.calledWith(400);
+      expect(res.send).to.be.calledOnce;
+      expect(res.send).to.be.calledWith('error while saving auth object');
+    });
+    it('should call res.send with 400 when adding custom claims fails', async ()=>{
+      'use strict';
+      createUserStub.resolves(returnedUser);
+      createAuthStub.resolves(returnedAuth);
+      setCustomClaimsStub.resolves(false);
+      await userController.createNewUser(req, res, next);
+      expect(res.status).to.be.calledOnce;
+      expect(setCustomUserClaim).to.not.be.called;
+      expect(res.status).to.be.calledWith(400);
+      expect(res.send).to.be.calledOnce;
+      expect(res.send).to.be.calledWith('error while adding custom claims to firebase');
     });
     afterEach(function () {
       'use strict';
