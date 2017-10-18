@@ -1,7 +1,7 @@
 /**
  * This Model will represent the authentication details for a User.
  *
- * @module user/models
+ * @module auth/models
  */
 const mongoose       = require('mongoose');
 const Logger         = require('@util/Logger')('AUTH_MODEL');

@@ -10,11 +10,10 @@ const authService = require('@Auth/authService');
 module.exports    = {
   /**
    * Create new User
-   *
-   * @memberOf module:user/userController
    * @param req {Object} the request object
    * @param res {Object} Response the response object
    * @param next {Function} next callback
+   * @memberOf module:user/userController
    */
   async createNewUser(req, res, next) {
     'use strict';
@@ -51,6 +50,14 @@ module.exports    = {
     //res.status(200);
     return res.status(200).send('user created');
   },
+  /**
+   * Controller for adding an address to a user
+   * @param req {Object} request
+   * @param res {Object} response
+   * @param next {Function} next callback
+   * @returns {Promise.<void>}
+   * @memberOf module:user/userController
+   */
   async addAddress(req, res, next) {
     'use strict';
     Logger.info(`attempting to add address`);
@@ -73,6 +80,7 @@ module.exports    = {
  * Check if required params are present on request to create user
  * @param req {Object} the request object
  * @returns {boolean} true if body fields present, false otherwise
+ * @memberOf module:user/userController
  */
 function checkCreateRequest(req) {
   'use strict';

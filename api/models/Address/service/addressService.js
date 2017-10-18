@@ -2,6 +2,11 @@ const Logger   = require('@util/Logger')('ADDRESS_SERVICE');
 const User     = require('@user/models/User').model;
 const Address  = require('@Address/models/Address').model;
 module.exports = exports = {
+  /**
+   * Create and validate a new address
+   * @param addressDetails the details to be validated
+   * @returns {Promise.<void>} the created address if successful, false otherwise
+   */
   async validateAddress(addressDetails) {
     'use strict';
     Logger.info(`attempting to validate address`);

@@ -1,9 +1,20 @@
+/**
+ * Service for interacting with User data models
+ * @module user/service
+ */
+
 const Logger         = require('@util/Logger')('USER_SERVICE');
 const User           = require('@user/models/User').model;
 const Address        = require('@Address/models/Address').model;
 const addressService = require('@Address/service/addressService');
 
 module.exports = exports = {
+  /**
+   * Create a new user record
+   * @param userDetails {object} the details required to make a new user
+   * @returns {Promise.<null>}
+   * @memberOf module:user/service
+   */
   async createUser(userDetails) {
     'use strict';
     Logger.info(`request to create user recieved`);
@@ -20,6 +31,14 @@ module.exports = exports = {
       return null;
     }
   },
+  /**
+   * Wrapper for address validation and insertion
+   * @param user {ObjectId} the id of the user
+   * @param address {Object} geospatial address to be saved
+   * @returns {Promise.<*>} the updated user if successful, false otherwise
+   *
+   * @memberOf module:user/service
+   */
   async handleAddAddress(user, address) {
     'use strict';
     Logger.info(`request`);
@@ -40,6 +59,14 @@ module.exports = exports = {
     Logger.verbose(`returning ${updatedUser}`);
     return updatedUser;
   },
+  /**
+   * Wrapper around adding an address to a user
+   * @param user {ObjectId} the id of the user
+   * @param address {Object} the address to be added
+   * @returns {Promise.<*>} the updated user if successful, false otherwise
+   *
+   * @memberOf module:user/service
+   */
   async addAddress(user, address) {
     'use strict';
     Logger.info(`request made to add address to user`);
@@ -58,8 +85,14 @@ module.exports = exports = {
       Logger.error(`error: ${e}`);
       return false;
     }
-
   },
+  /**
+   * Wrapper around address validation
+   * @param addressDetails {Object} the details to be validated
+   * @returns {Promise.<*>} Address if successful, false otherwise
+   *
+   * @memberOf module:user/service
+   */
   async validateAddress(addressDetails) {
     'use strict';
     Logger.info(`attempting to validate address`);
