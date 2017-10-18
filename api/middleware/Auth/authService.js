@@ -25,19 +25,7 @@ module.exports = exports = {
     }
     Logger.verbose(`token is assumed valid`);
     Logger.verbose(`decoded token: ${JSON.stringify(decodedToken)}`);
-    /*let userId;
-    //fixme add check if new user
-    if(!req.isNewUser){
-      Logger.verbose(`request is not new`);
-      userId = await exports.fetchAuthByFirebaseId(decodedToken.sub)._id;
-      Logger.verbose(`returned ID`);
-    }else{
-      Logger.verbose(`new user request detected in auth middleware, skipping userid step`);
-    }
-    //fixme add call to check if custom claims exist and handle
-
-    //const userId = await exports.fetchAuthByFirebaseId(decodedToken.sub);*/
-    const customUserAuth = await exports.handleClaimValidation(decodedToken);
+    const customUserAuth = await exports.handleClaimValidation(decodedToken, req.isNewUser);
     Logger.verbose(`claims returned: ${JSON.stringify(customUserAuth)}`);
     if (!req.body) {
       Logger.info(`request does not contain a body, creating body`);
