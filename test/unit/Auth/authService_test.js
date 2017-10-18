@@ -88,6 +88,18 @@ describe('auth service', function () {
     afterEach(function () {
       sandbox.restore();
     });
+    it('should return false when an invalid object is passed', async ()=>{
+      const result = await authService.validateToken({token: 'sometoken'});
+      expect(result).to.equal(false);
+    });
+    it('should return false a single chracter is passed', async ()=>{
+      const result = await authService.validateToken('s');
+      expect(result).to.equal(false);
+    });
+    it('should return false when nothing is passed', async ()=>{
+      const result = await authService.validateToken();
+      expect(result).to.equal(false);
+    });
     it('should return true when it recieves a jwt to validate', async function () {
       decodeStub.resolves(decodedToken);
       const result = await authService.validateToken('testtoken');
@@ -250,6 +262,12 @@ describe('auth service', function () {
       expect(fetchAuthByFirebaseIdStub).to.be.calledOnce;
       expect(fetchAuthByFirebaseIdStub).to.be.calledWith(returnedAuth.firebaseId);
       expect(setCustomClaimsStub).to.not.be.called;
+    });
+    it('handles responses with no user field gracefully', async ()=>{
+      returnedAuth.user = null;
+      fetchAuthByFirebaseIdStub.resolves(returnedAuth);
+      const result = await authService.createUserClaim(returnedAuth.firebaseId);
+      expect(result).to.not.exist;
     });
     afterEach(() => {
       sandbox.restore();
