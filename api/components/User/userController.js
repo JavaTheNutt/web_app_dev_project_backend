@@ -37,14 +37,19 @@ module.exports    = {
       user: savedUser._id,
       firebaseId: req.body.customAuthUser.firebaseId
     });
+    if(!savedAuth){
+      Logger.warn(`there was an error saving the auth object`);
+      return res.status(400).send('error while saving auth object');
+    }
     Logger.verbose(`auth object assumed created`);
     Logger.verbose(`new auth: ${JSON.stringify(savedAuth)}`);
     Logger.verbose(`user has been successfully created`);
-    if (!(await authService.createUserClaim(savedAuth.firebaseId))) {
+    if (!(await authService.setCustomClaims(savedAuth.firebaseId, {user: savedAuth.user}))) {
       Logger.warn(`adding custom auth claim failed`);
+      return res.status(400).send('error while adding custom claims to firebase');
     }
-    res.status(200);
-    return res.send('user created');
+    //res.status(200);
+    return res.status(200).send('user created');
   },
   async addAddress(req, res, next) {
     'use strict';
@@ -52,9 +57,13 @@ module.exports    = {
     const authDetails = req.body.customAuthUser;
     Logger.verbose(`user: ${JSON.stringify(authDetails)}`);
     const returnedUser = await userService.handleAddAddress(authDetails.user, req.body.address);
+    Logger.verbose(`modified user returned without error`);
+    Logger.verbose(`new user: ${JSON.stringify(returnedUser)}`);
     if(!returnedUser){
+      Logger.warn(`new user does not exist, aborting`);
       return res.status(400).send('there was an error while adding an address')
     }
+    Logger.verbose(`user exists, returning new user`);
     res.status(200).send(returnedUser);
   }
 };

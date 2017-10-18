@@ -11,7 +11,7 @@ const userAuth    = require('@Auth/models/UserAuth').model;
 describe('auth service', function () {
   'use strict';
   describe('app authentication', () => {
-    let req, res, next, statusStub, sendStub, verifyTokenStub, fetchUserStub;
+    let req, res, next, statusStub, sendStub, verifyTokenStub, handleClaimValidationStub, decodedToken;
     beforeEach(() => {
       req             = {
         headers: {
@@ -25,26 +25,27 @@ describe('auth service', function () {
       };
       next            = sandbox.stub();
       verifyTokenStub = sandbox.stub(authService, 'validateToken');
-      fetchUserStub   = sandbox.stub(authService, 'fetchAuthByFirebaseId');
+      handleClaimValidationStub = sandbox.stub(authService, 'handleClaimValidation');
+      decodedToken = {
+        sub: 'somefirebaseidhere',
+        email: 'test@test.com'
+      };
     });
     afterEach(() => {
       sandbox.restore();
     });
     it('should call next with no params when details are valid and token is not custom and not new', async () => {
-      verifyTokenStub.resolves({
-        sub: 'somefirebaseidhere',
-        email: 'test@test.com'
-      });
-      fetchUserStub.resolves({
-        _id: 'somemongoidhere',
-        firebaseId: 'somefirebaseidhere',
-        user: 'someothermongoidhere'
+      verifyTokenStub.resolves(decodedToken);
+      handleClaimValidationStub.resolves({
+        firebaseId: decodedToken.sub,
+        email: decodedToken.email,
+        user: 'somemongoidhere'
       });
       await authService.authenticate(req, res, next);
       expect(verifyTokenStub).to.be.calledOnce;
       expect(verifyTokenStub).to.be.calledWith(req.headers.token);
-      expect(fetchUserStub).to.be.calledOnce;
-      expect(fetchUserStub).to.be.calledWith('somefirebaseidhere');
+      expect(handleClaimValidationStub).to.be.calledOnce;
+      //expect(fetchUserStub).to.be.calledWith('somefirebaseidhere');
       expect(next).to.be.calledOnce;
 
     });

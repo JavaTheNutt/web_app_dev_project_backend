@@ -25,7 +25,7 @@ module.exports = exports = {
     }
     Logger.verbose(`token is assumed valid`);
     Logger.verbose(`decoded token: ${JSON.stringify(decodedToken)}`);
-    let userId;
+    /*let userId;
     //fixme add check if new user
     if(!req.isNewUser){
       Logger.verbose(`request is not new`);
@@ -36,17 +36,14 @@ module.exports = exports = {
     }
     //fixme add call to check if custom claims exist and handle
 
-    //const userId = await exports.fetchAuthByFirebaseId(decodedToken.sub);
-
+    //const userId = await exports.fetchAuthByFirebaseId(decodedToken.sub);*/
+    const customUserAuth = await exports.handleClaimValidation(decodedToken);
+    Logger.verbose(`claims returned: ${JSON.stringify(customUserAuth)}`);
     if (!req.body) {
       Logger.info(`request does not contain a body, creating body`);
       req.body = {};
     }
-    req.body.customAuthUser = {
-      email: decodedToken.email,
-      firebaseId: decodedToken.sub,
-      user: userId
-    };
+    req.body.customAuthUser  = customUserAuth;
     return next();
   },
   async handleClaimValidation(token, isNewUser){
@@ -124,9 +121,11 @@ module.exports = exports = {
     Logger.verbose(`firebaseId, ${firebaseId}`);
     try {
       await admin.auth().setCustomUserClaims(firebaseId, claims);
+      return true;
     } catch (e) {
       Logger.warn(`an error occourred while setting custom user claims`);
       Logger.error(`error: ${e}`);
+      return false;
     }
   },
   async createUserClaim(firebaseId) {

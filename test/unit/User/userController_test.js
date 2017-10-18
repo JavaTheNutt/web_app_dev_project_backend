@@ -11,7 +11,7 @@ const userService    = require('@user/service/userService');
 const authService    = require('@Auth/authService');
 describe('user controller', function () {
   describe('create new user', function () {
-    let req, res, next, createUserStub, createAuthStub, setCustomUserClaim;
+    let req, res, next, createUserStub, createAuthStub, setCustomUserClaim, sendStub, sendStubContainer, statusStub, setCustomClaimsStub;
     const returnedUser = {
       _id: 'someidhere',
       email: 'test@test.com'
@@ -32,26 +32,31 @@ describe('user controller', function () {
           }
         }
       };
+      sendStub = sandbox.stub();
+      sendStubContainer = {send: sendStub};
+      statusStub = sandbox.stub().returns(sendStubContainer);
       res                = {
-        send: sandbox.spy(),
-        status: sandbox.spy()
+        send: sendStub,
+        status: statusStub
       };
       createUserStub     = sandbox.stub(userService, 'createUser');
       createAuthStub     = sandbox.stub(authService, 'createAuthUser');
       setCustomUserClaim = sandbox.stub(authService, 'createUserClaim');
+      setCustomClaimsStub = sandbox.stub(authService, 'setCustomClaims');
     });
     it('should call res.send with a status of 200 when all details are present', async function () {
+      setCustomClaimsStub.resolves(true);
       createUserStub.resolves(returnedUser);
       createAuthStub.resolves(returnedAuth);
       await userController.createNewUser(req, res, next);
       expect(createUserStub).to.be.calledOnce;
       expect(createAuthStub).to.be.calledOnce;
-      expect(setCustomUserClaim).to.be.calledOnce;
-      expect(setCustomUserClaim).to.be.calledWith(returnedAuth.firebaseId);
-      expect(res.status).to.be.calledOnce;
-      expect(res.status).to.be.calledWith(200);
-      expect(res.send).to.be.calledOnce;
-      expect(res.send).to.be.calledWith('user created');
+      expect(setCustomClaimsStub).to.be.calledOnce;
+      expect(setCustomClaimsStub).to.be.calledWith(returnedAuth.firebaseId);
+      expect(statusStub).to.be.calledOnce;
+      expect(statusStub).to.be.calledWith(200);
+      expect(sendStub).to.be.calledOnce;
+      expect(sendStub).to.be.calledWith('user created');
     });
     it('should call res.send with a status of 400 when there is no user email', function () {
       req.body.customAuthUser.email = null;
