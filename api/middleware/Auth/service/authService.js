@@ -119,7 +119,7 @@ module.exports = exports = {
    * Wrapper for setting custom claims on firebase
    * @param firebaseId
    * @param claims
-   * @returns {Promise.<boolean>}
+   * @returns {Promise.<boolean|object>}
    *
    * @memberOf module:auth/service
    */
@@ -130,10 +130,10 @@ module.exports = exports = {
     try {
       await admin.auth().setCustomUserClaims(firebaseId, claims);
       return true;
-    } catch (e) {
+    } catch (err) {
       Logger.warn(`an error occourred while setting custom user claims`);
-      Logger.error(`error: ${e}`);
-      return false;
+      Logger.error(`error: ${err}`);
+      return {error: {message: 'there was an error while adding custom claims', err}};
     }
   },
   /**

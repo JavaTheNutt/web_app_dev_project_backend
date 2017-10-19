@@ -233,15 +233,17 @@ describe('auth service', () => {
       }
     });
     it('should call set custom claims', async () => {
-      await authService.setCustomClaims('thisisafirebaseid', claims);
+      const result = await authService.setCustomClaims('thisisafirebaseid', claims);
       expect(setCustomClaimsStub).to.be.calledOnce;
       expect(setCustomClaimsStub).to.be.calledWith('thisisafirebaseid', claims);
+      expect(result).to.be.true;
     });
     it('should handle errors gracefully', async () => {
-      setCustomClaimsStub.throws('an error has occurred');
-      await authService.setCustomClaims('thisisafirebaseid', claims);
+      const err = new Error('an error has occurred');
+      setCustomClaimsStub.throws(err);
+      const result = await authService.setCustomClaims('thisisafirebaseid', claims);
       expect(setCustomClaimsStub).to.be.calledOnce;
-
+      expect(result).to.eql({error: {message: 'there was an error while adding custom claims', err}})
     });
     afterEach(() => {
       sandbox.restore();
