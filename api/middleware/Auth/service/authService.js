@@ -166,7 +166,7 @@ module.exports = exports = {
   /**
    * Wrapper for creating user auth model
    * @param authDetails {Object} the details to be used to create a new user
-   * @returns {Promise.<null>} the new user if successful, false otherwise
+   * @returns {Promise.<Object>} the new user if successful, false otherwise
    *
    * @memberOf module:auth/service
    */
@@ -178,11 +178,11 @@ module.exports = exports = {
       await newAuth.save();
       Logger.verbose(`auth details assumed saved`);
       Logger.verbose(`new details: ${JSON.stringify(newAuth)}`);
-      return newAuth;
-    } catch (e) {
+      return {data:newAuth};
+    } catch (err) {
       Logger.warn(`an error occurred while saving auth object`);
-      Logger.error(`error: ${e}`);
-      return null;
+      Logger.error(`error: ${err}`);
+      return {error: {message: 'an error occurred while saving auth record', err}};
     }
   },
   /**

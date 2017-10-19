@@ -145,16 +145,20 @@ describe('auth service', () => {
     });
     it('should create a new user when provided with correct details', async () => {
       const res = await authService.createAuthUser(authDetails);
-      expect(res).to.exist;
-      expect(res.foo).to.not.exist;
-      expect(res.email).to.equal(authDetails.email);
-      expect(res.user.toString()).to.equal(authDetails.user.toString());
-      expect(res.firebaseId).to.equal(authDetails.firebaseId);
+      expect(res.data).to.exist;
+      expect(res.error).to.not.exist;
+      expect(res.data.foo).to.not.exist;
+      expect(res.data.email).to.equal(authDetails.email);
+      expect(res.data.user.toString()).to.equal(authDetails.user.toString());
+      expect(res.data.firebaseId).to.equal(authDetails.firebaseId);
     });
     it('should handle errors gracefully', async () => {
-      saveStub.throws(Error('an error has occurred'));
+      const err = new Error('an error has occurred');
+      saveStub.throws(err);
       const res = await authService.createAuthUser(authDetails);
-      expect(res).to.not.exist;
+      expect(res.error).to.exist;
+      expect(res.data).to.not.exist;
+      expect(res).to.eql({error: {message: 'an error occurred while saving auth record', err}})
     })
   });
   describe('fetch user auth by firebase id', () => {
