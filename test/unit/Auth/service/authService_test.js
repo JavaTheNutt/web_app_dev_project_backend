@@ -213,14 +213,13 @@ describe('auth service', () => {
       expect(result).to.exist;
       expect(verifyStub).to.be.calledWith('testtoken');
       expect(verifyStub).to.be.calledOnce;
-      expect(result.sub).to.equal(decodedToken.sub);
-      expect(result.email).to.equal(decodedToken.email);
+      expect(result).to.eql({data:decodedToken});
     });
     it('should handle errors gracefully', async function () {
-      verifyStub.throws('a firebase error has occured');
+      const err = new Error('a firebase error has occured');
+      verifyStub.throws(err);
       const result = await authService.decodeToken('testtoken');
-      expect(result).to.be.false;
-      expect(verifyStub).to.be.calledOnce;
+      expect(result).to.be.eql({error: {message: 'an error occurred while decoding firebase token', err}});
     })
   });
   describe('set custom claims', () => {

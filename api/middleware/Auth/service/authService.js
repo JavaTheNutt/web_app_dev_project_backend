@@ -95,11 +95,11 @@ module.exports = exports = {
       const decodedToken = await admin.auth().verifyIdToken(token);
       Logger.verbose(`token decoded without error`);
       Logger.verbose(`decoded token: ${decodedToken}`);
-      return decodedToken;
+      return {data:decodedToken};
     } catch (err) {
       Logger.warn(`an error has occurred while validating firebase token`);
       Logger.error(`error: ${err}`);
-      return false;
+      return {error: {message: 'an error occurred while decoding firebase token', err}};
     }
   },
   /**
