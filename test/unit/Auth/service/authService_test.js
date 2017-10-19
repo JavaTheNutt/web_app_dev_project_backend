@@ -172,21 +172,22 @@ describe('auth service', () => {
         email: 'test@test.com'
       }
     });
-    it('should handle a successful save', async () => {
+    it('should handle a successful fetch', async () => {
       findOneStub.resolves(authObject);
       const result = await authService.fetchAuthByFirebaseId(firebaseId);
       expect(result).to.exist;
-      expect(result).to.eql(authObject);
+      expect(result).to.eql({data:authObject});
     });
     it('should handle errors while querying', async () => {
-      findOneStub.throws(new Error('an error has occurred'));
+      const err = new Error('an error has occurred');
+      findOneStub.throws(err);
       const result = await authService.fetchAuthByFirebaseId(firebaseId);
-      expect(result).to.be.false;
+      expect(result).to.eql({error: {message: 'there was an error while fetching specified auth record', err}});
     });
     it('should handle empty responses gracefully', async () => {
       findOneStub.resolves({});
       const result = await authService.fetchAuthByFirebaseId(firebaseId);
-      expect(result).to.be.false;
+      expect(result).to.eql({error: {message: 'requested auth record not found'}});
     });
     afterEach(() => {
       sandbox.restore();

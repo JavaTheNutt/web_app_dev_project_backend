@@ -202,14 +202,14 @@ module.exports = exports = {
       Logger.verbose(`fetched record: ${JSON.stringify(auth)}`);
       if (!auth || _.isEmpty(auth)) {
         Logger.warn(`auth object is undefined`);
-        return false;
+        return {error: {message: 'requested auth record not found'}};
       }
       Logger.verbose(`auth fetch assumed successful`);
-      return auth;
+      return {data:auth};
     } catch (err) {
       Logger.warn(`error while fetching auth object`);
       Logger.error(`error: ${JSON.stringify(err)}`);
-      return false;
+      return {error: {message: 'there was an error while fetching specified auth record', err}};
     }
   }
 };
