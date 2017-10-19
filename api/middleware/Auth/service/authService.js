@@ -1,71 +1,67 @@
-
+/**
+ * This module provides utils required by the auth middleware.
+ * @module auth/service
+ */
 const admin    = require('firebase-admin');
 const _        = require('lodash');
 const Logger   = require('@util/Logger')('AUTH_SERVICE');
 const UserAuth = require('@Auth/models/UserAuth').model;
 module.exports = exports = {
-  async authenticateNew(req, res, next) {
-    'use strict';
-    Logger.info(`middleware called for new user route`);
-    req.isNewUser = true;
-    next();
-  },
-  async authenticate(req, res, next) {
-    'use strict';
-    Logger.info(`authentication middleware invoked`);
-    Logger.info(`is request for new user? ${req.isNewUser ? 'yes' : 'no'}`);
-    if (!req || !req.headers || !req.headers.token) {
-      Logger.warn(`there is data missing from the request`);
-      return res.status(401).send('authentication failed');
-    }
-    Logger.verbose(`required data is present`);
-    const decodedToken = await exports.validateToken(req.headers.token);
-    if (!decodedToken) {
-      Logger.warn(`returned token is not truthy`);
-      return res.status(401).send('authentication failed');
-    }
-    Logger.verbose(`token is assumed valid`);
-    Logger.verbose(`decoded token: ${JSON.stringify(decodedToken)}`);
-    const customUserAuth = await exports.handleClaimValidation(decodedToken, req.isNewUser);
-    Logger.verbose(`claims returned: ${JSON.stringify(customUserAuth)}`);
-    if (!req.body) {
-      Logger.info(`request does not contain a body, creating body`);
-      req.body = {};
-    }
-    req.body.customAuthUser  = customUserAuth;
-    return next();
-  },
-  async handleClaimValidation(token, isNewUser){
+  /**
+   * This function converts firebase tokens to the auth claims that will be used throughout the application.
+   * It will also try to add the user claim if it does not already exist
+   * @param token {Object} decoded firebase token
+   * @param isNewUser {Boolean} the flag to determine if this is a request to create a new user
+   * @returns {Promise.<{firebaseId: (*|string|string|string), email}>} the claims
+   * @memberOf module:auth/service
+   */
+  async handleClaimValidation(token, isNewUser) {
     'use strict';
     Logger.info(`request recieved to validate custom claims`);
     Logger.verbose(`is new user? ${isNewUser}`);
     Logger.verbose(`token: ${JSON.stringify(token)}`);
-    const claims = {firebaseId:token.sub, email: token.email};
-    if(isNewUser){
+    const claims = {
+      firebaseId: token.sub,
+      email: token.email
+    };
+    if (isNewUser) {
       Logger.verbose(`request is for new user, returning standard claims. claims: ${JSON.stringify(claims)}`);
       return claims;
     }
     Logger.verbose(`request is not for new user, testing for custom claims`);
     const userId = token.user || await exports.fetchUserIdFromFirebaseId(claims.firebaseId);
     Logger.verbose(`user id fetched. user id : ${userId}`);
-    if(!userId){
+    if (!userId) {
       Logger.warn(`no user id found, returning standard claims`);
       return claims;
     }
     claims.user = userId;
     return claims;
   },
-  async fetchUserIdFromFirebaseId(firebaseId){
+  /**
+   * Wrapper to fetch user id from from a firebase id.
+   * @param firebaseId {String} the firebase id of the user
+   * @returns {Promise.<*>} The id of the user if successful, null otherwise
+   *
+   * @memberOf module:auth/service
+   */
+  async fetchUserIdFromFirebaseId(firebaseId) {
     'use strict';
     Logger.info(`request recieved to fetch user id from firebase id`);
     const returnedAuth = await exports.fetchAuthByFirebaseId(firebaseId);
     Logger.verbose(`auth returned: ${JSON.stringify(returnedAuth)}`);
-    if(!returnedAuth || !returnedAuth.user){
+    if (!returnedAuth || !returnedAuth.user) {
       return null;
     }
     return returnedAuth.user.toString();
   },
-
+  /**
+   * Handle validation and decoding of tokens
+   * @param token {String} the encrypted firebase token
+   * @returns {Promise.<*>} the decoded token if successful, false otherwise
+   *
+   * @memberOf module:auth/service
+   */
   async validateToken(token) {
     'use strict';
     Logger.info(`request received to validate authentication token`);
@@ -84,6 +80,13 @@ module.exports = exports = {
     }
     return decodedToken;
   },
+  /**
+   * Wrapper for token decoding
+   * @param token {String} the encrypted token
+   * @returns {Promise.<*>} the decoded token if successful, false otherwise
+   *
+   * @memberOf module:auth/service
+   */
   async decodeToken(token) {
     'use strict';
     Logger.info(`request recieved to decode firebase token`);
@@ -98,12 +101,27 @@ module.exports = exports = {
       return false;
     }
   },
+  /**
+   * Check if the user claim exists
+   * @param token {String} the decoded token
+   * @returns {boolean} true if the claims exist, false otherwise
+   *
+   * @memberOf module:auth/service
+   */
   checkCustomClaims(token) {
     'use strict';
     Logger.info(`request recieved to test if user claim exists`);
     Logger.verbose(`token: ${JSON.stringify(token)}`);
     return !!token.user;
   },
+  /**
+   * Wrapper for setting custom claims on firebase
+   * @param firebaseId
+   * @param claims
+   * @returns {Promise.<boolean>}
+   *
+   * @memberOf module:auth/service
+   */
   async setCustomClaims(firebaseId, claims) {
     'use strict';
     Logger.info(`request made to create custom claims`);
@@ -117,6 +135,13 @@ module.exports = exports = {
       return false;
     }
   },
+  /**
+   * Create a user claim to be set on firebase
+   * @param firebaseId {String}
+   * @returns {Promise.<*>} The claims constaining the userId if it can be found, false otherwise
+   *
+   * @memberOf module:auth/service
+   */
   async createUserClaim(firebaseId) {
     'use strict';
     Logger.info(`request made to add user ID to firebase claims`);
@@ -137,6 +162,13 @@ module.exports = exports = {
     await exports.setCustomClaims(firebaseId, claimToBeReturned);
     return claimToBeReturned;
   },
+  /**
+   * Wrapper for creating user auth model
+   * @param authDetails {Object} the details to be used to create a new user
+   * @returns {Promise.<null>} the new user if successful, false otherwise
+   *
+   * @memberOf module:auth/service
+   */
   async createAuthUser(authDetails) {
     Logger.info(`request recieved to create new user auth object`);
     Logger.verbose(`new user auth details: ${JSON.stringify(authDetails)}`);
@@ -152,6 +184,13 @@ module.exports = exports = {
       return null;
     }
   },
+  /**
+   * wrapper for fetching an auth object by firebase id
+   * @param firebaseId {String} the firebase id
+   * @returns {Promise.<*>} The Auth record if successful, false otherwise
+   *
+   * @memberOf module:auth/service
+   */
   async fetchAuthByFirebaseId(firebaseId) {
     'use strict';
     Logger.info(`request made to fetch auth object by firebase id`);
@@ -184,4 +223,3 @@ function formatAuthDetails(details) {
     user: details.user
   }
 }
-

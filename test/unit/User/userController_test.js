@@ -8,10 +8,11 @@ const sandbox = sinon.sandbox.create();
 
 const userController = require('@user/userController');
 const userService    = require('@user/service/userService');
-const authService    = require('@Auth/authService');
+const authService    = require('@Auth/service/authService');
 describe('user controller', function () {
   describe('create new user', function () {
-    let req, res, next, createUserStub, createAuthStub, setCustomUserClaim, sendStub, sendStubContainer, statusStub, setCustomClaimsStub;
+    let req, res, next, createUserStub, createAuthStub, setCustomUserClaim, sendStub, sendStubContainer, statusStub,
+        setCustomClaimsStub;
     const returnedUser = {
       _id: 'someidhere',
       email: 'test@test.com'
@@ -23,8 +24,8 @@ describe('user controller', function () {
     };
     beforeEach(function () {
       'use strict';
-      next               = sandbox.spy();
-      req                = {
+      next                = sandbox.spy();
+      req                 = {
         body: {
           customAuthUser: {
             email: 'test@test.com',
@@ -32,16 +33,16 @@ describe('user controller', function () {
           }
         }
       };
-      sendStub = sandbox.stub();
-      sendStubContainer = {send: sendStub};
-      statusStub = sandbox.stub().returns(sendStubContainer);
-      res                = {
+      sendStub            = sandbox.stub();
+      sendStubContainer   = {send: sendStub};
+      statusStub          = sandbox.stub().returns(sendStubContainer);
+      res                 = {
         send: sendStub,
         status: statusStub
       };
-      createUserStub     = sandbox.stub(userService, 'createUser');
-      createAuthStub     = sandbox.stub(authService, 'createAuthUser');
-      setCustomUserClaim = sandbox.stub(authService, 'createUserClaim');
+      createUserStub      = sandbox.stub(userService, 'createUser');
+      createAuthStub      = sandbox.stub(authService, 'createAuthUser');
+      setCustomUserClaim  = sandbox.stub(authService, 'createUserClaim');
       setCustomClaimsStub = sandbox.stub(authService, 'setCustomClaims');
     });
     it('should call res.send with a status of 200 when all details are present', async function () {
@@ -58,7 +59,7 @@ describe('user controller', function () {
       expect(sendStub).to.be.calledOnce;
       expect(sendStub).to.be.calledWith('user created');
     });
-    it('should call res.send with a status of 400 when there is no user email',async function () {
+    it('should call res.send with a status of 400 when there is no user email', async function () {
       req.body.customAuthUser.email = null;
       await userController.createNewUser(req, res, next);
       expect(res.status).to.be.calledOnce;
@@ -76,7 +77,7 @@ describe('user controller', function () {
       expect(res.send).to.be.calledOnce;
       expect(res.send).to.be.calledWith('missing data');
     });
-    it('should call res.send with 400 when user save fails',async ()=>{
+    it('should call res.send with 400 when user save fails', async () => {
       'use strict';
       createUserStub.resolves(false);
       await userController.createNewUser(req, res, next);
@@ -86,7 +87,7 @@ describe('user controller', function () {
       expect(res.send).to.be.calledOnce;
       expect(res.send).to.be.calledWith('error creating user');
     });
-    it('should call res.send with 400 when auth save fails', async ()=>{
+    it('should call res.send with 400 when auth save fails', async () => {
       'use strict';
       createUserStub.resolves(returnedUser);
       createAuthStub.resolves(false);
@@ -97,7 +98,7 @@ describe('user controller', function () {
       expect(res.send).to.be.calledOnce;
       expect(res.send).to.be.calledWith('error while saving auth object');
     });
-    it('should call res.send with 400 when adding custom claims fails', async ()=>{
+    it('should call res.send with 400 when adding custom claims fails', async () => {
       'use strict';
       createUserStub.resolves(returnedUser);
       createAuthStub.resolves(returnedAuth);
@@ -156,7 +157,7 @@ describe('user controller', function () {
       expect(res.send).to.be.calledOnce;
       expect(res.send).to.be.calledWith(amendedUser);
     });
-    it('should handle a false response from add address service', async ()=>{
+    it('should handle a false response from add address service', async () => {
       handleAddAddressStub.resolves(false);
       await userController.addAddress(req, res, next);
       expect(res.status).to.be.calledOnce;

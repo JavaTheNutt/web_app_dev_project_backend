@@ -6,7 +6,7 @@
 const Logger      = require('@util/Logger')('USER_CTRL');
 const _           = require('lodash');
 const userService = require('@user/service/userService');
-const authService = require('@Auth/authService');
+const authService = require('@Auth/service/authService');
 module.exports    = {
   /**
    * Create new User
@@ -36,7 +36,7 @@ module.exports    = {
       user: savedUser._id,
       firebaseId: req.body.customAuthUser.firebaseId
     });
-    if(!savedAuth){
+    if (!savedAuth) {
       Logger.warn(`there was an error saving the auth object`);
       return res.status(400).send('error while saving auth object');
     }
@@ -66,7 +66,7 @@ module.exports    = {
     const returnedUser = await userService.handleAddAddress(authDetails.user, req.body.address);
     Logger.verbose(`modified user returned without error`);
     Logger.verbose(`new user: ${JSON.stringify(returnedUser)}`);
-    if(!returnedUser){
+    if (!returnedUser) {
       Logger.warn(`new user does not exist, aborting`);
       return res.status(400).send('there was an error while adding an address')
     }

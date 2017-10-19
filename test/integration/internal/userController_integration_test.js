@@ -90,9 +90,9 @@ describe('user controller', () => {
       findOneAndUpdateStub = sandbox.stub(User, 'findOneAndUpdate');
       addressToBeAdded     = {
         text: '123, fake street',
-        loc: {
-          type: 'Point',
-          coordinates: [10, 10]
+        geo: {
+          lat: 10,
+          lng: 10
         }
       };
       amendedUser          = {
@@ -123,6 +123,14 @@ describe('user controller', () => {
       expect(statusStub).to.be.calledWith(200);
       expect(sendStub).to.be.calledOnce;
       expect(sendStub).to.be.calledWith(amendedUser);
+    });
+    it('should return a 400 error when address addition fails', async () => {
+      findOneAndUpdateStub.throws('an error has occurred');
+      await userController.addAddress(req, res, next);
+      expect(statusStub).to.be.calledOnce;
+      expect(statusStub).to.be.calledWith(400);
+      expect(sendStub).to.be.calledOnce;
+      expect(sendStub).to.be.calledWith('there was an error while adding an address');
     });
     afterEach(() => {
       sandbox.restore();

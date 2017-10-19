@@ -13,9 +13,9 @@ const bodyParser             = require('body-parser');
 const config                 = require('../config/config');
 const firebaseServiceAccount = require('../config/firebaseServiceKey.json'); //not included in repo, needs to be
                                                                              // created on clone
-const Logger      = require('@util/Logger')('INDEX');
-const mongoose    = require('mongoose');
-const authService = require('@Auth/authService');
+const Logger         = require('@util/Logger')('INDEX');
+const mongoose       = require('mongoose');
+const authMiddleware = require('@Auth/authMiddleware');
 Logger.info(`log level : ${config.logLevel}`);
 
 //set the app to log every request
@@ -42,10 +42,10 @@ admin.initializeApp({
 });
 
 //set flag on new user request
-app.use('/user/new', authService.authenticateNew);
+app.use('/user/new', authMiddleware.authenticateNew);
 
 //App authentication for every request.
-app.use(authService.authenticate);
+app.use(authMiddleware.authenticate);
 
 //load routes
 require('./router')(app);

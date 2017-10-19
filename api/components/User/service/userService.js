@@ -41,7 +41,6 @@ module.exports = exports = {
    */
   async handleAddAddress(user, address) {
     'use strict';
-    Logger.info(`request`);
     Logger.info(`request made to add address to user`);
     Logger.verbose(`user: ${user}`);
     Logger.verbose(`address: ${JSON.stringify(address)}`);

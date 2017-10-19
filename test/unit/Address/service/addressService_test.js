@@ -36,5 +36,42 @@ describe('address service', () => {
     afterEach(() => {
       sandbox.restore();
     })
+  });
+  describe('format details', () => {
+    let addressDetails, expectedResponse;
+    beforeEach(() => {
+      addressDetails   = {
+        text: '123, fake street',
+        geo: {
+          lat: 10,
+          lng: 10
+        }
+      };
+      expectedResponse = {
+        text: addressDetails.text,
+        loc: {
+          type: 'Point',
+          coordinates: [addressDetails.geo.lat, addressDetails.geo.lng]
+        }
+      };
+    });
+    it('should correctly format the details', () => {
+      const newDetails = addressService.formatDetails(addressDetails);
+      expect(newDetails).to.eql(expectedResponse);
+    });
+    it('should correctly set default values when no coordinates are provided', () => {
+      addressDetails.geo   = null;
+      expectedResponse.loc = {
+        type: 'Point',
+        coordinates: [0, 0]
+      };
+      const result         = addressService.formatDetails(addressDetails);
+      expect(result).to.eql(expectedResponse);
+    });
+    it('should return false when there is no text provided', () => {
+      addressDetails.text = null;
+      const result        = addressService.formatDetails(addressDetails);
+      expect(result).to.be.false;
+    });
   })
 });
