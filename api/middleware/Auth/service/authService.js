@@ -65,19 +65,20 @@ module.exports = exports = {
   async validateToken(token) {
     'use strict';
     Logger.info(`request received to validate authentication token`);
-    if (!token || typeof token !== 'string' || token.length < 1) {
+    if (!token || typeof token !== 'string' || token.length <= 5) {
       Logger.warn(`token is not valid format`);
-      return false;
+      return {error: {message: 'token is not valid format'}};
     }
     Logger.verbose(`token is valid format, testing validity`);
     Logger.verbose(`token to validate: ${JSON.stringify(token)}`);
     const decodedToken = await exports.decodeToken(token);
     Logger.verbose(`decoded token fetched`);
     Logger.verbose(`decoded token: ${JSON.stringify(decodedToken)}`);
-    if (!decodedToken) {
+    if (decodedToken.error) {
       Logger.warn(`token is not valid`);
-      return false;
+      return decodedToken;
     }
+    Logger.verbose(`token is assumed valid`);
     return decodedToken;
   },
   /**

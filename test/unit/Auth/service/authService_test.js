@@ -96,29 +96,36 @@ describe('auth service', () => {
       sandbox.restore();
     });
     it('should return false when an invalid object is passed', async () => {
-      const result = await authService.validateToken({token: 'sometoken'});
-      expect(result).to.equal(false);
+      const result = await authService.validateToken({token:'sometoken'});
+      expect(result).to.eql({error: {message: 'token is not valid format'}});
     });
     it('should return false a single chracter is passed', async () => {
       const result = await authService.validateToken('s');
-      expect(result).to.equal(false);
+      expect(result).to.eql({error: {message: 'token is not valid format'}});
     });
     it('should return false when nothing is passed', async () => {
       const result = await authService.validateToken();
-      expect(result).to.equal(false);
+      expect(result).to.eql({error: {message: 'token is not valid format'}});
     });
     it('should return true when it recieves a jwt to validate', async function () {
-      decodeStub.resolves(decodedToken);
+      decodeStub.resolves({data:decodedToken});
       const result = await authService.validateToken('testtoken');
       expect(result).to.exist;
       expect(decodeStub).to.be.calledWith('testtoken');
       expect(decodeStub).to.be.calledOnce;
-      expect(result.sub).to.equal(decodedToken.sub)
+      expect(result).to.eql({data:decodedToken})
     });
-    it('should handle errors gracefully', async function () {
-      decodeStub.resolves(false);
+    it('should handle thrown errors gracefully', async function () {
+      const err = new Error('this is an error');
+      decodeStub.resolves({error: {message: 'this is an error wrapper', err}});
       const result = await authService.validateToken('testtoken');
-      expect(result).to.be.false;
+      expect(result).to.eql({error: {message: 'this is an error wrapper', err}});
+      expect(decodeStub).to.be.calledOnce;
+    });
+    it('should handle unthrown errors gracefully', async function () {
+      decodeStub.resolves({error: {message: 'this is an error wrapper'}});
+      const result = await authService.validateToken('testtoken');
+      expect(result).to.eql({error: {message: 'this is an error wrapper'}});
       expect(decodeStub).to.be.calledOnce;
     })
   });
