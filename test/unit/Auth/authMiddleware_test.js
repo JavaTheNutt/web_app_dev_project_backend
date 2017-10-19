@@ -51,12 +51,12 @@ describe('auth middleware', function () {
       sandbox.restore();
     });
     it('should call next with no params when details are valid and token is not custom and not new', async () => {
-      verifyTokenStub.resolves(decodedToken);
-      handleClaimValidationStub.resolves({
+      verifyTokenStub.resolves({data:decodedToken});
+      handleClaimValidationStub.resolves({data:{
         firebaseId: decodedToken.sub,
         email: decodedToken.email,
         user: 'somemongoidhere'
-      });
+      }});
       await authMiddleware.authenticate(req, res, next);
       expect(verifyTokenStub).to.be.calledOnce;
       expect(verifyTokenStub).to.be.calledWith(req.headers.token);
@@ -71,7 +71,7 @@ describe('auth middleware', function () {
       expect(statusStub).to.be.calledOnce;
       expect(statusStub).to.be.calledWith(401);
       expect(sendStub.send).to.be.calledOnce;
-      expect(sendStub.send).to.be.calledWith('authentication failed');
+      expect(sendStub.send).to.be.calledWith({error:{message:'authentication failed'}});
     });
     it('should fail when no headers are present', async function () {
       req.headers = null;
@@ -79,15 +79,16 @@ describe('auth middleware', function () {
       expect(statusStub).to.be.calledOnce;
       expect(statusStub).to.be.calledWith(401);
       expect(sendStub.send).to.be.calledOnce;
-      expect(sendStub.send).to.be.calledWith('authentication failed');
+      expect(sendStub.send).to.be.calledWith({error:{message:'authentication failed'}});
     });
     it('should return 401 when token is deemed invalid', async function () {
-      verifyTokenStub.resolves(false);
+      const err = new Error('this is an error');
+      verifyTokenStub.resolves({error: {message: 'this is an error wrapper', err}});
       await authMiddleware.authenticate(req, res, next);
       expect(statusStub).to.be.calledOnce;
       expect(statusStub).to.be.calledWith(401);
       expect(sendStub.send).to.be.calledOnce;
-      expect(sendStub.send).to.be.calledWith('authentication failed');
+      expect(sendStub.send).to.be.calledWith({error:{message:'authentication failed'}});
     })
   });
 
