@@ -50,10 +50,16 @@ module.exports = exports = {
     Logger.info(`request recieved to fetch user id from firebase id`);
     const returnedAuth = await exports.fetchAuthByFirebaseId(firebaseId);
     Logger.verbose(`auth returned: ${JSON.stringify(returnedAuth)}`);
-    if (!returnedAuth || !returnedAuth.user) {
-      return null;
+    if (returnedAuth.error) {
+      Logger.warn(`an error occurred while fetching auth record`);
+      return returnedAuth;
     }
-    return returnedAuth.user.toString();
+    if(!returnedAuth.data.user){
+      Logger.warn(`user field is null on auth object`);
+      return {error: {message: 'auth record contains no user field'}};
+    }
+    Logger.verbose(`auth assumed valid`);
+    return {data:returnedAuth.data.user.toString()};
   },
   /**
    * Handle validation and decoding of tokens

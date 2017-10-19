@@ -35,7 +35,7 @@ module.exports    = {
     Logger.verbose(`new user: ${JSON.stringify(savedUser)}`);
     const savedAuth = await authService.createAuthUser({
       email: req.body.customAuthUser.email,
-      user: savedUser._id,
+      user: savedUser.data._id,
       firebaseId: req.body.customAuthUser.firebaseId
     });
     if (savedAuth.error) {
@@ -47,9 +47,11 @@ module.exports    = {
     Logger.verbose(`auth object assumed created`);
     Logger.verbose(`new auth: ${JSON.stringify(savedAuth)}`);
     Logger.verbose(`user has been successfully created`);
-    if (!(await authService.setCustomClaims(savedAuth.data.firebaseId, {user: savedAuth.data.user}))) {
+    const claimsSuccessful = await authService.setCustomClaims(savedAuth.data.firebaseId, {user: savedAuth.data.user});
+    if (claimsSuccessful.error) {
       Logger.warn(`adding custom auth claim failed`);
-      return res.status(500).send('error while adding custom claims to firebase');
+      const errorMsg = claimsSuccessful.error.err ? `${claimsSuccessful.error.message}: ${claimsSuccessful.error.err.message}` : claimsSuccessful.error.message;
+      return res.status(500).send({error:{message: errorMsg}});
     }
     //res.status(200);
     return res.status(201).send(savedUser);

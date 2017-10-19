@@ -126,20 +126,20 @@ describe('user controller', function () {
       expect(res.send).to.be.calledWith({error:{message: `${fakeError.error.message}`}});
     });
     //fixme need to refactor auth service before refactoring this
-    it('should call res.send with 500 when adding custom claims fails'/*, async () => {
+    it('should call res.send with 500 when adding custom claims fails', async () => {
       'use strict';
       const err = new Error('this is a firebase error');
-      const fakeError = {error:{message: 'an error occurred during the auth save operation', err}};
-      createUserStub.resolves(returnedUser);
-      createAuthStub.resolves(returnedAuth);
-      setCustomClaimsStub.resolves(false);
+      const fakeError = {error:{message: 'there was an error while adding custom claims', err}};
+      createUserStub.resolves({data:returnedUser});
+      createAuthStub.resolves({data:returnedAuth});
+      setCustomClaimsStub.resolves(fakeError);
       await userController.createNewUser(req, res, next);
       expect(res.status).to.be.calledOnce;
       expect(setCustomUserClaim).to.not.be.called;
       expect(res.status).to.be.calledWith(500);
       expect(res.send).to.be.calledOnce;
       expect(res.send).to.be.calledWith({error:{message: `${fakeError.error.message}: ${fakeError.error.err.message}`}});
-    }*/);
+    });
     afterEach(function () {
       'use strict';
       sandbox.restore();

@@ -327,20 +327,21 @@ describe('auth service', () => {
       sandbox.restore();
     });
     it('should recieve a firebase id and return a user id', async () => {
-      fetchAuthByFirebaseIdStub.resolves(returnedAuth);
+      fetchAuthByFirebaseIdStub.resolves({data:returnedAuth});
       const result = await authService.fetchUserIdFromFirebaseId(returnedAuth.firebaseId);
-      expect(result).to.equal(returnedAuth.user);
+      expect(result).to.eql({data:returnedAuth.user});
     });
     it('should handle errors non existant records', async () => {
-      fetchAuthByFirebaseIdStub.resolves(false);
+      const err = new Error('an error has occurred');
+      fetchAuthByFirebaseIdStub.resolves({error: {message: 'there was an error while fetching specified auth record', err}});
       const result = await authService.fetchUserIdFromFirebaseId(returnedAuth.firebaseId);
-      expect(result).to.equal(null);
+      expect(result).to.eql({error: {message: 'there was an error while fetching specified auth record', err}});
     });
     it('should handle records with no user field', async () => {
       returnedAuth.user = null;
-      fetchAuthByFirebaseIdStub.resolves(returnedAuth);
+      fetchAuthByFirebaseIdStub.resolves({data:returnedAuth});
       const result = await authService.fetchUserIdFromFirebaseId(returnedAuth.firebaseId);
-      expect(result).to.equal(null);
+      expect(result).to.eql({error: {message: 'auth record contains no user field'}});
     });
   })
 });
