@@ -6,7 +6,7 @@ module.exports = exports = {
   /**
    * Create and validate a new address
    * @param addressDetails the details to be validated
-   * @returns {Promise.<void>} the created address if successful, false otherwise
+   * @returns {Promise.<Object>} the created address if successful, false otherwise
    */
   async validateAddress(addressDetails) {
     'use strict';
@@ -14,16 +14,21 @@ module.exports = exports = {
     Logger.verbose(`details to be validated: ${JSON.stringify(addressDetails)}`);
     try {
       const formattedDetails = exports.formatDetails(addressDetails);
+      if(formattedDetails.error){
+        Logger.warn(`an error occurred while formatting address`);
+        return {error: {message:formattedDetails.error}}
+      }
       Logger.verbose(`newly formatted Details: ${JSON.stringify(formattedDetails)}`);
       const newAddress = new Address(formattedDetails);
       Logger.verbose(`address created without error`);
       Logger.verbose(`new address: ${JSON.stringify(newAddress)}`);
       await newAddress.validate();
       Logger.verbose(`address assumed valid`);
-      return newAddress;
+      return {data: newAddress};
     } catch (err) {
       Logger.warn(`there was an error while validating the address`);
       Logger.error(`error: ${JSON.stringify(err)}`);
+      return {error: {message: 'address validation failed', err}}
     }
   },
   formatDetails(addressDetails) {
@@ -32,7 +37,7 @@ module.exports = exports = {
     Logger.verbose(`details: ${JSON.stringify(addressDetails)}`);
     if (!addressDetails.text) {
       Logger.warn(`no address text provided, aborting`);
-      return false;
+      return {error: {message:'address text is required'}};
     }
     Logger.verbose(`address text is provided, procceding`);
     const detailsToBeReturned = {
@@ -52,7 +57,7 @@ module.exports = exports = {
       };
     }
     Logger.verbose(`returning details: ${JSON.stringify(detailsToBeReturned)}`);
-    return detailsToBeReturned
+    return {data:detailsToBeReturned}
   }
 };
 
