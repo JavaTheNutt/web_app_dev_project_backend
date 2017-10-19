@@ -13,7 +13,7 @@ const addressService = require('@Address/service/addressService');
 describe('user service', () => {
   'use strict';
   describe('user creation', () => {
-    let userDetails, saveStub, savedResponse;
+    let userDetails, saveStub, savedResponse, fakeError, err;
     beforeEach(() => {
       userDetails   = {email: 'test@test.com'};
       savedResponse = {
@@ -21,6 +21,8 @@ describe('user service', () => {
         email: 'test@test.com'
       };
       saveStub      = sandbox.stub(User.prototype, 'save');
+      err = new Error('this is a firebase error')
+      fakeError = {error:{message: 'an error occurred during the user save operation', err}}
     });
     afterEach(() => {
       sandbox.restore();
@@ -28,47 +30,44 @@ describe('user service', () => {
     it('should successfully return a newly created user when passed correct details', async () => {
       const res = await userService.createUser(userDetails);
       expect(saveStub).to.be.calledOnce;
-      expect(res._doc).to.have.own.keys('_id', 'email', 'addresses');
-      expect(res._doc._id.toString().length).to.equal(24);
-      expect(Array.isArray(res._doc.addresses)).to.be.true;
-      expect(res._doc.addresses.length).to.equal(0);
-      expect(res._doc.email).to.equal(userDetails.email);
+      expect(res.data).to.have.own.keys('_id', 'email', 'addresses');
+      expect(res.data._id.toString().length).to.equal(24);
+      expect(Array.isArray(res.data.addresses)).to.be.true;
+      expect(res.data.addresses.length).to.equal(0);
+      expect(res.data.email).to.equal(userDetails.email);
     });
     it('should handle errors gracefully', async () => {
-      saveStub.throws(Error('an error has occurred'));
+      saveStub.throws(err);
       const res = await userService.createUser(userDetails);
-      expect(res).to.not.exist;
+      expect(res).to.eql(fakeError);
     });
   });
   describe('handle add address', () => {
-    let validateAddressStub, addAddressStub, fakeUserId, fakeAddress, validatedAddress, updatedUser;
+    let validateAddressStub, addAddressStub, fakeUserId, fakeAddress, validatedAddress, updatedUser, fakeError;
     beforeEach(() => {
       validateAddressStub = sandbox.stub(userService, 'validateAddress');
       addAddressStub      = sandbox.stub(userService, 'addAddress');
       fakeUserId          = ObjectId();
       fakeAddress         = {text: '123 fake street'};
-      validatedAddress    = new Address(fakeAddress);
-      updatedUser         = new User({
-        email: 'test@test.com',
-        addresses: [validatedAddress]
-      });
+      validatedAddress    = {data: fakeAddress};
+      updatedUser         = {data:{email: 'test@test.com', addresses: [validatedAddress]}};
+      fakeError = {error: {message: 'an error has occurred'}}
     });
     it('should handle address validation errors gracefully', async () => {
-      validateAddressStub.resolves(false);
+      validateAddressStub.resolves(fakeError);
       const result = await userService.handleAddAddress(fakeUserId, fakeAddress);
-      expect(result).to.equal(false);
+      expect(result).to.eql(fakeError);
     });
     it('should handle user update errors gracefully', async () => {
       validateAddressStub.resolves(validatedAddress);
-      addAddressStub.resolves(false);
+      addAddressStub.resolves(fakeError);
       const result = await userService.handleAddAddress(fakeUserId, fakeAddress);
-      expect(result).to.equal(false);
+      expect(result).to.equal(fakeError);
     });
     it('should return an saved user object when passed correct details', async () => {
       validateAddressStub.resolves(validatedAddress);
       addAddressStub.resolves(updatedUser);
       const result = await userService.handleAddAddress(fakeUserId, fakeAddress);
-      expect(result).to.not.equal(false);
       expect(result).to.eql(updatedUser);
     });
     afterEach(() => {
@@ -90,17 +89,19 @@ describe('user service', () => {
       }
     });
     it('should successfully add an address with just a name', async () => {
-      updateStub.resolves(fakeUser);
+      updateStub.resolves({data:fakeUser});
       const response = await userService.addAddress(fakeUserId, addressDetails);
       expect(response).to.exist;
-      expect(Array.isArray(response.addresses)).to.be.true;
-      expect(response.addresses.length).to.equal(1);
+      expect(Array.isArray(response.data.addresses)).to.be.true;
+      expect(response.data.addresses.length).to.equal(1);
       expect(updateStub).to.be.calledOnce;
     });
     it('should gracefully handle errors', async () => {
-      updateStub.throws(new Error('this is an error'));
+      const err = new Error('this is an error');
+      updateStub.throws(err);
+      const fakeError = {error: {message: 'an error occurred while updating the user', err}};
       const response = await userService.addAddress(fakeUserId, addressDetails);
-      expect(response).to.equal(false);
+      expect(response).to.eql(fakeError);
     });
     afterEach(() => {
       sandbox.restore();
@@ -111,11 +112,7 @@ describe('user service', () => {
     beforeEach(() => {
       validateStub   = sandbox.stub(addressService, 'validateAddress');
       addressDetails = {
-        text: '123 fake street, fake town, fake country'/*,
-        loc: {
-          type: 'Point',
-          coordinates: [10, 10]
-        }*/
+        text: '123 fake street, fake town, fake country'
       };
       validAddress   = new Address(addressDetails);
 
@@ -124,17 +121,13 @@ describe('user service', () => {
       validateStub.resolves(validAddress);
       const res = await userService.validateAddress(addressDetails);
       expect(res).to.exist;
-      expect(res._id).to.exist;
-    });
-    it('should handle errors gracefully', async () => {
-      validateStub.throws(new Error('an error'));
-      const res = await userService.validateAddress(addressDetails);
-      expect(res).to.equal(false);
+      expect(res.data._id).to.exist;
     });
     it('should handle invalid responses gracefully', async () => {
-      validateStub.resolves(false);
+      const fakeErr = {error: {message: 'an error has occurred'}};
+      validateStub.resolves(fakeErr);
       const res = await userService.validateAddress(addressDetails);
-      expect(res).to.equal(false);
+      expect(res).to.eql(fakeErr);
     });
     afterEach(() => {
       sandbox.restore();

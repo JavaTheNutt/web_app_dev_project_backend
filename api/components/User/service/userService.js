@@ -12,7 +12,7 @@ module.exports = exports = {
   /**
    * Create a new user record
    * @param userDetails {object} the details required to make a new user
-   * @returns {Promise.<null>}
+   * @returns {Promise.<Object>}
    * @memberOf module:user/service
    */
   async createUser(userDetails) {
@@ -24,11 +24,11 @@ module.exports = exports = {
     try {
       await newUser.save();
       Logger.verbose(`user saved without error`);
-      return newUser;
+      return {data:newUser._doc};
     } catch (err) {
       Logger.warn(`user save failed`);
       Logger.error(`error: ${err}`);
-      return null;
+      return {error:{message:'an error occurred during the user save operation', err}};
     }
   },
   /**
@@ -45,17 +45,19 @@ module.exports = exports = {
     Logger.verbose(`user: ${user}`);
     Logger.verbose(`address: ${JSON.stringify(address)}`);
     const validAddress = await exports.validateAddress(address);
-    if (!validAddress) {
+    if (validAddress.error) {
       Logger.warn(`address is not valid, aborting`);
-      return false;
+      Logger.warn(`error: ${JSON.stringify(validAddress.error)}`);
+      return validAddress;
     }
     const updatedUser = await exports.addAddress(user, validAddress);
-    if (!updatedUser) {
+    if (updatedUser.error) {
       Logger.warn(`returend user is not valid, aborting`);
-      return false;
+      Logger.warn(`error: ${JSON.stringify(updatedUser.error)}`);
+      return updatedUser;
     }
     Logger.info(`address assumed added`);
-    Logger.verbose(`returning ${updatedUser}`);
+    Logger.verbose(`returning ${JSON.stringify(updatedUser)}`);
     return updatedUser;
   },
   /**
@@ -78,11 +80,11 @@ module.exports = exports = {
       });
       Logger.verbose(`update completed without error`);
       Logger.verbose(`updated doc: ${JSON.stringify(updatedUser)}`);
-      return updatedUser;
-    } catch (e) {
+      return {data:updatedUser.data};
+    } catch (err) {
       Logger.warn(`error during object creation`);
-      Logger.error(`error: ${e}`);
-      return false;
+      Logger.error(`error: ${err}`);
+      return {error:{message:'an error occurred while updating the user', err}};
     }
   },
   /**
@@ -96,13 +98,14 @@ module.exports = exports = {
     'use strict';
     Logger.info(`attempting to validate address`);
     Logger.verbose(`details to be validated: ${JSON.stringify(addressDetails)}`);
-    try {
-      return await addressService.validateAddress(addressDetails);
-    } catch (err) {
-      Logger.warn(`there was an error while validating the address`);
-      Logger.error(`error: ${JSON.stringify(err)}`);
-      return false;
+    const formattedAddress = await addressService.validateAddress(addressDetails);
+    if(formattedAddress.error){
+      Logger.warn(`an error occurred while validating the address`);
+      Logger.warn(`error message: ${formattedAddress.error.message}`);
+      return {error: formattedAddress.error}
     }
+    return {data:formattedAddress};
+
   }
 };
 
