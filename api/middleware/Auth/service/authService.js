@@ -150,18 +150,18 @@ module.exports = exports = {
     const authUser = await exports.fetchAuthByFirebaseId(firebaseId);
     Logger.verbose(`auth user fetched without error`);
     Logger.verbose(`auth user: ${JSON.stringify(authUser)}`);
-    if (!authUser) {
+    if (authUser.error) {
       Logger.warn(`auth user is non existant`);
-      return false;
+      return authUser;
     }
-    if (!authUser.user) {
+    if (!authUser.data.user) {
       Logger.warn(`no user field attached to returned auth object, aborting`);
-      return null;
+      return {error: {message: 'no user field attached to auth record'}};
     }
-    const claimToBeReturned = {user: authUser.user.toString()};
+    const claimToBeReturned = {user: authUser.data.user.toString()};
     Logger.verbose(`claim to be returned: ${claimToBeReturned}`);
     await exports.setCustomClaims(firebaseId, claimToBeReturned);
-    return claimToBeReturned;
+    return {data:claimToBeReturned};
   },
   /**
    * Wrapper for creating user auth model

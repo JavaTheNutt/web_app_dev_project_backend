@@ -266,28 +266,29 @@ describe('auth service', () => {
       }
     });
     it('returns a valid claim object', async () => {
-      fetchAuthByFirebaseIdStub.resolves(returnedAuth);
+      fetchAuthByFirebaseIdStub.resolves({data:returnedAuth});
       const result = await authService.createUserClaim(returnedAuth.firebaseId);
       expect(result).to.exist;
       expect(fetchAuthByFirebaseIdStub).to.be.calledOnce;
       expect(fetchAuthByFirebaseIdStub).to.be.calledWith(returnedAuth.firebaseId);
       expect(setCustomClaimsStub).to.be.calledOnce;
       expect(setCustomClaimsStub).to.be.calledWith(returnedAuth.firebaseId, returnedClaims);
-      expect(result).to.eql(returnedClaims);
+      expect(result).to.eql({data:returnedClaims});
     });
     it('handles empty responses gracefully', async () => {
-      fetchAuthByFirebaseIdStub.resolves(false);
+      const err = new Error('an error has occurred');
+      fetchAuthByFirebaseIdStub.resolves({error: {message: 'there was an error while fetching specified auth record', err}});
       const result = await authService.createUserClaim(returnedAuth.firebaseId);
-      expect(result).to.be.false;
+      expect(result).to.be.eql({error: {message: 'there was an error while fetching specified auth record', err}});
       expect(fetchAuthByFirebaseIdStub).to.be.calledOnce;
       expect(fetchAuthByFirebaseIdStub).to.be.calledWith(returnedAuth.firebaseId);
       expect(setCustomClaimsStub).to.not.be.called;
     });
     it('handles responses with no user field gracefully', async () => {
       returnedAuth.user = null;
-      fetchAuthByFirebaseIdStub.resolves(returnedAuth);
+      fetchAuthByFirebaseIdStub.resolves({data:returnedAuth});
       const result = await authService.createUserClaim(returnedAuth.firebaseId);
-      expect(result).to.not.exist;
+      expect(result).to.eql({error: {message: 'no user field attached to auth record'}});
     });
     afterEach(() => {
       sandbox.restore();
