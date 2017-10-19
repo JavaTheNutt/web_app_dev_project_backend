@@ -42,40 +42,52 @@ describe('user controller', () => {
     it('should call res.send with a status of 200 when the operation is successful', async () => {
       await userController.createNewUser(req, res, next);
       expect(res.status).to.be.calledOnce;
-      expect(res.status).to.be.calledWith(200);
+      expect(res.status).to.be.calledWith(201);
       expect(res.send).to.be.calledOnce;
-      expect(res.send).to.be.calledWith('user created');
+      expect(res.send).to.be.calledWith({data:'user created'});
     });
     it('should call res.send with a status of 400 when user save fails', async () => {
-      saveUserStub.throws('an error has occurred');
+      const saveUserError = new Error('an error has occurred');
+      const expectedResponse = {
+        error: `user save failed: ${saveUserError.message}`
+      };
+      saveUserStub.throws(saveUserError);
       await userController.createNewUser(req, res, next);
       expect(res.status).to.be.calledOnce;
       expect(res.status).to.be.calledWith(400);
       expect(res.send).to.be.calledOnce;
-      expect(res.send).to.be.calledWith('error creating user');
+      expect(res.send).to.be.calledWith(expectedResponse);
     });
     it('should call res.send with a status of 400 when auth save fails', async () => {
-      saveAuthStub.throws('an error has occurred');
+      const saveAuthError = new Error('an error has occurred');
+      saveAuthStub.throws(saveAuthError);
+      const expectedResponse = {
+        error: `user save failed: ${saveAuthError.message}`
+      };
       await userController.createNewUser(req, res, next);
       expect(res.status).to.be.calledOnce;
       expect(res.status).to.be.calledWith(400);
       expect(res.send).to.be.calledOnce;
-      expect(res.send).to.be.calledWith('error while saving auth object');
+      expect(res.send).to.be.calledWith(expectedResponse);
     });
     it('should call res.send with a status of 400 when addition of custom claims fails', async () => {
-      setCustomUserClaimsStub.throws('an error has occurred');
-      fetchAuthStub.resolves({
+      const setClaimsError = new Error('an error has occurred');
+      const expectedResponse = {
+        error: `user save failed: ${setClaimsError.message}`
+      };
+      setCustomUserClaimsStub.throws(setClaimsError);
+      fetchAuthStub.resolves({data:{
         _id: 'someidhere',
         email: 'test@test.com',
         user: 'someuseridhere',
         firebaseId: 'somefirebaseidhere'
 
-      });
+      }});
       await userController.createNewUser(req, res, next);
       expect(res.status).to.be.calledOnce;
       expect(res.status).to.be.calledWith(400);
       expect(res.send).to.be.calledOnce;
-      expect(res.send).to.be.calledWith('error while adding custom claims to firebase');
+      expect(res.send).to.be.calledWith(expectedResponse);
     });
     afterEach(() => {
       sandbox.restore();

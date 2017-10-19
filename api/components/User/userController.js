@@ -20,14 +20,16 @@ module.exports    = {
     Logger.info(`request made to create new user`);
     if (!checkCreateRequest(req)) {
       Logger.warn(`error while validating params, returning 400`);
-      res.status(400);
-      return res.send('missing data');
+      res.status(500);
+      return res.send({error:{message:'token was parsed successfully but is missing details'}});
     }
     Logger.verbose(`new user details assumed correct`);
     const savedUser = await userService.createUser(req.body.customAuthUser);
-    if (!savedUser) {
-      Logger.warn(`there was an error saving the user, returned user is null`);
-      return res.status(400).send('error creating user');
+    if (savedUser.error) {
+      Logger.warn(`there was an error saving the user`);
+      const errorMsg = savedUser.error.err ? `${savedUser.error.message}: ${savedUser.error.err.message}` : savedUser.error.message;
+      Logger.verbose(`error message to be returned: ${errorMsg}`);
+      return res.status(500).send({error:{message: errorMsg}});
     }
     Logger.verbose(`user assumed created`);
     Logger.verbose(`new user: ${JSON.stringify(savedUser)}`);
@@ -36,19 +38,21 @@ module.exports    = {
       user: savedUser._id,
       firebaseId: req.body.customAuthUser.firebaseId
     });
-    if (!savedAuth) {
+    if (savedAuth.error) {
       Logger.warn(`there was an error saving the auth object`);
-      return res.status(400).send('error while saving auth object');
+      const errorMsg = savedAuth.error.err ? `${savedAuth.error.message}: ${savedAuth.error.err.message}` : savedAuth.error.message;
+      Logger.verbose(`error to be returned: ${errorMsg}`);
+      return res.status(500).send({error:{message: errorMsg}});
     }
     Logger.verbose(`auth object assumed created`);
     Logger.verbose(`new auth: ${JSON.stringify(savedAuth)}`);
     Logger.verbose(`user has been successfully created`);
-    if (!(await authService.setCustomClaims(savedAuth.firebaseId, {user: savedAuth.user}))) {
+    if (!(await authService.setCustomClaims(savedAuth.data.firebaseId, {user: savedAuth.data.user}))) {
       Logger.warn(`adding custom auth claim failed`);
-      return res.status(400).send('error while adding custom claims to firebase');
+      return res.status(500).send('error while adding custom claims to firebase');
     }
     //res.status(200);
-    return res.status(200).send('user created');
+    return res.status(201).send(savedUser);
   },
   /**
    * Controller for adding an address to a user
@@ -66,9 +70,11 @@ module.exports    = {
     const returnedUser = await userService.handleAddAddress(authDetails.user, req.body.address);
     Logger.verbose(`modified user returned without error`);
     Logger.verbose(`new user: ${JSON.stringify(returnedUser)}`);
-    if (!returnedUser) {
+    if (returnedUser.error) {
       Logger.warn(`new user does not exist, aborting`);
-      return res.status(400).send('there was an error while adding an address')
+      const errorMsg = returnedUser.error.err ? `${returnedUser.error.message}: ${returnedUser.error.err.message}` : returnedUser.error.message;
+      Logger.verbose(`error to be returned: ${errorMsg}`);
+      return res.status(400).send({error:{message: errorMsg}})
     }
     Logger.verbose(`user exists, returning new user`);
     res.status(200).send(returnedUser);

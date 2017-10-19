@@ -21,7 +21,7 @@ describe('user service', () => {
         email: 'test@test.com'
       };
       saveStub      = sandbox.stub(User.prototype, 'save');
-      err = new Error('this is a firebase error')
+      err = new Error('this is a firebase error');
       fakeError = {error:{message: 'an error occurred during the user save operation', err}}
     });
     afterEach(() => {
