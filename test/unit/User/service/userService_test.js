@@ -42,6 +42,27 @@ describe('user service', () => {
       expect(res).to.eql(fakeError);
     });
   });
+  describe('delete user', ()=>{
+    let findByIdAndRemoveStub, userId;
+    beforeEach(()=>{
+      findByIdAndRemoveStub = sandbox.stub(User, 'findByIdAndRemove');
+      userId = ObjectId();
+    });
+    afterEach(()=>{
+      sandbox.restore();
+    });
+    it('should return true when a user is successfully deleted', async ()=>{
+      findByIdAndRemoveStub.resolves({_id: 'someidhere', email: 'test@test.com'});
+      const result = await userService.deleteUser(userId);
+      expect(result).to.be.true;
+    });
+    it('should return an error object to the user when the delete is unsuccessful', async()=>{
+      const err = new Error('this is an error');
+      findByIdAndRemoveStub.throws(err);
+      const result = await userService.deleteUser(userId);
+      expect(result).to.eql({error: {message: 'error while deleting user', err}});
+    });
+  });
   describe('handle add address', () => {
     let validateAddressStub, addAddressStub, fakeUserId, fakeAddress, validatedAddress, updatedUser, fakeError;
     beforeEach(() => {

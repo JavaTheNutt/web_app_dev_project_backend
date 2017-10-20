@@ -105,6 +105,19 @@ module.exports = exports = {
       return {error: formattedAddress.error}
     }
     return {data:formattedAddress};
+  },
+  async deleteUser(userId){
+    'use strict';
+    Logger.info(`request made ro delete user with id ${userId}`);
+    try{
+      await User.findByIdAndRemove({_id:userId});
+      Logger.verbose(`user assumed deleted`);
+      return true;
+    }catch (err){
+      Logger.warn(`there was an error while deleting the user`);
+      Logger.error(`error: ${err}`);
+      return{error: {message: 'error while deleting user', err}}
+    }
 
   }
 };
