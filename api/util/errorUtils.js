@@ -16,5 +16,22 @@ module.exports = exports = {
     }
     Logger.verbose(`error to be returned: ${JSON.stringify(returnedError)}`);
     return returnedError;
+  },
+  /**
+   * Format error to be sent to the client
+   * @param message {string} custom error message
+   * @param err {Error|void}
+   * @returns {{error: {message: string}}}
+   */
+  formatSendableError(message, err){
+    'use strict';
+    Logger.verbose(`request made to format error to be sent to user`);
+    const returnedError = {error:{message:message}};
+    if(err){
+      Logger.verbose(`error is present`);
+      returnedError.error.message += `: ${err.message}`;
+    }
+    Logger.verbose(`returned error: ${returnedError}`);
+    return returnedError;
   }
 };

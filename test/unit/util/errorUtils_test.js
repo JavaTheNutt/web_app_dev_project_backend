@@ -12,7 +12,7 @@ describe('error utils', ()=>{
   describe('format error', ()=>{
     it('should correctly return an error object with an error', ()=>{
       const err = new Error('this is an error');
-      const message = "this is a custom erorr message";
+      const message = "this is a custom error message";
       const newError = errorUtils.formatError(message, err);
       expect(newError).to.eql({error:{message: message, err}});
     });
@@ -21,5 +21,21 @@ describe('error utils', ()=>{
       const newError = errorUtils.formatError(message);
       expect(newError).to.eql({error:{message: message}});
     });
+  });
+  describe('format sendable error', ()=>{
+    it('should format an error correctly to be delivered to the user when there is an error present', ()=>{
+      const err = new Error('this is an error');
+      const message = "this is a custom error message";
+      const newError = errorUtils.formatSendableError(message, err);
+      expect(newError).to.eql({error:{message: `${message}: ${err.message}`}});
+    });
+    it('should format an error correctly to be delivered to the user when there is not an error present', ()=>{
+      const message = "this is a custom error message";
+      const newError = errorUtils.formatSendableError(message);
+      expect(newError).to.eql({error:{message: `${message}`}});
+    });
+  });
+  describe('format sendable error from object', ()=>{
+
   })
 });
