@@ -343,6 +343,27 @@ describe('auth service', () => {
       const result = await authService.fetchUserIdFromFirebaseId(returnedAuth.firebaseId);
       expect(result).to.eql({error: {message: 'auth record contains no user field'}});
     });
+  });
+  describe('delete auth record by id', ()=>{
+    let findByIdAndRemoveStub, authId;
+    beforeEach(()=>{
+      findByIdAndRemoveStub = sandbox.stub(userAuth, 'findByIdAndRemove');
+      authId = ObjectID();
+    });
+    afterEach(()=>{
+      sandbox.restore();
+    });
+    it('should return true when an object is deleted', async ()=>{
+      findByIdAndRemoveStub.resolves({_id: authId, email: 'test@test.com', user:'someobjectidhere', firebaseId: 'somefirebaseidhere'});
+      const result = await authService.deleteAuthRecordById(authId);
+      expect(result).to.be.true;
+    });
+    it('should handle errors while deleting', async()=>{
+      const err = new Error('an error has occurred');
+      findByIdAndRemoveStub.throws(err);
+      const result = await authService.deleteAuthRecordById(authId);
+      expect(result).to.eql({error: {message: 'an error has occurred while removing user auth', err}});
+    })
   })
 });
 

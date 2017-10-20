@@ -44,8 +44,6 @@ describe('user controller', () => {
       expect(res.status).to.be.calledOnce;
       expect(res.status).to.be.calledWith(201);
       expect(res.send).to.be.calledOnce;
-      //expect(res.send).to.be.calledWith({data:'user created'});
-      //todo implement this method of testing for rest of integration tests
       const sendArgs = sendStub.getCalls()[0].args;
       console.log(JSON.stringify(sendArgs));
       expect(sendArgs[0].data).to.be.have.all.keys('_id', 'email', 'addresses');

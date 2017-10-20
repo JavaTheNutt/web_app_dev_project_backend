@@ -217,6 +217,19 @@ module.exports = exports = {
       Logger.error(`error: ${JSON.stringify(err)}`);
       return {error: {message: 'there was an error while fetching specified auth record', err}};
     }
+  },
+  async deleteAuthRecordById(authId){
+    'use strict';
+    Logger.info(`request made to delete auth record for ${JSON.stringify(authId)}`);
+    try{
+      await UserAuth.findByIdAndRemove(authId);
+      Logger.verbose(`auth record assumed deleted`);
+      return true;
+    }catch(err){
+      Logger.warn(`error occurred while removing user auth`);
+      Logger.error(`error: ${JSON.stringify(err)}`);
+      return {error: {message: 'an error has occurred while removing user auth', err}}
+    }
   }
 };
 

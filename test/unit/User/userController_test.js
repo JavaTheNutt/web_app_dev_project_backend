@@ -125,7 +125,6 @@ describe('user controller', function () {
       expect(res.send).to.be.calledOnce;
       expect(res.send).to.be.calledWith({error:{message: `${fakeError.error.message}`}});
     });
-    //fixme need to refactor auth service before refactoring this
     it('should call res.send with 500 when adding custom claims fails', async () => {
       'use strict';
       const err = new Error('this is a firebase error');
