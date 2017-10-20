@@ -13,25 +13,39 @@ const Address        = require('@Address/models/Address').model;
 describe('address service', () => {
   'use strict';
   describe('validate address', () => {
-    let validateStub, addressDetails;
+    let validateStub, addressDetails, formatStub, formattedDetails;
     beforeEach(() => {
       addressDetails = {
         text: '123 fake street'
       };
+      formattedDetails = Object.assign({}, addressDetails);
+      formattedDetails.loc = {
+        type: 'Point',
+        coordinates: [0, 0]
+      };
       validateStub   = sandbox.stub(Address.prototype, 'validate');
+      formatStub = sandbox.stub(addressService, 'formatDetails');
     });
     it('should return true when an address is valid', async () => {
+      formatStub.returns(formattedDetails);
       validateStub.resolves(true);
       const result = await addressService.validateAddress(addressDetails);
       expect(result).to.exist;
       expect(result.data._id).to.exist;
     });
     it('should handle errors gracefully', async () => {
+      formatStub.returns(formattedDetails);
       validateStub.throws(Error('an error has occurred'));
       const result = await addressService.validateAddress(addressDetails);
       expect(result.error.message).to.equal('address validation failed');
       expect(result.error.err).to.exist;
       expect(validateStub).to.be.calledOnce;
+    });
+    it('should handle formatting errors gracefully', async ()=>{
+      formatStub.returns({error:{message: 'address text is required'}});
+      const result = await addressService.validateAddress(addressDetails);
+      expect(result).to.eql({error:{message: 'address text is required'}});
+      !expect(validateStub).to.not.be.called;
     });
     afterEach(() => {
       sandbox.restore();
