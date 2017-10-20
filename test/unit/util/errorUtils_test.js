@@ -36,6 +36,20 @@ describe('error utils', ()=>{
     });
   });
   describe('format sendable error from object', ()=>{
-
+    let message, error;
+    beforeEach(()=>{
+      message = 'this is a message';
+      error = new Error('this is an error');
+    });
+    it('should format a sendable error from a created error object containing an error', ()=>{
+      const formattedError = errorUtils.formatError(message, error);
+      const sendableFormattedError = errorUtils.formatSendableErrorFromObject(formattedError);
+      expect(sendableFormattedError).to.eql({error:{message: `${message}: ${error.message}`}})
+    });
+    it('should format a sendable error from a created error object not containing an error', ()=>{
+      const formattedError = errorUtils.formatError(message);
+      const sendableFormattedError = errorUtils.formatSendableErrorFromObject(formattedError);
+      expect(sendableFormattedError).to.eql({error:{message: `${message}`}})
+    });
   })
 });

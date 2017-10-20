@@ -33,5 +33,16 @@ module.exports = exports = {
     }
     Logger.verbose(`returned error: ${returnedError}`);
     return returnedError;
+  },
+  /**
+   *
+   * @param errorObj
+   * @returns {*|{error: {message: string}}}
+   */
+  formatSendableErrorFromObject(errorObj){
+    'use strict';
+    Logger.verbose(`request made to format sendable error from object`);
+    Logger.verbose(`error: ${JSON.stringify(errorObj)}`);
+    return exports.formatSendableError(errorObj.error.message, errorObj.error.err);
   }
 };
