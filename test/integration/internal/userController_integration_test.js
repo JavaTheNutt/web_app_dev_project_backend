@@ -44,17 +44,21 @@ describe('user controller', () => {
       expect(res.status).to.be.calledOnce;
       expect(res.status).to.be.calledWith(201);
       expect(res.send).to.be.calledOnce;
-      expect(res.send).to.be.calledWith({data:'user created'});
+      //expect(res.send).to.be.calledWith({data:'user created'});
+      //todo implement this method of testing for rest of integration tests
+      const sendArgs = sendStub.getCalls()[0].args;
+      console.log(JSON.stringify(sendArgs));
+      expect(sendArgs[0].data).to.be.have.all.keys('_id', 'email', 'addresses');
     });
     it('should call res.send with a status of 400 when user save fails', async () => {
       const saveUserError = new Error('an error has occurred');
       const expectedResponse = {
-        error: `user save failed: ${saveUserError.message}`
+        error: {message:`an error occurred during the user save operation: ${saveUserError.message}`}
       };
       saveUserStub.throws(saveUserError);
       await userController.createNewUser(req, res, next);
       expect(res.status).to.be.calledOnce;
-      expect(res.status).to.be.calledWith(400);
+      expect(res.status).to.be.calledWith(500);
       expect(res.send).to.be.calledOnce;
       expect(res.send).to.be.calledWith(expectedResponse);
     });
@@ -62,18 +66,18 @@ describe('user controller', () => {
       const saveAuthError = new Error('an error has occurred');
       saveAuthStub.throws(saveAuthError);
       const expectedResponse = {
-        error: `user save failed: ${saveAuthError.message}`
+        error: {message:`an error occurred while saving auth record: ${saveAuthError.message}`}
       };
       await userController.createNewUser(req, res, next);
       expect(res.status).to.be.calledOnce;
-      expect(res.status).to.be.calledWith(400);
+      expect(res.status).to.be.calledWith(500);
       expect(res.send).to.be.calledOnce;
       expect(res.send).to.be.calledWith(expectedResponse);
     });
     it('should call res.send with a status of 400 when addition of custom claims fails', async () => {
       const setClaimsError = new Error('an error has occurred');
       const expectedResponse = {
-        error: `user save failed: ${setClaimsError.message}`
+        error: {message:`there was an error while adding custom claims: ${setClaimsError.message}`}
       };
       setCustomUserClaimsStub.throws(setClaimsError);
       fetchAuthStub.resolves({data:{
@@ -85,7 +89,7 @@ describe('user controller', () => {
       }});
       await userController.createNewUser(req, res, next);
       expect(res.status).to.be.calledOnce;
-      expect(res.status).to.be.calledWith(400);
+      expect(res.status).to.be.calledWith(500);
       expect(res.send).to.be.calledOnce;
       expect(res.send).to.be.calledWith(expectedResponse);
     });
@@ -129,20 +133,21 @@ describe('user controller', () => {
       next                 = sandbox.stub();
     });
     it('should successfully add an address', async () => {
-      findOneAndUpdateStub.resolves(amendedUser);
+      findOneAndUpdateStub.resolves({data:amendedUser});
       await userController.addAddress(req, res, next);
       expect(statusStub).to.be.calledOnce;
       expect(statusStub).to.be.calledWith(200);
       expect(sendStub).to.be.calledOnce;
-      expect(sendStub).to.be.calledWith(amendedUser);
+      expect(sendStub).to.be.calledWith({data:amendedUser});
     });
     it('should return a 400 error when address addition fails', async () => {
-      findOneAndUpdateStub.throws('an error has occurred');
+      const err = new Error('an error has occurred');
+      findOneAndUpdateStub.throws(err);
       await userController.addAddress(req, res, next);
       expect(statusStub).to.be.calledOnce;
       expect(statusStub).to.be.calledWith(400);
       expect(sendStub).to.be.calledOnce;
-      expect(sendStub).to.be.calledWith('there was an error while adding an address');
+      expect(sendStub).to.be.calledWith({error:{message: `an error occurred while updating the user: ${err.message}`}});
     });
     afterEach(() => {
       sandbox.restore();

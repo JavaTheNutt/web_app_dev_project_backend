@@ -16,10 +16,10 @@ module.exports = exports = {
       const formattedDetails = exports.formatDetails(addressDetails);
       if(formattedDetails.error){
         Logger.warn(`an error occurred while formatting address`);
-        return {error: {message:formattedDetails.error}}
+        return {error: formattedDetails.error}
       }
       Logger.verbose(`newly formatted Details: ${JSON.stringify(formattedDetails)}`);
-      const newAddress = new Address(formattedDetails);
+      const newAddress = new Address(formattedDetails.data);
       Logger.verbose(`address created without error`);
       Logger.verbose(`new address: ${JSON.stringify(newAddress)}`);
       await newAddress.validate();

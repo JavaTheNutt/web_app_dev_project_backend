@@ -53,7 +53,6 @@ module.exports    = {
       const errorMsg = claimsSuccessful.error.err ? `${claimsSuccessful.error.message}: ${claimsSuccessful.error.err.message}` : claimsSuccessful.error.message;
       return res.status(500).send({error:{message: errorMsg}});
     }
-    //res.status(200);
     return res.status(201).send(savedUser);
   },
   /**

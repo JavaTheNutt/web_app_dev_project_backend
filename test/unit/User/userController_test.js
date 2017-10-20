@@ -104,7 +104,7 @@ describe('user controller', function () {
       'use strict';
       const err = new Error('this is a firebase error');
       const fakeError = {error:{message: 'an error occurred during the auth save operation', err}};
-      createUserStub.resolves(returnedUser);
+      createUserStub.resolves({data:returnedUser});
       createAuthStub.resolves(fakeError);
       await userController.createNewUser(req, res, next);
       expect(res.status).to.be.calledOnce;
@@ -116,7 +116,7 @@ describe('user controller', function () {
     it('should call res.send with 500 when auth save fails because of an unthrown error', async () => {
       'use strict';
       const fakeError = {error:{message: 'an error occurred during the auth save operation'}};
-      createUserStub.resolves(returnedUser);
+      createUserStub.resolves({data:returnedUser});
       createAuthStub.resolves(fakeError);
       await userController.createNewUser(req, res, next);
       expect(res.status).to.be.calledOnce;
