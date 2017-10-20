@@ -42,6 +42,10 @@ module.exports    = {
       Logger.warn(`there was an error saving the auth object`);
       const errorMsg = savedAuth.error.err ? `${savedAuth.error.message}: ${savedAuth.error.err.message}` : savedAuth.error.message;
       Logger.verbose(`error to be returned: ${errorMsg}`);
+      const deleteUser = await userService.deleteUser(savedUser.data._id);
+      /*if(deleteUser.error){
+        Logger.warn(`an error occurred while deleting user`);
+      }*/
       return res.status(500).send({error:{message: errorMsg}});
     }
     Logger.verbose(`auth object assumed created`);
@@ -51,6 +55,8 @@ module.exports    = {
     if (claimsSuccessful.error) {
       Logger.warn(`adding custom auth claim failed`);
       const errorMsg = claimsSuccessful.error.err ? `${claimsSuccessful.error.message}: ${claimsSuccessful.error.err.message}` : claimsSuccessful.error.message;
+      const deleteUser = await userService.deleteUser(savedUser.data._id);
+      const deleteAuth = await authService.deleteAuthRecordById(savedAuth.data._id);
       return res.status(500).send({error:{message: errorMsg}});
     }
     return res.status(201).send(savedUser);

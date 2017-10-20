@@ -11,7 +11,7 @@ const userService    = require('@user/service/userService');
 const authService    = require('@Auth/service/authService');
 describe('user controller', function () {
   describe('create new user', function () {
-    let req, res, next, createUserStub, createAuthStub, setCustomUserClaim, sendStub, sendStubContainer, statusStub,
+    let req, res, next, createUserStub, createAuthStub, setCustomUserClaim, sendStub, sendStubContainer, statusStub, deleteUserStub, deleteAuthStub,
         setCustomClaimsStub;
     const returnedUser = {
       _id: 'someidhere',
@@ -44,6 +44,8 @@ describe('user controller', function () {
       createAuthStub      = sandbox.stub(authService, 'createAuthUser');
       setCustomUserClaim  = sandbox.stub(authService, 'createUserClaim');
       setCustomClaimsStub = sandbox.stub(authService, 'setCustomClaims');
+      deleteUserStub = sandbox.stub(userService, 'deleteUser');
+      deleteAuthStub = sandbox.stub(authService, 'deleteAuthRecordById');
     });
     it('should call res.send with a status of 200 when all details are present', async function () {
       setCustomClaimsStub.resolves(true);
@@ -51,6 +53,8 @@ describe('user controller', function () {
       createAuthStub.resolves({data:returnedAuth});
       await userController.createNewUser(req, res, next);
       expect(createUserStub).to.be.calledOnce;
+      expect(deleteAuthStub).to.not.be.called;
+      expect(deleteUserStub).to.not.be.called;
       expect(createAuthStub).to.be.calledOnce;
       expect(setCustomClaimsStub).to.be.calledOnce;
       expect(setCustomClaimsStub).to.be.calledWith(returnedAuth.firebaseId);
@@ -63,6 +67,8 @@ describe('user controller', function () {
       req.body.customAuthUser.email = null;
       await userController.createNewUser(req, res, next);
       expect(res.status).to.be.calledOnce;
+      expect(deleteAuthStub).to.not.be.called;
+      expect(deleteUserStub).to.not.be.called;
       expect(setCustomUserClaim).to.not.be.called;
       expect(res.status).to.be.calledWith(500);
       expect(res.send).to.be.calledOnce;
@@ -71,6 +77,8 @@ describe('user controller', function () {
     it('should call res.send with a status of 500 when there is no firebase id', async function () {
       req.body.customAuthUser.firebaseId = null;
       await userController.createNewUser(req, res, next);
+      expect(deleteAuthStub).to.not.be.called;
+      expect(deleteUserStub).to.not.be.called;
       expect(res.status).to.be.calledOnce;
       expect(setCustomUserClaim).to.not.be.called;
       expect(res.status).to.be.calledWith(500);
@@ -83,6 +91,8 @@ describe('user controller', function () {
       const fakeError = {error:{message: 'an error occurred during the user save operation', err}};
       createUserStub.resolves(fakeError);
       await userController.createNewUser(req, res, next);
+      expect(deleteAuthStub).to.not.be.called;
+      expect(deleteUserStub).to.not.be.called;
       expect(res.status).to.be.calledOnce;
       expect(setCustomUserClaim).to.not.be.called;
       expect(res.status).to.be.calledWith(500);
@@ -94,6 +104,8 @@ describe('user controller', function () {
       const fakeError = {error:{message: 'an error occurred during the auth save operation'}};
       createUserStub.resolves(fakeError);
       await userController.createNewUser(req, res, next);
+      expect(deleteAuthStub).to.not.be.called;
+      expect(deleteUserStub).to.not.be.called;
       expect(res.status).to.be.calledOnce;
       expect(setCustomUserClaim).to.not.be.called;
       expect(res.status).to.be.calledWith(500);
@@ -107,6 +119,8 @@ describe('user controller', function () {
       createUserStub.resolves({data:returnedUser});
       createAuthStub.resolves(fakeError);
       await userController.createNewUser(req, res, next);
+      expect(deleteAuthStub).to.not.be.called;
+      expect(deleteUserStub).to.be.calledOnce;
       expect(res.status).to.be.calledOnce;
       expect(setCustomUserClaim).to.not.be.called;
       expect(res.status).to.be.calledWith(500);
@@ -119,6 +133,8 @@ describe('user controller', function () {
       createUserStub.resolves({data:returnedUser});
       createAuthStub.resolves(fakeError);
       await userController.createNewUser(req, res, next);
+      expect(deleteAuthStub).to.not.be.called;
+      expect(deleteUserStub).to.be.calledOnce;
       expect(res.status).to.be.calledOnce;
       expect(setCustomUserClaim).to.not.be.called;
       expect(res.status).to.be.calledWith(500);
@@ -133,6 +149,8 @@ describe('user controller', function () {
       createAuthStub.resolves({data:returnedAuth});
       setCustomClaimsStub.resolves(fakeError);
       await userController.createNewUser(req, res, next);
+      expect(deleteAuthStub).to.be.calledOnce;
+      expect(deleteUserStub).to.be.calledOnce;
       expect(res.status).to.be.calledOnce;
       expect(setCustomUserClaim).to.not.be.called;
       expect(res.status).to.be.calledWith(500);
