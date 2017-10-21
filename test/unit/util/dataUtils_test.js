@@ -20,10 +20,16 @@ describe('data utils', ()=>{
       const result = dataUtils.formatData(data);
       expect(result).to.eql(data);
     });
-    it('should strip extra properties', ()=>{
+    it('should give errors precendence over data', ()=>{
+      const err = new Error('am error');
+      const testData = {data:{foo:'bar'}, error:{message:'am message',err}};
+      const result = dataUtils.formatData(testData);
+      expect(result).to.eql(errorUtils.formatError('am message', err))
+    });
+    it('should merge extra properties', ()=>{
       const data = {data:{foo:'bar'}, message: 'hello'};
       const result = dataUtils.formatData(data);
-      expect(result.message).to.not.exist;
+      expect(result).to.eql({data:{foo: 'bar', message: 'hello'}});
     });
     it('should handle errors passed as data', ()=>{
       const err = errorUtils.formatError('this is a message', new Error('this is an error'));
@@ -55,6 +61,35 @@ describe('data utils', ()=>{
       const err = new Error('this is an error');
       const result = dataUtils.formatData({data:err});
       expect(result).to.eql(errorUtils.formatError('data service was passed a raw error', err));
+    });
+  });
+  describe('merge data', ()=>{
+    it('should merge all properties into a data object', ()=>{
+      const testData = {data: {foo:'bar'}, message: 'hello', test: 'test'};
+      const mergedData = dataUtils.mergeData(testData);
+      expect(mergedData).to.eql({data:{foo:'bar', message:'hello', test:'test'}});
+    });
+    it('should handle duplicate properties gracefully', ()=>{
+      const testData = {data:{foo: 'foo'}, foo:'foo'};
+      const mergedData = dataUtils.mergeData(testData);
+      expect(mergedData).to.eql({data:{foo:'foo'}});
+    });
+    it('should take the new value for duplicate keys', ()=>{
+      const testData = {data:{foo: 'bar'}, foo:'foo'};
+      const mergedData = dataUtils.mergeData(testData);
+      expect(mergedData).to.eql({data:{foo:'foo'}});
+    })
+  });
+  describe('get non data properties', ()=>{
+    it('return all own properties except data', ()=>{
+      const data = {data:{foo:'foo'}, message:'hello', foo: 'bar'};
+      const result = dataUtils.getNonDataProperties(data);
+      expect(result).to.eql({message: 'hello', foo:'bar'})
+    });
+    it('should handle non existant data gracefully', ()=>{
+      const data = {message:'hello', foo: 'bar'};
+      const result = dataUtils.getNonDataProperties(data);
+      expect(result).to.eql(data)
     })
   })
 });
