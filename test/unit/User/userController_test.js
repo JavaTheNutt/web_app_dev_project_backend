@@ -9,6 +9,7 @@ const sandbox = sinon.sandbox.create();
 const userController = require('@user/userController');
 const userService    = require('@user/service/userService');
 const authService    = require('@Auth/service/authService');
+const errorUtils = require('@util/errorUtils');
 describe('user controller', function () {
   describe('create new user', function () {
     let req, res, next, createUserStub, createAuthStub, setCustomUserClaim, sendStub, sendStubContainer, statusStub, deleteUserStub, deleteAuthStub,
@@ -47,7 +48,7 @@ describe('user controller', function () {
       deleteUserStub = sandbox.stub(userService, 'deleteUser');
       deleteAuthStub = sandbox.stub(authService, 'deleteAuthRecordById');
     });
-    it('should call res.send with a status of 200 when all details are present', async function () {
+    it('should call res.send with a status of 201 when all details are present', async function () {
       setCustomClaimsStub.resolves(true);
       createUserStub.resolves({data:returnedUser});
       createAuthStub.resolves({data:returnedAuth});
@@ -63,99 +64,171 @@ describe('user controller', function () {
       expect(sendStub).to.be.calledOnce;
       expect(sendStub).to.be.calledWith({data: returnedUser});
     });
-    it('should call res.send with a status of 500 when there is no user email', async function () {
-      req.body.customAuthUser.email = null;
-      await userController.createNewUser(req, res, next);
-      expect(res.status).to.be.calledOnce;
-      expect(deleteAuthStub).to.not.be.called;
-      expect(deleteUserStub).to.not.be.called;
-      expect(setCustomUserClaim).to.not.be.called;
-      expect(res.status).to.be.calledWith(500);
-      expect(res.send).to.be.calledOnce;
-      expect(res.send).to.be.calledWith({error:{message:'token was parsed successfully but is missing details'}});
-    });
-    it('should call res.send with a status of 500 when there is no firebase id', async function () {
-      req.body.customAuthUser.firebaseId = null;
-      await userController.createNewUser(req, res, next);
-      expect(deleteAuthStub).to.not.be.called;
-      expect(deleteUserStub).to.not.be.called;
-      expect(res.status).to.be.calledOnce;
-      expect(setCustomUserClaim).to.not.be.called;
-      expect(res.status).to.be.calledWith(500);
-      expect(res.send).to.be.calledOnce;
-      expect(res.send).to.be.calledWith({error:{message:'token was parsed successfully but is missing details'}});
-    });
-    it('should call res.send with 500 when user save fails because of a thrown error', async () => {
+    describe('error checking', ()=>{
       'use strict';
-      const err = new Error('this is a firebase error');
-      const fakeError = {error:{message: 'an error occurred during the user save operation', err}};
-      createUserStub.resolves(fakeError);
-      await userController.createNewUser(req, res, next);
-      expect(deleteAuthStub).to.not.be.called;
-      expect(deleteUserStub).to.not.be.called;
-      expect(res.status).to.be.calledOnce;
-      expect(setCustomUserClaim).to.not.be.called;
-      expect(res.status).to.be.calledWith(500);
-      expect(res.send).to.be.calledOnce;
-      expect(res.send).to.be.calledWith({error:{message: `${fakeError.error.message}: ${fakeError.error.err.message}`}});
-    });
-    it('should call res.send with 500 when user save fails because of an unthrown error', async () => {
-      'use strict';
-      const fakeError = {error:{message: 'an error occurred during the auth save operation'}};
-      createUserStub.resolves(fakeError);
-      await userController.createNewUser(req, res, next);
-      expect(deleteAuthStub).to.not.be.called;
-      expect(deleteUserStub).to.not.be.called;
-      expect(res.status).to.be.calledOnce;
-      expect(setCustomUserClaim).to.not.be.called;
-      expect(res.status).to.be.calledWith(500);
-      expect(res.send).to.be.calledOnce;
-      expect(res.send).to.be.calledWith({error:{message: `${fakeError.error.message}`}});
-    });
-    it('should call res.send with 500 when auth save fails because of a thrown error', async () => {
-      'use strict';
-      const err = new Error('this is a firebase error');
-      const fakeError = {error:{message: 'an error occurred during the auth save operation', err}};
-      createUserStub.resolves({data:returnedUser});
-      createAuthStub.resolves(fakeError);
-      await userController.createNewUser(req, res, next);
-      expect(deleteAuthStub).to.not.be.called;
-      expect(deleteUserStub).to.be.calledOnce;
-      expect(res.status).to.be.calledOnce;
-      expect(setCustomUserClaim).to.not.be.called;
-      expect(res.status).to.be.calledWith(500);
-      expect(res.send).to.be.calledOnce;
-      expect(res.send).to.be.calledWith({error:{message: `${fakeError.error.message}: ${fakeError.error.err.message}`}});
-    });
-    it('should call res.send with 500 when auth save fails because of an unthrown error', async () => {
-      'use strict';
-      const fakeError = {error:{message: 'an error occurred during the auth save operation'}};
-      createUserStub.resolves({data:returnedUser});
-      createAuthStub.resolves(fakeError);
-      await userController.createNewUser(req, res, next);
-      expect(deleteAuthStub).to.not.be.called;
-      expect(deleteUserStub).to.be.calledOnce;
-      expect(res.status).to.be.calledOnce;
-      expect(setCustomUserClaim).to.not.be.called;
-      expect(res.status).to.be.calledWith(500);
-      expect(res.send).to.be.calledOnce;
-      expect(res.send).to.be.calledWith({error:{message: `${fakeError.error.message}`}});
-    });
-    it('should call res.send with 500 when adding custom claims fails', async () => {
-      'use strict';
-      const err = new Error('this is a firebase error');
-      const fakeError = {error:{message: 'there was an error while adding custom claims', err}};
-      createUserStub.resolves({data:returnedUser});
-      createAuthStub.resolves({data:returnedAuth});
-      setCustomClaimsStub.resolves(fakeError);
-      await userController.createNewUser(req, res, next);
-      expect(deleteAuthStub).to.be.calledOnce;
-      expect(deleteUserStub).to.be.calledOnce;
-      expect(res.status).to.be.calledOnce;
-      expect(setCustomUserClaim).to.not.be.called;
-      expect(res.status).to.be.calledWith(500);
-      expect(res.send).to.be.calledOnce;
-      expect(res.send).to.be.calledWith({error:{message: `${fakeError.error.message}: ${fakeError.error.err.message}`}});
+      describe('validation', ()=>{
+        it('should call res.send with a status of 500 when there is no user email', async function () {
+          req.body.customAuthUser.email = null;
+          await userController.createNewUser(req, res, next);
+          expect(res.status).to.be.calledOnce;
+          expect(deleteAuthStub).to.not.be.called;
+          expect(deleteUserStub).to.not.be.called;
+          expect(setCustomUserClaim).to.not.be.called;
+          expect(res.status).to.be.calledWith(500);
+          expect(res.send).to.be.calledOnce;
+          expect(res.send).to.be.calledWith({error:{message:'token was parsed successfully but is missing details'}});
+        });
+        it('should call res.send with a status of 500 when there is no firebase id', async function () {
+          req.body.customAuthUser.firebaseId = null;
+          await userController.createNewUser(req, res, next);
+          expect(deleteAuthStub).to.not.be.called;
+          expect(deleteUserStub).to.not.be.called;
+          expect(res.status).to.be.calledOnce;
+          expect(setCustomUserClaim).to.not.be.called;
+          expect(res.status).to.be.calledWith(500);
+          expect(res.send).to.be.calledOnce;
+          expect(res.send).to.be.calledWith({error:{message:'token was parsed successfully but is missing details'}});
+        });
+      });
+      describe('errors', ()=>{
+        let err;
+        beforeEach(()=>{
+          err = new Error('this is a firebase error');
+        });
+        describe('user save operation', ()=>{
+          const message = 'an error occurred during the user save operation';
+          it('should call res.send with 500 when user save fails because of a thrown error', async () => {
+            'use strict';
+            createUserStub.resolves(errorUtils.formatError(message, err));
+            await userController.createNewUser(req, res, next);
+            expect(deleteAuthStub).to.not.be.called;
+            expect(deleteUserStub).to.not.be.called;
+            expect(res.status).to.be.calledOnce;
+            expect(setCustomUserClaim).to.not.be.called;
+            expect(res.status).to.be.calledWith(500);
+            expect(res.send).to.be.calledOnce;
+            expect(res.send).to.be.calledWith(errorUtils.formatSendableError(message, err));
+          });
+          it('should call res.send with 500 when user save fails because of an unthrown error', async () => {
+            'use strict';
+            createUserStub.resolves(errorUtils.formatError(message));
+            await userController.createNewUser(req, res, next);
+            expect(deleteAuthStub).to.not.be.called;
+            expect(deleteUserStub).to.not.be.called;
+            expect(res.status).to.be.calledOnce;
+            expect(setCustomUserClaim).to.not.be.called;
+            expect(res.status).to.be.calledWith(500);
+            expect(res.send).to.be.calledOnce;
+            expect(res.send).to.be.calledWith(errorUtils.formatSendableError(message));
+          });
+        });
+        describe('auth save operation', ()=>{
+          const message = 'an error occurred during the auth save operation';
+          it('should call res.send with 500 when auth save fails because of a thrown error', async () => {
+            'use strict';
+            createUserStub.resolves({data:returnedUser});
+            createAuthStub.resolves(errorUtils.formatSendableError(message, err));
+            await userController.createNewUser(req, res, next);
+            expect(deleteAuthStub).to.not.be.called;
+            expect(deleteUserStub).to.be.calledOnce;
+            expect(res.status).to.be.calledOnce;
+            expect(setCustomClaimsStub).to.not.be.called;
+            expect(res.status).to.be.calledWith(500);
+            expect(res.send).to.be.calledOnce;
+            expect(res.send).to.be.calledWith(errorUtils.formatSendableError(message, err));
+          });
+          it('should call res.send with 500 when auth save fails because of an unthrown error', async () => {
+            'use strict';
+            createUserStub.resolves({data:returnedUser});
+            createAuthStub.resolves(errorUtils.formatError(message));
+            await userController.createNewUser(req, res, next);
+            expect(deleteAuthStub).to.not.be.called;
+            expect(deleteUserStub).to.be.calledOnce;
+            expect(res.status).to.be.calledOnce;
+            expect(setCustomUserClaim).to.not.be.called;
+            expect(res.status).to.be.calledWith(500);
+            expect(res.send).to.be.calledOnce;
+            expect(res.send).to.be.calledWith(errorUtils.formatSendableError(message));
+          });
+        });
+        describe('add auth claims', ()=>{
+          const message = 'there was an error while adding custom claims';
+          it('should call res.send with 500 when adding custom claims fails', async () => {
+            'use strict';
+            createUserStub.resolves({data:returnedUser});
+            createAuthStub.resolves({data:returnedAuth});
+            setCustomClaimsStub.resolves(errorUtils.formatError(message, err));
+            await userController.createNewUser(req, res, next);
+            expect(deleteAuthStub).to.be.calledOnce;
+            expect(deleteUserStub).to.be.calledOnce;
+            expect(res.status).to.be.calledOnce;
+            expect(setCustomClaimsStub).to.be.calledOnce;
+            expect(res.status).to.be.calledWith(500);
+            expect(res.send).to.be.calledOnce;
+            expect(res.send).to.be.calledWith(errorUtils.formatSendableError(message, err));
+          });
+        });
+        describe('cleanup', ()=>{
+          const originalError = errorUtils.formatError('this is an error message', new Error('I caused the error to be thrown'));
+          it('should return the original error when the delete user operation fails during the auth save operation', async ()=>{
+            createUserStub.resolves({data:returnedUser});
+            createAuthStub.resolves(originalError);
+            deleteUserStub.resolves(errorUtils.formatError('an error occurred during the delete operation', new Error('oops')));
+            await userController.createNewUser(req, res, next);
+            expect(deleteAuthStub).to.not.be.called;
+            expect(deleteUserStub).to.be.calledOnce;
+            expect(res.status).to.be.calledOnce;
+            expect(setCustomClaimsStub).to.not.be.called;
+            expect(res.status).to.be.calledWith(500);
+            expect(res.send).to.be.calledOnce;
+            expect(res.send).to.be.calledWith(errorUtils.formatSendableErrorFromObject(originalError));
+          });
+          it('should return the original error if the delete user operation fails during claims creation', async ()=>{
+            createUserStub.resolves({data:returnedUser});
+            createAuthStub.resolves({data:returnedAuth});
+            setCustomClaimsStub.resolves(originalError);
+            deleteUserStub.resolves(errorUtils.formatError('an error occurred during the delete operation', new Error('oops')));
+            await userController.createNewUser(req, res, next);
+            expect(deleteAuthStub).to.be.calledOnce;
+            expect(deleteUserStub).to.be.calledOnce;
+            expect(res.status).to.be.calledOnce;
+            expect(setCustomClaimsStub).to.be.called;
+            expect(res.status).to.be.calledWith(500);
+            expect(res.send).to.be.calledOnce;
+            expect(res.send).to.be.calledWith(errorUtils.formatSendableErrorFromObject(originalError));
+          });
+          it('should return the original error if the delete auth operation fails during claims creation', async ()=>{
+            createUserStub.resolves({data:returnedUser});
+            createAuthStub.resolves({data:returnedAuth});
+            setCustomClaimsStub.resolves(originalError);
+            deleteUserStub.resolves(true);
+            deleteAuthStub.resolves(errorUtils.formatError('an error occurred during the delete operation', new Error('oops')));
+            await userController.createNewUser(req, res, next);
+            expect(deleteAuthStub).to.be.calledOnce;
+            expect(deleteUserStub).to.be.calledOnce;
+            expect(res.status).to.be.calledOnce;
+            expect(setCustomClaimsStub).to.be.called;
+            expect(res.status).to.be.calledWith(500);
+            expect(res.send).to.be.calledOnce;
+            expect(res.send).to.be.calledWith(errorUtils.formatSendableErrorFromObject(originalError));
+          });
+          it('should return the original error if the both delete auth and delete user operations fail during claims creation',async ()=>{
+            createUserStub.resolves({data:returnedUser});
+            createAuthStub.resolves({data:returnedAuth});
+            setCustomClaimsStub.resolves(originalError);
+            deleteUserStub.resolves(errorUtils.formatError('an error occurred during the delete operation', new Error('oops')));
+            deleteAuthStub.resolves(errorUtils.formatError('an error occurred during the delete operation', new Error('oops')));
+            await userController.createNewUser(req, res, next);
+            expect(deleteAuthStub).to.be.calledOnce;
+            expect(deleteUserStub).to.be.calledOnce;
+            expect(res.status).to.be.calledOnce;
+            expect(setCustomClaimsStub).to.be.called;
+            expect(res.status).to.be.calledWith(500);
+            expect(res.send).to.be.calledOnce;
+            expect(res.send).to.be.calledWith(errorUtils.formatSendableErrorFromObject(originalError));
+          });
+        });
+      });
     });
     afterEach(function () {
       'use strict';

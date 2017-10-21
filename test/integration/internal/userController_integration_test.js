@@ -8,6 +8,7 @@ const sandbox = sinon.sandbox.create();
 const User           = require('@user/models/User').model;
 const userController = require('@user/userController');
 const UserAuth       = require('@Auth/models/UserAuth').model;
+const errorUtils = require('@util/errorUtils');
 const admin          = require('firebase-admin');
 
 describe('user controller', () => {
@@ -83,7 +84,6 @@ describe('user controller', () => {
         email: 'test@test.com',
         user: 'someuseridhere',
         firebaseId: 'somefirebaseidhere'
-
       }});
       await userController.createNewUser(req, res, next);
       expect(res.status).to.be.calledOnce;

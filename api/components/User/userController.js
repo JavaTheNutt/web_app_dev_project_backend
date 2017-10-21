@@ -7,6 +7,7 @@ const Logger      = require('@util/Logger')('USER_CTRL');
 const _           = require('lodash');
 const userService = require('@user/service/userService');
 const authService = require('@Auth/service/authService');
+const errorUtils = require('@util/errorUtils');
 module.exports    = {
   /**
    * Create new User
@@ -27,9 +28,7 @@ module.exports    = {
     const savedUser = await userService.createUser(req.body.customAuthUser);
     if (savedUser.error) {
       Logger.warn(`there was an error saving the user`);
-      const errorMsg = savedUser.error.err ? `${savedUser.error.message}: ${savedUser.error.err.message}` : savedUser.error.message;
-      Logger.verbose(`error message to be returned: ${errorMsg}`);
-      return res.status(500).send({error:{message: errorMsg}});
+      return res.status(500).send(errorUtils.formatSendableErrorFromObject(savedUser));
     }
     Logger.verbose(`user assumed created`);
     Logger.verbose(`new user: ${JSON.stringify(savedUser)}`);
@@ -40,13 +39,11 @@ module.exports    = {
     });
     if (savedAuth.error) {
       Logger.warn(`there was an error saving the auth object`);
-      const errorMsg = savedAuth.error.err ? `${savedAuth.error.message}: ${savedAuth.error.err.message}` : savedAuth.error.message;
-      Logger.verbose(`error to be returned: ${errorMsg}`);
       const deleteUser = await userService.deleteUser(savedUser.data._id);
       /*if(deleteUser.error){
         Logger.warn(`an error occurred while deleting user`);
       }*/
-      return res.status(500).send({error:{message: errorMsg}});
+      return res.status(500).send(errorUtils.formatSendableErrorFromObject(savedAuth));
     }
     Logger.verbose(`auth object assumed created`);
     Logger.verbose(`new auth: ${JSON.stringify(savedAuth)}`);
@@ -54,10 +51,9 @@ module.exports    = {
     const claimsSuccessful = await authService.setCustomClaims(savedAuth.data.firebaseId, {user: savedAuth.data.user});
     if (claimsSuccessful.error) {
       Logger.warn(`adding custom auth claim failed`);
-      const errorMsg = claimsSuccessful.error.err ? `${claimsSuccessful.error.message}: ${claimsSuccessful.error.err.message}` : claimsSuccessful.error.message;
       const deleteUser = await userService.deleteUser(savedUser.data._id);
       const deleteAuth = await authService.deleteAuthRecordById(savedAuth.data._id);
-      return res.status(500).send({error:{message: errorMsg}});
+      return res.status(500).send(errorUtils.formatSendableErrorFromObject(claimsSuccessful));
     }
     return res.status(201).send(savedUser);
   },

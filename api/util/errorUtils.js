@@ -3,7 +3,7 @@ module.exports = exports = {
   /**
    * Format errors
    * @param message {string} the error message
-   * @param err{Error|void} optional thrown error
+   * @param err{Error|undefined} optional thrown error
    * @returns {{error: {message: string}}}
    */
   formatError(message, err){
