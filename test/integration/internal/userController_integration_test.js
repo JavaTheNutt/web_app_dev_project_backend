@@ -15,10 +15,12 @@ describe('user controller', () => {
   'use strict';
   describe('add new user', () => {
     let saveUserStub, saveAuthStub, req, res, next, sendStub, sendStubContainer, statusStub, fetchAuthStub, authStub,
-        setCustomUserClaimsStubContainer, setCustomUserClaimsStub;
+        setCustomUserClaimsStubContainer, setCustomUserClaimsStub, deleteUserStub, deleteAuthStub;
     beforeEach(() => {
       saveUserStub                     = sandbox.stub(User.prototype, 'save');
       saveAuthStub                     = sandbox.stub(UserAuth.prototype, 'save');
+      deleteUserStub = sandbox.stub(User, 'findByIdAndRemove');
+      deleteAuthStub = sandbox.stub(UserAuth, 'findByIdAndRemove');
       req                              = {
         body: {
           customAuthUser: {
