@@ -46,5 +46,15 @@ describe('data utils', ()=>{
       const result = dataUtils.formatData(0);
       expect(result).to.eql({data: 0});
     });
+    it('should return properly wrapped errors when directly passed', ()=>{
+      const err = new Error('this is an error');
+      const result = dataUtils.formatData(err);
+      expect(result).to.eql(errorUtils.formatError('data service was passed a raw error', err));
+    });
+    it('should return properly wrapped errors when passed inside data object', ()=>{
+      const err = new Error('this is an error');
+      const result = dataUtils.formatData({data:err});
+      expect(result).to.eql(errorUtils.formatError('data service was passed a raw error', err));
+    })
   })
 });

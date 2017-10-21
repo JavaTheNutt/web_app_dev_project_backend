@@ -1,4 +1,5 @@
 const Logger = require('@util/Logger')('DATA_UTILS');
+const errorUtils = require('@util/errorUtils');
 module.exports = exports = {
   /**
    * standard data formatting
@@ -18,6 +19,14 @@ module.exports = exports = {
     if(!data){
       Logger.warn(`data does not exist, returning undefined`);
       return;
+    }
+    if(data instanceof Error){
+      Logger.warn(`data formatter passed error, returning wrapped error`);
+      return errorUtils.formatError('data service was passed a raw error', data);
+    }
+    if(data.data instanceof Error){
+      Logger.warn(`data formatter passed error, returning wrapped error`);
+      return errorUtils.formatError('data service was passed a raw error', data.data);
     }
     if(data.error){
       Logger.verbose(`data contains an error, returning error`);
