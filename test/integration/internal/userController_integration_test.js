@@ -4,6 +4,7 @@ const expect = chai.expect;
 chai.use(require('sinon-chai'));
 const sinon   = require('sinon');
 const sandbox = sinon.sandbox.create();
+const ObjectId = require('mongoose').Types.ObjectId;
 
 const User           = require('@user/models/User').model;
 const userController = require('@user/userController');
@@ -95,6 +96,68 @@ describe('user controller', () => {
     });
     afterEach(() => {
       sandbox.restore();
+    });
+  });
+  describe('update user', ()=>{
+    let req, res, next, statusStub, sendStub, sendStubContainer, updateStub, resolvedUser, err, errMessage;
+    beforeEach(() => {
+      req               = {
+        body: {
+          customAuthUser: {
+            user: ObjectId()
+          },
+          updateParams: {
+            firstName: 'joe',
+            surname: 'bloggs'
+          }
+        }
+      };
+      sendStub          = sandbox.stub();
+      sendStubContainer = {send: sendStub};
+      statusStub        = sandbox.stub().returns(sendStubContainer);
+      res               = {
+        send: sendStub,
+        status: statusStub
+      };
+      next              = sandbox.spy();
+      updateStub        = sandbox.stub(User, 'findByIdAndUpdate');
+      resolvedUser      = {
+        _id: req.body.customAuthUser.user,
+        email: 'test@test.com',
+        firstName: req.body.updateParams.firstName,
+        surname: req.body.updateParams.surname
+      };
+      errMessage = 'there was an error while updating user';
+      err = new Error('this error was caused during a DB write')
+    });
+    afterEach(() => {
+      sandbox.restore();
+    });
+    it('should a copy of the new user with a status of 200 when user is updated', async() => {
+      updateStub.resolves(resolvedUser);
+      const result = await userController.updateUser(req, res, next);
+      expect(statusStub).to.be.calledWith(200);
+      expect(sendStub).to.be.calledWith(resolvedUser);
+    });
+    it('should return a properly formatted error object in the case of an error', async()=>{
+      updateStub.resolves(errorUtils.formatError(errMessage, err));
+      const result = await userController.updateUser(req, res, next);
+      expect(statusStub).to.be.calledWith(400);
+      expect(sendStub).to.be.calledWith(errorUtils.formatSendableError(errMessage, err))
+    });
+    it('should return a properly formatted error when there are no update params',async ()=>{
+      req.body.updateParams = null;
+      const result = await userController.updateUser(req, res, next);
+      expect(statusStub).to.be.calledWith(400);
+      expect(updateStub).to.not.be.called;
+      expect(sendStub).to.be.calledWith(errorUtils.formatSendableError('no update params provided'))
+    });
+    it('should return a properly formatted error when update params are empty', async ()=>{
+      req.body.updateParams = {};
+      const result = await userController.updateUser(req, res, next);
+      expect(updateStub).to.not.be.called;
+      expect(statusStub).to.be.calledWith(400);
+      expect(sendStub).to.be.calledWith(errorUtils.formatSendableError('no update params provided'))
     });
   });
   describe('add new address', () => {
