@@ -193,23 +193,23 @@ describe('user service', () => {
     });
     it('should return the user who made the request',async ()=>{
       findStub.resolves(returnedUser);
-      const result = await userService.fetchUserById(userId);
+      const result = await userService.getUserById(userId);
       expect(result).to.eql(returnedUser);
     });
     it('should a properly formatted error in case of error', async()=>{
       const err = new Error('find user by id failed');
       findStub.throws(err);
-      const result = await userService.fetchUserById(userId);
+      const result = await userService.getUserById(userId);
       expect(result).to.eql(errorUtils.formatError('error occurred while fetching user', err));
     });
     it('should return a properly formatted error when returned user is undefined',async ()=>{
       findStub.resolves(undefined);
-      const result = await userService.fetchUserById(userId);
+      const result = await userService.getUserById(userId);
       expect(result).to.eql(errorUtils.formatError('user returned is not valid'));
     });
     it('should return a properly formatted error when returned user is empty',async ()=>{
       findStub.resolves({});
-      const result = await userService.fetchUserById(userId);
+      const result = await userService.getUserById(userId);
       expect(result).to.eql(errorUtils.formatError('user returned is not valid'));
     });
   })

@@ -189,7 +189,7 @@ describe('user controller', () => {
     });
     it('should return 200 when user fetch is successful', async () => {
       fetchStub.resolves(returnedUser);
-      await userController.fetchUserById(req, res, next);
+      await userController.getCurrentUser(req, res, next);
       expect(statusStub).to.be.calledWith(200);
       expect(sendStub).to.be.calledWith(returnedUser);
     });
@@ -197,21 +197,21 @@ describe('user controller', () => {
       const err = new Error('im an error that occurred during fetch');
       const msg = 'error occurred while fetching user';
       fetchStub.throws(err);
-      await userController.fetchUserById(req, res, next);
+      await userController.getCurrentUser(req, res, next);
       expect(statusStub).to.be.calledWith(500);
       expect(sendStub).to.be.calledWith(errorUtils.formatSendableError(msg, err));
     });
     it('should return 500 when user save fails because of undefined value', async () => {
       const msg = 'user returned is not valid';
       fetchStub.resolves(undefined);
-      await userController.fetchUserById(req, res, next);
+      await userController.getCurrentUser(req, res, next);
       expect(statusStub).to.be.calledWith(500);
       expect(sendStub).to.be.calledWith(errorUtils.formatSendableError(msg));
     });
     it('should return 500 when user save fails because of empty value', async () => {
       const msg = 'user returned is not valid';
       fetchStub.resolves({});
-      await userController.fetchUserById(req, res, next);
+      await userController.getCurrentUser(req, res, next);
       expect(statusStub).to.be.calledWith(500);
       expect(sendStub).to.be.calledWith(errorUtils.formatSendableError(msg));
     });

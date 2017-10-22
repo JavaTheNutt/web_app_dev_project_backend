@@ -361,7 +361,7 @@ describe('user controller', function () {
     let req, res, next, fetchStub, statusStub, sendStub, sendStubContainer, userId, returnedUser;
     beforeEach(() => {
       userId            = ObjectId();
-      fetchStub         = sandbox.stub(userService, 'fetchUserById');
+      fetchStub         = sandbox.stub(userService, 'getUserById');
       sendStub          = sandbox.stub();
       sendStubContainer = {send: sendStub};
       statusStub        = sandbox.stub().returns(sendStubContainer);
@@ -386,7 +386,7 @@ describe('user controller', function () {
     });
     it('should return 200 when user fetch is successful', async () => {
       fetchStub.resolves(returnedUser);
-      await userController.fetchUserById(req, res, next);
+      await userController.getCurrentUser(req, res, next);
       expect(statusStub).to.be.calledWith(200);
       expect(sendStub).to.be.calledWith(returnedUser);
     });
@@ -394,14 +394,14 @@ describe('user controller', function () {
       const err = new Error('im an error that occurred during fetch');
       const msg = 'an erorr occurred during save operation';
       fetchStub.resolves(errorUtils.formatError(msg, err));
-      await userController.fetchUserById(req, res, next);
+      await userController.getCurrentUser(req, res, next);
       expect(statusStub).to.be.calledWith(500);
       expect(sendStub).to.be.calledWith(errorUtils.formatSendableError(msg, err));
     });
     it('should return 500 when user save fails without an error', async () => {
       const msg = 'an erorr occurred during save operation';
       fetchStub.resolves(errorUtils.formatError(msg));
-      await userController.fetchUserById(req, res, next);
+      await userController.getCurrentUser(req, res, next);
       expect(statusStub).to.be.calledWith(500);
       expect(sendStub).to.be.calledWith(errorUtils.formatSendableError(msg));
     });

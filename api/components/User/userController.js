@@ -95,10 +95,10 @@ module.exports    = {
     Logger.verbose(`user assumed fetched, returning to client`);
     return res.status(200).send(updatedUser);
   },
-  async fetchUserById(req, res, next) {
+  async getCurrentUser(req, res, next) {
     'use strict';
     Logger.info(`request recieved to fetch uer by id`);
-    const user = await userService.fetchUserById(req.body.customAuthUser.user);
+    const user = await userService.getUserById(req.body.customAuthUser.user);
     if(user.error){
       Logger.warn(`an error occurred while fetching user`);
       Logger.verbose(`error: ${JSON.stringify(user)}`);

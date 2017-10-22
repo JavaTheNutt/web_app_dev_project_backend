@@ -111,7 +111,7 @@ module.exports = exports = {
       return errorUtils.formatError('an error has occurred while updating user', err);
     }
   },
-  async fetchUserById(userId){
+  async getUserById(userId){
     'use strict';
     Logger.info(`request recieved to fetch uer by id`);
     Logger.verbose(`user id: ${JSON.stringify(userId)}`);
