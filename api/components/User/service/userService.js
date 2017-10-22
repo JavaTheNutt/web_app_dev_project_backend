@@ -8,6 +8,7 @@ const User           = require('@user/models/User').model;
 const Address        = require('@Address/models/Address').model;
 const addressService = require('@Address/service/addressService');
 const errorUtils     = require('@util/errorUtils');
+const _ = require('lodash');
 
 module.exports = exports = {
   /**
@@ -108,6 +109,24 @@ module.exports = exports = {
       Logger.verbose(`to user ${JSON.stringify(user)}`);
       Logger.error(`error: ${err}`);
       return errorUtils.formatError('an error has occurred while updating user', err);
+    }
+  },
+  async fetchUserById(userId){
+    'use strict';
+    Logger.info(`request recieved to fetch uer by id`);
+    Logger.verbose(`user id: ${JSON.stringify(userId)}`);
+    try{
+      const user= await User.findById(userId);
+      Logger.verbose(`user fetch completed without error`);
+      if(!user || _.isEmpty(user)){
+        Logger.warn(`user is falsey`);
+        return errorUtils.formatError('user returned is not valid')
+      }
+      return user;
+    }catch(err){
+      Logger.warn(`error occurred while fetching user by id`);
+      Logger.error(`error: ${err}`);
+      return errorUtils.formatError('error occurred while fetching user', err)
     }
   },
   /**
