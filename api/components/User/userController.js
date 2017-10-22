@@ -34,12 +34,12 @@ module.exports    = {
     Logger.verbose(`new user: ${JSON.stringify(savedUser)}`);
     const savedAuth = await authService.createAuthUser({
       email: req.body.customAuthUser.email,
-      user: savedUser.data._id,
+      user: savedUser._id,
       firebaseId: req.body.customAuthUser.firebaseId
     });
     if (savedAuth.error) {
       Logger.warn(`there was an error saving the auth object`);
-      const deleteUser = await userService.deleteUser(savedUser.data._id);
+      const deleteUser = await userService.deleteUser(savedUser._id);
       /*if(deleteUser.error){
         Logger.warn(`an error occurred while deleting user`);
       }*/
@@ -48,11 +48,11 @@ module.exports    = {
     Logger.verbose(`auth object assumed created`);
     Logger.verbose(`new auth: ${JSON.stringify(savedAuth)}`);
     Logger.verbose(`user has been successfully created`);
-    const claimsSuccessful = await authService.setCustomClaims(savedAuth.data.firebaseId, {user: savedAuth.data.user});
+    const claimsSuccessful = await authService.setCustomClaims(savedAuth.firebaseId, {user: savedAuth.user});
     if (claimsSuccessful.error) {
       Logger.warn(`adding custom auth claim failed`);
-      const deleteUser = await userService.deleteUser(savedUser.data._id);
-      const deleteAuth = await authService.deleteAuthRecordById(savedAuth.data._id);
+      const deleteUser = await userService.deleteUser(savedUser._id);
+      const deleteAuth = await authService.deleteAuthRecordById(savedAuth._id);
       return res.status(500).send(errorUtils.formatSendableErrorFromObject(claimsSuccessful));
     }
     return res.status(201).send(savedUser);

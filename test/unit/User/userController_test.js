@@ -50,8 +50,8 @@ describe('user controller', function () {
     });
     it('should call res.send with a status of 201 when all details are present', async function () {
       setCustomClaimsStub.resolves(true);
-      createUserStub.resolves({data:returnedUser});
-      createAuthStub.resolves({data:returnedAuth});
+      createUserStub.resolves(returnedUser);
+      createAuthStub.resolves(returnedAuth);
       await userController.createNewUser(req, res, next);
       expect(createUserStub).to.be.calledOnce;
       expect(deleteAuthStub).to.not.be.called;
@@ -62,7 +62,7 @@ describe('user controller', function () {
       expect(statusStub).to.be.calledOnce;
       expect(statusStub).to.be.calledWith(201);
       expect(sendStub).to.be.calledOnce;
-      expect(sendStub).to.be.calledWith({data: returnedUser});
+      expect(sendStub).to.be.calledWith(returnedUser);
     });
     describe('error checking', ()=>{
       'use strict';
@@ -126,7 +126,7 @@ describe('user controller', function () {
           const message = 'an error occurred during the auth save operation';
           it('should call res.send with 500 when auth save fails because of a thrown error', async () => {
             'use strict';
-            createUserStub.resolves({data:returnedUser});
+            createUserStub.resolves(returnedUser);
             createAuthStub.resolves(errorUtils.formatSendableError(message, err));
             await userController.createNewUser(req, res, next);
             expect(deleteAuthStub).to.not.be.called;
@@ -139,7 +139,7 @@ describe('user controller', function () {
           });
           it('should call res.send with 500 when auth save fails because of an unthrown error', async () => {
             'use strict';
-            createUserStub.resolves({data:returnedUser});
+            createUserStub.resolves(returnedUser);
             createAuthStub.resolves(errorUtils.formatError(message));
             await userController.createNewUser(req, res, next);
             expect(deleteAuthStub).to.not.be.called;
@@ -155,8 +155,8 @@ describe('user controller', function () {
           const message = 'there was an error while adding custom claims';
           it('should call res.send with 500 when adding custom claims fails', async () => {
             'use strict';
-            createUserStub.resolves({data:returnedUser});
-            createAuthStub.resolves({data:returnedAuth});
+            createUserStub.resolves(returnedUser);
+            createAuthStub.resolves(returnedAuth);
             setCustomClaimsStub.resolves(errorUtils.formatError(message, err));
             await userController.createNewUser(req, res, next);
             expect(deleteAuthStub).to.be.calledOnce;
