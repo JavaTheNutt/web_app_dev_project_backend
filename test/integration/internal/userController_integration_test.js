@@ -160,6 +160,62 @@ describe('user controller', () => {
       expect(sendStub).to.be.calledWith(errorUtils.formatSendableError('no update params provided'))
     });
   });
+  describe('fetch current user', ()=>{
+    let req, res, next, fetchStub, statusStub, sendStub, sendStubContainer, userId, returnedUser;
+    beforeEach(() => {
+      userId            = ObjectId();
+      fetchStub         = sandbox.stub(User, 'findById');
+      sendStub          = sandbox.stub();
+      sendStubContainer = {send: sendStub};
+      statusStub        = sandbox.stub().returns(sendStubContainer);
+      req               = {
+        body: {
+          customAuthUser: {
+            user: userId
+          }
+        }
+      };
+      res ={
+        status: statusStub,
+        send: sendStub
+      };
+      returnedUser      = {
+        _id: userId,
+        email: 'test@test.com'
+      }
+    });
+    afterEach(()=>{
+      sandbox.restore();
+    });
+    it('should return 200 when user fetch is successful', async () => {
+      fetchStub.resolves(returnedUser);
+      await userController.fetchUserById(req, res, next);
+      expect(statusStub).to.be.calledWith(200);
+      expect(sendStub).to.be.calledWith(returnedUser);
+    });
+    it('should return 500 when user save fails becuase of an error', async () => {
+      const err = new Error('im an error that occurred during fetch');
+      const msg = 'error occurred while fetching user';
+      fetchStub.throws(err);
+      await userController.fetchUserById(req, res, next);
+      expect(statusStub).to.be.calledWith(500);
+      expect(sendStub).to.be.calledWith(errorUtils.formatSendableError(msg, err));
+    });
+    it('should return 500 when user save fails because of undefined value', async () => {
+      const msg = 'user returned is not valid';
+      fetchStub.resolves(undefined);
+      await userController.fetchUserById(req, res, next);
+      expect(statusStub).to.be.calledWith(500);
+      expect(sendStub).to.be.calledWith(errorUtils.formatSendableError(msg));
+    });
+    it('should return 500 when user save fails because of empty value', async () => {
+      const msg = 'user returned is not valid';
+      fetchStub.resolves({});
+      await userController.fetchUserById(req, res, next);
+      expect(statusStub).to.be.calledWith(500);
+      expect(sendStub).to.be.calledWith(errorUtils.formatSendableError(msg));
+    });
+  });
   describe('add new address', () => {
     let findOneAndUpdateStub, addressToBeAdded, req, res, next, sendStub, sendStubContainer, statusStub, amendedUser;
     beforeEach(() => {
@@ -215,5 +271,6 @@ describe('user controller', () => {
     afterEach(() => {
       sandbox.restore();
     })
-  })
+  });
+
 });
