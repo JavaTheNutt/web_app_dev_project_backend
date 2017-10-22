@@ -323,37 +323,87 @@ describe('user controller', function () {
         firstName: req.body.updateParams.firstName,
         surname: req.body.updateParams.surname
       };
-      errMessage = 'there was an error while updating user';
-      err = new Error('this error was caused during a DB write')
+      errMessage        = 'there was an error while updating user';
+      err               = new Error('this error was caused during a DB write')
     });
     afterEach(() => {
       sandbox.restore();
     });
-    it('should a copy of the new user with a status of 200 when user is updated', async() => {
+    it('should a copy of the new user with a status of 200 when user is updated', async () => {
       updateStub.resolves(resolvedUser);
       const result = await userController.updateUser(req, res, next);
       expect(statusStub).to.be.calledWith(200);
       expect(sendStub).to.be.calledWith(resolvedUser);
     });
-    it('should return a properly formatted error object in the case of an error', async()=>{
+    it('should return a properly formatted error object in the case of an error', async () => {
       updateStub.resolves(errorUtils.formatError(errMessage, err));
       const result = await userController.updateUser(req, res, next);
       expect(statusStub).to.be.calledWith(400);
       expect(sendStub).to.be.calledWith(errorUtils.formatSendableError(errMessage, err))
     });
-    it('should return a properly formatted error when there are no update params',async ()=>{
+    it('should return a properly formatted error when there are no update params', async () => {
       req.body.updateParams = null;
-      const result = await userController.updateUser(req, res, next);
+      const result          = await userController.updateUser(req, res, next);
       expect(statusStub).to.be.calledWith(400);
       expect(updateStub).to.not.be.called;
       expect(sendStub).to.be.calledWith(errorUtils.formatSendableError('no update params provided'))
     });
-    it('should return a properly formatted error when update params are empty', async ()=>{
+    it('should return a properly formatted error when update params are empty', async () => {
       req.body.updateParams = {};
-      const result = await userController.updateUser(req, res, next);
+      const result          = await userController.updateUser(req, res, next);
       expect(updateStub).to.not.be.called;
       expect(statusStub).to.be.calledWith(400);
       expect(sendStub).to.be.calledWith(errorUtils.formatSendableError('no update params provided'))
+    });
+  });
+  describe('fetch current user', () => {
+    'use strict';
+    let req, res, next, fetchStub, statusStub, sendStub, sendStubContainer, userId, returnedUser;
+    beforeEach(() => {
+      userId            = ObjectId();
+      fetchStub         = sandbox.stub(userService, 'fetchUserById');
+      sendStub          = sandbox.stub();
+      sendStubContainer = {send: sendStub};
+      statusStub        = sandbox.stub().returns(sendStubContainer);
+      req               = {
+        body: {
+          customAuthUser: {
+            user: userId
+          }
+        }
+      };
+      res ={
+        status: statusStub,
+        send: sendStub
+      };
+      returnedUser      = {
+        _id: userId,
+        email: 'test@test.com'
+      }
+    });
+    afterEach(()=>{
+      sandbox.restore();
+    });
+    it('should return 200 when user fetch is successful', async () => {
+      fetchStub.resolves(returnedUser);
+      await userController.fetchUserById(req, res, next);
+      expect(statusStub).to.be.calledWith(200);
+      expect(sendStub).to.be.calledWith(returnedUser);
+    });
+    it('should return 500 when user save fails becuase of an error', async () => {
+      const err = new Error('im an error that occurred during fetch');
+      const msg = 'an erorr occurred during save operation';
+      fetchStub.resolves(errorUtils.formatError(msg, err));
+      await userController.fetchUserById(req, res, next);
+      expect(statusStub).to.be.calledWith(500);
+      expect(sendStub).to.be.calledWith(errorUtils.formatSendableError(msg, err));
+    });
+    it('should return 500 when user save fails without an error', async () => {
+      const msg = 'an erorr occurred during save operation';
+      fetchStub.resolves(errorUtils.formatError(msg));
+      await userController.fetchUserById(req, res, next);
+      expect(statusStub).to.be.calledWith(500);
+      expect(sendStub).to.be.calledWith(errorUtils.formatSendableError(msg));
     });
   })
 });

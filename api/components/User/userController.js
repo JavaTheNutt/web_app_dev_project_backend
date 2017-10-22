@@ -7,7 +7,7 @@ const Logger      = require('@util/Logger')('USER_CTRL');
 const _           = require('lodash');
 const userService = require('@user/service/userService');
 const authService = require('@Auth/service/authService');
-const errorUtils = require('@util/errorUtils');
+const errorUtils  = require('@util/errorUtils');
 module.exports    = {
   /**
    * Create new User
@@ -22,7 +22,7 @@ module.exports    = {
     if (!checkCreateRequest(req)) {
       Logger.warn(`error while validating params, returning 400`);
       res.status(500);
-      return res.send({error:{message:'token was parsed successfully but is missing details'}});
+      return res.send({error: {message: 'token was parsed successfully but is missing details'}});
     }
     Logger.verbose(`new user details assumed correct`);
     const savedUser = await userService.createUser(req.body.customAuthUser);
@@ -80,21 +80,33 @@ module.exports    = {
     Logger.verbose(`user exists, returning new user`);
     res.status(200).send(returnedUser);
   },
-   async updateUser(req, res, next){
+  async updateUser(req, res, next) {
     'use strict';
     Logger.info(`request made to update user`);
-    if(!req.body || !req.body.updateParams || _.isEmpty(req.body.updateParams)){
+    if (!req.body || !req.body.updateParams || _.isEmpty(req.body.updateParams)) {
       Logger.warn(`no params available, aborting`);
       return res.status(400).send(errorUtils.formatSendableError('no update params provided'));
     }
     const updatedUser = await userService.updateUser(req.body.customAuthUser.user, req.body.updateParams);
-    if(updatedUser.error){
+    if (updatedUser.error) {
       Logger.warn(`new user contains error, aborting`);
       return res.status(400).send(errorUtils.formatSendableErrorFromObject(updatedUser));
     }
     Logger.verbose(`user assumed fetched, returning to client`);
     return res.status(200).send(updatedUser);
-   }
+  },
+  async fetchUserById(req, res, next) {
+    'use strict';
+    Logger.info(`request recieved to fetch uer by id`);
+    const user = await userService.fetchUserById(req.body.customAuthUser.user);
+    if(user.error){
+      Logger.warn(`an error occurred while fetching user`);
+      Logger.verbose(`error: ${JSON.stringify(user)}`);
+      return res.status(500).send(errorUtils.formatSendableErrorFromObject(user))
+    }
+    Logger.verbose(`user assumed fetched without error`);
+    return res.status(200).send(user);
+  }
 };
 
 
