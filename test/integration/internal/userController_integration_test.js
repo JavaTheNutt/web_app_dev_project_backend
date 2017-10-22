@@ -49,7 +49,7 @@ describe('user controller', () => {
       expect(res.send).to.be.calledOnce;
       const sendArgs = sendStub.getCalls()[0].args;
       console.log(JSON.stringify(sendArgs));
-      expect(sendArgs[0].data).to.be.have.all.keys('_id', 'email', 'addresses');
+      expect(sendArgs[0]).to.be.have.all.keys('_id', 'email', 'addresses');
     });
     it('should call res.send with a status of 400 when user save fails', async () => {
       const saveUserError = new Error('an error has occurred');
@@ -133,12 +133,12 @@ describe('user controller', () => {
       next                 = sandbox.stub();
     });
     it('should successfully add an address', async () => {
-      findOneAndUpdateStub.resolves({data:amendedUser});
+      findOneAndUpdateStub.resolves(amendedUser);
       await userController.addAddress(req, res, next);
       expect(statusStub).to.be.calledOnce;
       expect(statusStub).to.be.calledWith(200);
       expect(sendStub).to.be.calledOnce;
-      expect(sendStub).to.be.calledWith({data:amendedUser});
+      expect(sendStub).to.be.calledWith(amendedUser);
     });
     it('should return a 400 error when address addition fails', async () => {
       const err = new Error('an error has occurred');
@@ -147,7 +147,7 @@ describe('user controller', () => {
       expect(statusStub).to.be.calledOnce;
       expect(statusStub).to.be.calledWith(400);
       expect(sendStub).to.be.calledOnce;
-      expect(sendStub).to.be.calledWith({error:{message: `an error occurred while updating the user: ${err.message}`}});
+      expect(sendStub).to.be.calledWith(errorUtils.formatSendableError('an error occurred while updating the user', err));
     });
     afterEach(() => {
       sandbox.restore();

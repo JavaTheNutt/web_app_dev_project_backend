@@ -2,6 +2,7 @@ const Logger   = require('@util/Logger')('ADDRESS_SERVICE');
 const User     = require('@user/models/User').model;
 const Address  = require('@Address/models/Address').model;
 const _        = require('lodash');
+const errorUtils = require('@util/errorUtils');
 module.exports = exports = {
   /**
    * Create and validate a new address
@@ -16,10 +17,10 @@ module.exports = exports = {
       const formattedDetails = exports.formatDetails(addressDetails);
       if(formattedDetails.error){
         Logger.warn(`an error occurred while formatting address`);
-        return {error: formattedDetails.error}
+        return formattedDetails
       }
       Logger.verbose(`newly formatted Details: ${JSON.stringify(formattedDetails)}`);
-      const newAddress = new Address(formattedDetails.data);
+      const newAddress = new Address(formattedDetails);
       Logger.verbose(`address created without error`);
       Logger.verbose(`new address: ${JSON.stringify(newAddress)}`);
       await newAddress.validate();
@@ -28,7 +29,7 @@ module.exports = exports = {
     } catch (err) {
       Logger.warn(`there was an error while validating the address`);
       Logger.error(`error: ${JSON.stringify(err)}`);
-      return {error: {message: 'address validation failed', err}}
+      return errorUtils.formatError('address validation failed', err);
     }
   },
   formatDetails(addressDetails) {
@@ -37,7 +38,7 @@ module.exports = exports = {
     Logger.verbose(`details: ${JSON.stringify(addressDetails)}`);
     if (!addressDetails.text) {
       Logger.warn(`no address text provided, aborting`);
-      return {error: {message:'address text is required'}};
+      return errorUtils.formatError('address text is required');
     }
     Logger.verbose(`address text is provided, procceding`);
     const detailsToBeReturned = {
