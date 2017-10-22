@@ -10,6 +10,7 @@ const userService    = require('@user/service/userService');
 const User           = require('@user/models/User').model;
 const Address        = require('@Address/models/Address').model;
 const addressService = require('@Address/service/addressService');
+const errorUtils = require('@util/errorUtils');
 describe('user service', () => {
   'use strict';
   describe('user creation', () => {
@@ -22,7 +23,7 @@ describe('user service', () => {
       };
       saveStub      = sandbox.stub(User.prototype, 'save');
       err = new Error('this is a firebase error');
-      fakeError = {error:{message: 'an error occurred during the user save operation', err}}
+      fakeError = errorUtils.formatError('an error occurred during the user save operation', err);
     });
     afterEach(() => {
       sandbox.restore();
@@ -60,7 +61,7 @@ describe('user service', () => {
       const err = new Error('this is an error');
       findByIdAndRemoveStub.throws(err);
       const result = await userService.deleteUser(userId);
-      expect(result).to.eql({error: {message: 'error while deleting user', err}});
+      expect(result).to.eql(errorUtils.formatError('error while deleting user', err));
     });
   });
   describe('handle add address', () => {
@@ -72,7 +73,7 @@ describe('user service', () => {
       fakeAddress         = {text: '123 fake street'};
       validatedAddress    = {data: fakeAddress};
       updatedUser         = {data:{email: 'test@test.com', addresses: [validatedAddress]}};
-      fakeError = {error: {message: 'an error has occurred'}}
+      fakeError = errorUtils.formatError('an error has occurred');
     });
     it('should handle address validation errors gracefully', async () => {
       validateAddressStub.resolves(fakeError);
@@ -120,7 +121,7 @@ describe('user service', () => {
     it('should gracefully handle errors', async () => {
       const err = new Error('this is an error');
       updateStub.throws(err);
-      const fakeError = {error: {message: 'an error occurred while updating the user', err}};
+      const fakeError = errorUtils.formatError('an error occurred while updating the user', err);
       const response = await userService.addAddress(fakeUserId, addressDetails);
       expect(response).to.eql(fakeError);
     });
@@ -145,7 +146,7 @@ describe('user service', () => {
       expect(res._id).to.exist;
     });
     it('should handle invalid responses gracefully', async () => {
-      const fakeErr = {error: {message: 'an error has occurred'}};
+      const fakeErr = errorUtils.formatError('an error occurred while updating the user');
       validateStub.resolves(fakeErr);
       const res = await userService.validateAddress(addressDetails);
       expect(res).to.eql(fakeErr);

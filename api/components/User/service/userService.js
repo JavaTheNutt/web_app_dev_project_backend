@@ -7,6 +7,7 @@ const Logger         = require('@util/Logger')('USER_SERVICE');
 const User           = require('@user/models/User').model;
 const Address        = require('@Address/models/Address').model;
 const addressService = require('@Address/service/addressService');
+const errorUtils = require('@util/errorUtils');
 
 module.exports = exports = {
   /**
@@ -28,7 +29,7 @@ module.exports = exports = {
     } catch (err) {
       Logger.warn(`user save failed`);
       Logger.error(`error: ${err}`);
-      return {error:{message:'an error occurred during the user save operation', err}};
+      return errorUtils.formatError('an error occurred during the user save operation', err);
     }
   },
   /**
@@ -84,7 +85,7 @@ module.exports = exports = {
     } catch (err) {
       Logger.warn(`error during object creation`);
       Logger.error(`error: ${err}`);
-      return {error:{message:'an error occurred while updating the user', err}};
+      return errorUtils.formatError('an error occurred while updating the user', err);
     }
   },
   /**
@@ -102,7 +103,7 @@ module.exports = exports = {
     if(formattedAddress.error){
       Logger.warn(`an error occurred while validating the address`);
       Logger.warn(`error message: ${formattedAddress.error.message}`);
-      return {error: formattedAddress.error}
+      return formattedAddress;
     }
     return formattedAddress;
   },
@@ -116,7 +117,7 @@ module.exports = exports = {
     }catch (err){
       Logger.warn(`there was an error while deleting the user`);
       Logger.error(`error: ${err}`);
-      return{error: {message: 'error while deleting user', err}}
+      return errorUtils.formatError('error while deleting user', err);
     }
 
   }
