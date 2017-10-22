@@ -108,12 +108,12 @@ describe('auth service', () => {
       expect(result).to.eql({error: {message: 'token is not valid format'}});
     });
     it('should return true when it recieves a jwt to validate', async function () {
-      decodeStub.resolves({data:decodedToken});
+      decodeStub.resolves(decodedToken);
       const result = await authService.validateToken('testtoken');
       expect(result).to.exist;
       expect(decodeStub).to.be.calledWith('testtoken');
       expect(decodeStub).to.be.calledOnce;
-      expect(result).to.eql({data:decodedToken})
+      expect(result).to.eql(decodedToken)
     });
     it('should handle thrown errors gracefully', async function () {
       const err = new Error('this is an error');
@@ -145,19 +145,18 @@ describe('auth service', () => {
     });
     it('should create a new user when provided with correct details', async () => {
       const res = await authService.createAuthUser(authDetails);
-      expect(res.data).to.exist;
+      expect(res).to.exist;
       expect(res.error).to.not.exist;
-      expect(res.data.foo).to.not.exist;
-      expect(res.data.email).to.equal(authDetails.email);
-      expect(res.data.user.toString()).to.equal(authDetails.user.toString());
-      expect(res.data.firebaseId).to.equal(authDetails.firebaseId);
+      expect(res.foo).to.not.exist;
+      expect(res.email).to.equal(authDetails.email);
+      expect(res.user.toString()).to.equal(authDetails.user.toString());
+      expect(res.firebaseId).to.equal(authDetails.firebaseId);
     });
     it('should handle errors gracefully', async () => {
       const err = new Error('an error has occurred');
       saveStub.throws(err);
       const res = await authService.createAuthUser(authDetails);
       expect(res.error).to.exist;
-      expect(res.data).to.not.exist;
       expect(res).to.eql({error: {message: 'an error occurred while saving auth record', err}})
     })
   });
@@ -176,7 +175,7 @@ describe('auth service', () => {
       findOneStub.resolves(authObject);
       const result = await authService.fetchAuthByFirebaseId(firebaseId);
       expect(result).to.exist;
-      expect(result).to.eql({data:authObject});
+      expect(result).to.eql(authObject);
     });
     it('should handle errors while querying', async () => {
       const err = new Error('an error has occurred');
@@ -213,7 +212,7 @@ describe('auth service', () => {
       expect(result).to.exist;
       expect(verifyStub).to.be.calledWith('testtoken');
       expect(verifyStub).to.be.calledOnce;
-      expect(result).to.eql({data:decodedToken});
+      expect(result).to.eql(decodedToken);
     });
     it('should handle errors gracefully', async function () {
       const err = new Error('a firebase error has occured');
@@ -266,14 +265,14 @@ describe('auth service', () => {
       }
     });
     it('returns a valid claim object', async () => {
-      fetchAuthByFirebaseIdStub.resolves({data:returnedAuth});
+      fetchAuthByFirebaseIdStub.resolves(returnedAuth);
       const result = await authService.createUserClaim(returnedAuth.firebaseId);
       expect(result).to.exist;
       expect(fetchAuthByFirebaseIdStub).to.be.calledOnce;
       expect(fetchAuthByFirebaseIdStub).to.be.calledWith(returnedAuth.firebaseId);
       expect(setCustomClaimsStub).to.be.calledOnce;
       expect(setCustomClaimsStub).to.be.calledWith(returnedAuth.firebaseId, returnedClaims);
-      expect(result).to.eql({data:returnedClaims});
+      expect(result).to.eql(returnedClaims);
     });
     it('handles empty responses gracefully', async () => {
       const err = new Error('an error has occurred');
@@ -286,7 +285,7 @@ describe('auth service', () => {
     });
     it('handles responses with no user field gracefully', async () => {
       returnedAuth.user = null;
-      fetchAuthByFirebaseIdStub.resolves({data:returnedAuth});
+      fetchAuthByFirebaseIdStub.resolves(returnedAuth);
       const result = await authService.createUserClaim(returnedAuth.firebaseId);
       expect(result).to.eql({error: {message: 'no user field attached to auth record'}});
     });
@@ -327,9 +326,9 @@ describe('auth service', () => {
       sandbox.restore();
     });
     it('should recieve a firebase id and return a user id', async () => {
-      fetchAuthByFirebaseIdStub.resolves({data:returnedAuth});
+      fetchAuthByFirebaseIdStub.resolves(returnedAuth);
       const result = await authService.fetchUserIdFromFirebaseId(returnedAuth.firebaseId);
-      expect(result).to.eql({data:returnedAuth.user});
+      expect(result).to.eql(returnedAuth.user);
     });
     it('should handle errors non existant records', async () => {
       const err = new Error('an error has occurred');
@@ -339,7 +338,7 @@ describe('auth service', () => {
     });
     it('should handle records with no user field', async () => {
       returnedAuth.user = null;
-      fetchAuthByFirebaseIdStub.resolves({data:returnedAuth});
+      fetchAuthByFirebaseIdStub.resolves(returnedAuth);
       const result = await authService.fetchUserIdFromFirebaseId(returnedAuth.firebaseId);
       expect(result).to.eql({error: {message: 'auth record contains no user field'}});
     });

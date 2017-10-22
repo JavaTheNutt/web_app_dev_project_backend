@@ -31,7 +31,7 @@ describe('address service', () => {
       validateStub.resolves(true);
       const result = await addressService.validateAddress(addressDetails);
       expect(result).to.exist;
-      expect(result.data._id).to.exist;
+      expect(result._id).to.exist;
     });
     it('should handle errors gracefully', async () => {
       formatStub.returns(formattedDetails);
@@ -45,7 +45,7 @@ describe('address service', () => {
       formatStub.returns({error:{message: 'address text is required'}});
       const result = await addressService.validateAddress(addressDetails);
       expect(result).to.eql({error:{message: 'address text is required'}});
-      !expect(validateStub).to.not.be.called;
+      expect(validateStub).to.not.be.called;
     });
     afterEach(() => {
       sandbox.restore();
@@ -71,7 +71,7 @@ describe('address service', () => {
     });
     it('should correctly format the details', () => {
       const newDetails = addressService.formatDetails(addressDetails);
-      expect(newDetails.data).to.eql(expectedResponse);
+      expect(newDetails).to.eql(expectedResponse);
       expect(newDetails.error).to.not.exist;
     });
     it('should correctly set default values when no coordinates are provided', () => {
@@ -81,14 +81,13 @@ describe('address service', () => {
         coordinates: [0, 0]
       };
       const result         = addressService.formatDetails(addressDetails);
-      expect(result.data).to.eql(expectedResponse);
+      expect(result).to.eql(expectedResponse);
       expect(result.error).to.not.exist;
     });
     it('should return an error when there is no text provided', () => {
       addressDetails.text = null;
       const result        = addressService.formatDetails(addressDetails);
       expect(result.error.message).to.equal('address text is required');
-      expect(result.data).to.not.exist;
     });
   })
 });

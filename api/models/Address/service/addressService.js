@@ -24,7 +24,7 @@ module.exports = exports = {
       Logger.verbose(`new address: ${JSON.stringify(newAddress)}`);
       await newAddress.validate();
       Logger.verbose(`address assumed valid`);
-      return {data: newAddress};
+      return newAddress;
     } catch (err) {
       Logger.warn(`there was an error while validating the address`);
       Logger.error(`error: ${JSON.stringify(err)}`);
@@ -57,7 +57,7 @@ module.exports = exports = {
       };
     }
     Logger.verbose(`returning details: ${JSON.stringify(detailsToBeReturned)}`);
-    return {data:detailsToBeReturned}
+    return detailsToBeReturned
   }
 };
 

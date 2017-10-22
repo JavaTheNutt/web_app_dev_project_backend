@@ -54,12 +54,12 @@ module.exports = exports = {
       Logger.warn(`an error occurred while fetching auth record`);
       return returnedAuth;
     }
-    if(!returnedAuth.data.user){
+    if(!returnedAuth.user){
       Logger.warn(`user field is null on auth object`);
       return {error: {message: 'auth record contains no user field'}};
     }
     Logger.verbose(`auth assumed valid`);
-    return {data:returnedAuth.data.user.toString()};
+    return returnedAuth.user.toString();
   },
   /**
    * Handle validation and decoding of tokens
@@ -101,7 +101,7 @@ module.exports = exports = {
       const decodedToken = await admin.auth().verifyIdToken(token);
       Logger.verbose(`token decoded without error`);
       Logger.verbose(`decoded token: ${decodedToken}`);
-      return {data:decodedToken};
+      return decodedToken;
     } catch (err) {
       Logger.warn(`an error has occurred while validating firebase token`);
       Logger.error(`error: ${err}`);
@@ -160,14 +160,14 @@ module.exports = exports = {
       Logger.warn(`auth user is non existant`);
       return authUser;
     }
-    if (!authUser.data.user) {
+    if (!authUser.user) {
       Logger.warn(`no user field attached to returned auth object, aborting`);
       return {error: {message: 'no user field attached to auth record'}};
     }
-    const claimToBeReturned = {user: authUser.data.user.toString()};
+    const claimToBeReturned = {user: authUser.user.toString()};
     Logger.verbose(`claim to be returned: ${claimToBeReturned}`);
     await exports.setCustomClaims(firebaseId, claimToBeReturned);
-    return {data:claimToBeReturned};
+    return claimToBeReturned;
   },
   /**
    * Wrapper for creating user auth model
@@ -184,7 +184,7 @@ module.exports = exports = {
       await newAuth.save();
       Logger.verbose(`auth details assumed saved`);
       Logger.verbose(`new details: ${JSON.stringify(newAuth)}`);
-      return {data:newAuth};
+      return newAuth;
     } catch (err) {
       Logger.warn(`an error occurred while saving auth object`);
       Logger.error(`error: ${err}`);
@@ -211,7 +211,7 @@ module.exports = exports = {
         return {error: {message: 'requested auth record not found'}};
       }
       Logger.verbose(`auth fetch assumed successful`);
-      return {data:auth};
+      return auth;
     } catch (err) {
       Logger.warn(`error while fetching auth object`);
       Logger.error(`error: ${JSON.stringify(err)}`);
