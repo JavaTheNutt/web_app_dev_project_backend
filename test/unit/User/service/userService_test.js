@@ -30,11 +30,11 @@ describe('user service', () => {
     it('should successfully return a newly created user when passed correct details', async () => {
       const res = await userService.createUser(userDetails);
       expect(saveStub).to.be.calledOnce;
-      expect(res.data).to.have.own.keys('_id', 'email', 'addresses');
-      expect(res.data._id.toString().length).to.equal(24);
-      expect(Array.isArray(res.data.addresses)).to.be.true;
-      expect(res.data.addresses.length).to.equal(0);
-      expect(res.data.email).to.equal(userDetails.email);
+      expect(res).to.have.own.keys('_id', 'email', 'addresses');
+      expect(res._id.toString().length).to.equal(24);
+      expect(Array.isArray(res.addresses)).to.be.true;
+      expect(res.addresses.length).to.equal(0);
+      expect(res.email).to.equal(userDetails.email);
     });
     it('should handle errors gracefully', async () => {
       saveStub.throws(err);
@@ -110,11 +110,11 @@ describe('user service', () => {
       }
     });
     it('should successfully add an address with just a name', async () => {
-      updateStub.resolves({data:fakeUser});
+      updateStub.resolves(fakeUser);
       const response = await userService.addAddress(fakeUserId, addressDetails);
       expect(response).to.exist;
-      expect(Array.isArray(response.data.addresses)).to.be.true;
-      expect(response.data.addresses.length).to.equal(1);
+      expect(Array.isArray(response.addresses)).to.be.true;
+      expect(response.addresses.length).to.equal(1);
       expect(updateStub).to.be.calledOnce;
     });
     it('should gracefully handle errors', async () => {
@@ -142,7 +142,7 @@ describe('user service', () => {
       validateStub.resolves(validAddress);
       const res = await userService.validateAddress(addressDetails);
       expect(res).to.exist;
-      expect(res.data._id).to.exist;
+      expect(res._id).to.exist;
     });
     it('should handle invalid responses gracefully', async () => {
       const fakeErr = {error: {message: 'an error has occurred'}};

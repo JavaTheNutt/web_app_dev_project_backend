@@ -24,7 +24,7 @@ module.exports = exports = {
     try {
       await newUser.save();
       Logger.verbose(`user saved without error`);
-      return {data:newUser._doc};
+      return newUser._doc;
     } catch (err) {
       Logger.warn(`user save failed`);
       Logger.error(`error: ${err}`);
@@ -80,7 +80,7 @@ module.exports = exports = {
       });
       Logger.verbose(`update completed without error`);
       Logger.verbose(`updated doc: ${JSON.stringify(updatedUser)}`);
-      return {data:updatedUser.data};
+      return updatedUser;
     } catch (err) {
       Logger.warn(`error during object creation`);
       Logger.error(`error: ${err}`);
@@ -104,7 +104,7 @@ module.exports = exports = {
       Logger.warn(`error message: ${formattedAddress.error.message}`);
       return {error: formattedAddress.error}
     }
-    return {data:formattedAddress};
+    return formattedAddress;
   },
   async deleteUser(userId){
     'use strict';
