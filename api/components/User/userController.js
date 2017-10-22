@@ -79,7 +79,22 @@ module.exports    = {
     }
     Logger.verbose(`user exists, returning new user`);
     res.status(200).send(returnedUser);
-  }
+  },
+   async updateUser(req, res, next){
+    'use strict';
+    Logger.info(`request made to update user`);
+    if(!req.body || !req.body.updateParams || _.isEmpty(req.body.updateParams)){
+      Logger.warn(`no params available, aborting`);
+      return res.status(400).send(errorUtils.formatSendableError('no update params provided'));
+    }
+    const updatedUser = await userService.updateUser(req.body.customAuthUser.user, req.body.updateParams);
+    if(updatedUser.error){
+      Logger.warn(`new user contains error, aborting`);
+      return res.status(400).send(errorUtils.formatSendableErrorFromObject(updatedUser));
+    }
+    Logger.verbose(`user assumed fetched, returning to client`);
+    return res.status(200).send(updatedUser);
+   }
 };
 
 

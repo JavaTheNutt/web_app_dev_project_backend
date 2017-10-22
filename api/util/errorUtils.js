@@ -31,7 +31,7 @@ module.exports = exports = {
       Logger.verbose(`error is present`);
       returnedError.error.message += `: ${err.message}`;
     }
-    Logger.verbose(`returned error: ${returnedError}`);
+    Logger.verbose(`returned error: ${JSON.stringify(returnedError)}`);
     return returnedError;
   },
   /**
