@@ -76,7 +76,7 @@ describe('user controller', function () {
           expect(setCustomUserClaim).to.not.be.called;
           expect(res.status).to.be.calledWith(500);
           expect(res.send).to.be.calledOnce;
-          expect(res.send).to.be.calledWith({error:{message:'token was parsed successfully but is missing details'}});
+          expect(res.send).to.be.calledWith(errorUtils.formatSendableError('token was parsed successfully but is missing details'));
         });
         it('should call res.send with a status of 500 when there is no firebase id', async function () {
           req.body.customAuthUser.firebaseId = null;
@@ -87,7 +87,7 @@ describe('user controller', function () {
           expect(setCustomUserClaim).to.not.be.called;
           expect(res.status).to.be.calledWith(500);
           expect(res.send).to.be.calledOnce;
-          expect(res.send).to.be.calledWith({error:{message:'token was parsed successfully but is missing details'}});
+          expect(res.send).to.be.calledWith(errorUtils.formatSendableError('token was parsed successfully but is missing details'));
         });
       });
       describe('errors', ()=>{
@@ -270,22 +270,22 @@ describe('user controller', function () {
       }
     });
     it('should call res.send with a status of 200 when adding an address is successful', async () => {
-      handleAddAddressStub.resolves({data:amendedUser});
+      handleAddAddressStub.resolves(amendedUser);
       await userController.addAddress(req, res, next);
       expect(res.status).to.be.calledOnce;
       expect(res.status).to.be.calledWith(200);
       expect(res.send).to.be.calledOnce;
-      expect(res.send).to.be.calledWith({data:amendedUser});
+      expect(res.send).to.be.calledWith(amendedUser);
     });
     it('should handle an error response from add address service', async () => {
       const err = new Error('an error has occurred');
-      const fakeError = {error: {message: 'an error has occurred', err}};
+      const fakeError = errorUtils.formatError('an error has occurred', err);
       handleAddAddressStub.resolves(fakeError);
       await userController.addAddress(req, res, next);
       expect(res.status).to.be.calledOnce;
       expect(res.status).to.be.calledWith(400);
       expect(res.send).to.be.calledOnce;
-      expect(res.send).to.be.calledWith({error: {message:`${fakeError.error.message}: ${fakeError.error.err.message}`}});
+      expect(res.send).to.be.calledWith(errorUtils.formatSendableErrorFromObject(fakeError));
     });
     afterEach(() => {
       sandbox.restore();

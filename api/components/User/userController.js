@@ -75,9 +75,7 @@ module.exports    = {
     Logger.verbose(`new user: ${JSON.stringify(returnedUser)}`);
     if (returnedUser.error) {
       Logger.warn(`new user does not exist, aborting`);
-      const errorMsg = returnedUser.error.err ? `${returnedUser.error.message}: ${returnedUser.error.err.message}` : returnedUser.error.message;
-      Logger.verbose(`error to be returned: ${errorMsg}`);
-      return res.status(400).send({error:{message: errorMsg}})
+      return res.status(400).send(errorUtils.formatSendableErrorFromObject(returnedUser))
     }
     Logger.verbose(`user exists, returning new user`);
     res.status(200).send(returnedUser);
