@@ -9,6 +9,7 @@ const sandbox        = sinon.sandbox.create();
 const authMiddleware = require('@Auth/authMiddleware');
 const authService    = require('@Auth/service/authService');
 const userAuth       = require('@Auth/models/UserAuth').model;
+const errorUtils = require('@util/errorUtils');
 describe('auth middleware', function () {
   'use strict';
   describe('new user auth', () => {
@@ -71,7 +72,7 @@ describe('auth middleware', function () {
       expect(statusStub).to.be.calledOnce;
       expect(statusStub).to.be.calledWith(401);
       expect(sendStub.send).to.be.calledOnce;
-      expect(sendStub.send).to.be.calledWith({error:{message:'authentication failed'}});
+      expect(sendStub.send).to.be.calledWith(errorUtils.formatError('authentication failed'));
     });
     it('should fail when no headers are present', async function () {
       req.headers = null;
@@ -79,16 +80,16 @@ describe('auth middleware', function () {
       expect(statusStub).to.be.calledOnce;
       expect(statusStub).to.be.calledWith(401);
       expect(sendStub.send).to.be.calledOnce;
-      expect(sendStub.send).to.be.calledWith({error:{message:'authentication failed'}});
+      expect(sendStub.send).to.be.calledWith(errorUtils.formatError('authentication failed'));
     });
     it('should return 401 when token is deemed invalid', async function () {
       const err = new Error('this is an error');
-      verifyTokenStub.resolves({error: {message: 'this is an error wrapper', err}});
+      verifyTokenStub.resolves(errorUtils.formatError('this is an error wrapper', err));
       await authMiddleware.authenticate(req, res, next);
       expect(statusStub).to.be.calledOnce;
       expect(statusStub).to.be.calledWith(401);
       expect(sendStub.send).to.be.calledOnce;
-      expect(sendStub.send).to.be.calledWith({error:{message:'authentication failed'}});
+      expect(sendStub.send).to.be.calledWith(errorUtils.formatError('authentication failed'));
     })
   });
 

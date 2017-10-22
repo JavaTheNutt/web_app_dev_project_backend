@@ -6,6 +6,7 @@ const admin    = require('firebase-admin');
 const _        = require('lodash');
 const Logger   = require('@util/Logger')('AUTH_SERVICE');
 const UserAuth = require('@Auth/models/UserAuth').model;
+const errorUtils = require('@util/errorUtils');
 module.exports = exports = {
   /**
    * This function converts firebase tokens to the auth claims that will be used throughout the application.
@@ -56,7 +57,7 @@ module.exports = exports = {
     }
     if(!returnedAuth.user){
       Logger.warn(`user field is null on auth object`);
-      return {error: {message: 'auth record contains no user field'}};
+      return errorUtils.formatError('auth record contains no user field');
     }
     Logger.verbose(`auth assumed valid`);
     return returnedAuth.user.toString();
@@ -73,7 +74,7 @@ module.exports = exports = {
     Logger.info(`request received to validate authentication token`);
     if (!token || typeof token !== 'string' || token.length <= 5) {
       Logger.warn(`token is not valid format`);
-      return {error: {message: 'token is not valid format'}};
+      return errorUtils.formatError('token is not valid format');
     }
     Logger.verbose(`token is valid format, testing validity`);
     Logger.verbose(`token to validate: ${JSON.stringify(token)}`);
@@ -105,7 +106,7 @@ module.exports = exports = {
     } catch (err) {
       Logger.warn(`an error has occurred while validating firebase token`);
       Logger.error(`error: ${err}`);
-      return {error: {message: 'an error occurred while decoding firebase token', err}};
+      return errorUtils.formatError('an error occurred while decoding firebase token', err);
     }
   },
   /**
@@ -139,7 +140,7 @@ module.exports = exports = {
     } catch (err) {
       Logger.warn(`an error occourred while setting custom user claims`);
       Logger.error(`error: ${err}`);
-      return {error: {message: 'there was an error while adding custom claims', err}};
+      return errorUtils.formatError('there was an error while adding custom claims', err);
     }
   },
   /**
@@ -162,10 +163,11 @@ module.exports = exports = {
     }
     if (!authUser.user) {
       Logger.warn(`no user field attached to returned auth object, aborting`);
-      return {error: {message: 'no user field attached to auth record'}};
+      return errorUtils.formatError('no user field attached to auth record');
     }
     const claimToBeReturned = {user: authUser.user.toString()};
     Logger.verbose(`claim to be returned: ${claimToBeReturned}`);
+    if(claimToBeReturned.error) return claimToBeReturned;
     await exports.setCustomClaims(firebaseId, claimToBeReturned);
     return claimToBeReturned;
   },
@@ -188,7 +190,7 @@ module.exports = exports = {
     } catch (err) {
       Logger.warn(`an error occurred while saving auth object`);
       Logger.error(`error: ${err}`);
-      return {error: {message: 'an error occurred while saving auth record', err}};
+      return errorUtils.formatError('an error occurred while saving auth record', err);
     }
   },
   /**
@@ -208,14 +210,14 @@ module.exports = exports = {
       Logger.verbose(`fetched record: ${JSON.stringify(auth)}`);
       if (!auth || _.isEmpty(auth)) {
         Logger.warn(`auth object is undefined`);
-        return {error: {message: 'requested auth record not found'}};
+        return errorUtils.formatError('requested auth record not found');
       }
       Logger.verbose(`auth fetch assumed successful`);
       return auth;
     } catch (err) {
       Logger.warn(`error while fetching auth object`);
       Logger.error(`error: ${JSON.stringify(err)}`);
-      return {error: {message: 'there was an error while fetching specified auth record', err}};
+      return errorUtils.formatError('there was an error while fetching specified auth record', err);
     }
   },
   async deleteAuthRecordById(authId){
@@ -228,7 +230,7 @@ module.exports = exports = {
     }catch(err){
       Logger.warn(`error occurred while removing user auth`);
       Logger.error(`error: ${JSON.stringify(err)}`);
-      return {error: {message: 'an error has occurred while removing user auth', err}}
+      return errorUtils.formatError('an error has occurred while removing user auth', err)
     }
   }
 };

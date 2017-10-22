@@ -8,6 +8,7 @@ const admin       = require('firebase-admin');
 const sandbox     = sinon.sandbox.create();
 const authService = require('@Auth/service/authService');
 const userAuth    = require('@Auth/models/UserAuth').model;
+const errorUtils = require('@util/errorUtils');
 describe('auth service', () => {
   'use strict';
   describe('handle claim validation', () => {
@@ -97,15 +98,15 @@ describe('auth service', () => {
     });
     it('should return false when an invalid object is passed', async () => {
       const result = await authService.validateToken({token:'sometoken'});
-      expect(result).to.eql({error: {message: 'token is not valid format'}});
+      expect(result).to.eql(errorUtils.formatError('token is not valid format'));
     });
     it('should return false a single chracter is passed', async () => {
       const result = await authService.validateToken('s');
-      expect(result).to.eql({error: {message: 'token is not valid format'}});
+      expect(result).to.eql(errorUtils.formatError('token is not valid format'));
     });
     it('should return false when nothing is passed', async () => {
       const result = await authService.validateToken();
-      expect(result).to.eql({error: {message: 'token is not valid format'}});
+      expect(result).to.eql(errorUtils.formatError('token is not valid format'));
     });
     it('should return true when it recieves a jwt to validate', async function () {
       decodeStub.resolves(decodedToken);
@@ -117,15 +118,15 @@ describe('auth service', () => {
     });
     it('should handle thrown errors gracefully', async function () {
       const err = new Error('this is an error');
-      decodeStub.resolves({error: {message: 'this is an error wrapper', err}});
+      decodeStub.resolves(errorUtils.formatError('this is an error wrapper', err));
       const result = await authService.validateToken('testtoken');
-      expect(result).to.eql({error: {message: 'this is an error wrapper', err}});
+      expect(result).to.eql(errorUtils.formatError('this is an error wrapper', err));
       expect(decodeStub).to.be.calledOnce;
     });
     it('should handle unthrown errors gracefully', async function () {
-      decodeStub.resolves({error: {message: 'this is an error wrapper'}});
+      decodeStub.resolves(errorUtils.formatError('this is an error wrapper'));
       const result = await authService.validateToken('testtoken');
-      expect(result).to.eql({error: {message: 'this is an error wrapper'}});
+      expect(result).to.eql(errorUtils.formatError('this is an error wrapper'));
       expect(decodeStub).to.be.calledOnce;
     })
   });
@@ -157,7 +158,7 @@ describe('auth service', () => {
       saveStub.throws(err);
       const res = await authService.createAuthUser(authDetails);
       expect(res.error).to.exist;
-      expect(res).to.eql({error: {message: 'an error occurred while saving auth record', err}})
+      expect(res).to.eql(errorUtils.formatError('an error occurred while saving auth record', err))
     })
   });
   describe('fetch user auth by firebase id', () => {
@@ -181,12 +182,12 @@ describe('auth service', () => {
       const err = new Error('an error has occurred');
       findOneStub.throws(err);
       const result = await authService.fetchAuthByFirebaseId(firebaseId);
-      expect(result).to.eql({error: {message: 'there was an error while fetching specified auth record', err}});
+      expect(result).to.eql(errorUtils.formatError('there was an error while fetching specified auth record', err));
     });
     it('should handle empty responses gracefully', async () => {
       findOneStub.resolves({});
       const result = await authService.fetchAuthByFirebaseId(firebaseId);
-      expect(result).to.eql({error: {message: 'requested auth record not found'}});
+      expect(result).to.eql(errorUtils.formatError('requested auth record not found'));
     });
     afterEach(() => {
       sandbox.restore();
@@ -218,7 +219,7 @@ describe('auth service', () => {
       const err = new Error('a firebase error has occured');
       verifyStub.throws(err);
       const result = await authService.decodeToken('testtoken');
-      expect(result).to.be.eql({error: {message: 'an error occurred while decoding firebase token', err}});
+      expect(result).to.be.eql(errorUtils.formatError('an error occurred while decoding firebase token', err));
     })
   });
   describe('set custom claims', () => {
@@ -242,7 +243,7 @@ describe('auth service', () => {
       setCustomClaimsStub.throws(err);
       const result = await authService.setCustomClaims('thisisafirebaseid', claims);
       expect(setCustomClaimsStub).to.be.calledOnce;
-      expect(result).to.eql({error: {message: 'there was an error while adding custom claims', err}})
+      expect(result).to.eql(errorUtils.formatError('there was an error while adding custom claims', err))
     });
     afterEach(() => {
       sandbox.restore();
@@ -276,9 +277,9 @@ describe('auth service', () => {
     });
     it('handles empty responses gracefully', async () => {
       const err = new Error('an error has occurred');
-      fetchAuthByFirebaseIdStub.resolves({error: {message: 'there was an error while fetching specified auth record', err}});
+      fetchAuthByFirebaseIdStub.resolves(errorUtils.formatError('there was an error while fetching specified auth record', err));
       const result = await authService.createUserClaim(returnedAuth.firebaseId);
-      expect(result).to.be.eql({error: {message: 'there was an error while fetching specified auth record', err}});
+      expect(result).to.be.eql(errorUtils.formatError('there was an error while fetching specified auth record', err));
       expect(fetchAuthByFirebaseIdStub).to.be.calledOnce;
       expect(fetchAuthByFirebaseIdStub).to.be.calledWith(returnedAuth.firebaseId);
       expect(setCustomClaimsStub).to.not.be.called;
@@ -287,7 +288,7 @@ describe('auth service', () => {
       returnedAuth.user = null;
       fetchAuthByFirebaseIdStub.resolves(returnedAuth);
       const result = await authService.createUserClaim(returnedAuth.firebaseId);
-      expect(result).to.eql({error: {message: 'no user field attached to auth record'}});
+      expect(result).to.eql(errorUtils.formatError('no user field attached to auth record'));
     });
     afterEach(() => {
       sandbox.restore();
@@ -334,13 +335,13 @@ describe('auth service', () => {
       const err = new Error('an error has occurred');
       fetchAuthByFirebaseIdStub.resolves({error: {message: 'there was an error while fetching specified auth record', err}});
       const result = await authService.fetchUserIdFromFirebaseId(returnedAuth.firebaseId);
-      expect(result).to.eql({error: {message: 'there was an error while fetching specified auth record', err}});
+      expect(result).to.eql(errorUtils.formatError('there was an error while fetching specified auth record', err));
     });
     it('should handle records with no user field', async () => {
       returnedAuth.user = null;
       fetchAuthByFirebaseIdStub.resolves(returnedAuth);
       const result = await authService.fetchUserIdFromFirebaseId(returnedAuth.firebaseId);
-      expect(result).to.eql({error: {message: 'auth record contains no user field'}});
+      expect(result).to.eql(errorUtils.formatError('auth record contains no user field'));
     });
   });
   describe('delete auth record by id', ()=>{
@@ -361,7 +362,7 @@ describe('auth service', () => {
       const err = new Error('an error has occurred');
       findByIdAndRemoveStub.throws(err);
       const result = await authService.deleteAuthRecordById(authId);
-      expect(result).to.eql({error: {message: 'an error has occurred while removing user auth', err}});
+      expect(result).to.eql(errorUtils.formatError('an error has occurred while removing user auth', err));
     })
   })
 });
