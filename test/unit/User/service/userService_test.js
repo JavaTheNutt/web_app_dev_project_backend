@@ -64,6 +64,29 @@ describe('user service', () => {
       expect(result).to.eql(errorUtils.formatError('error while deleting user', err));
     });
   });
+  describe('update user', ()=>{
+    let updateStub, userId, updateParams;
+    beforeEach(()=>{
+      updateStub = sandbox.stub(User, 'findByIdAndUpdate');
+      updateParams = {firstName: 'joe', surname: 'bloggs'};
+      userId = ObjectId();
+    });
+    afterEach(()=>{
+      sandbox.restore();
+    });
+    it('should update a user to the correct values', async ()=>{
+      const updatedUser = {_id: userId, firstName: updateParams.firstName, surname: updateParams.surname, email: 'test@test.com'}
+      updateStub.resolves(updatedUser);
+      const result = await userService.updateUser(userId, updateParams);
+      expect(result).to.eql(updatedUser)
+    });
+    it('should handle update errors gracefully', async ()=>{
+      const err = new Error('i am an error');
+      updateStub.throws(err);
+      const result = await userService.updateUser(userId, updateParams);
+      expect(result).to.eql(errorUtils.formatError('an error has occurred while updating user', err))
+    });
+  });
   describe('handle add address', () => {
     let validateAddressStub, addAddressStub, fakeUserId, fakeAddress, validatedAddress, updatedUser, fakeError;
     beforeEach(() => {

@@ -7,7 +7,7 @@ const Logger         = require('@util/Logger')('USER_SERVICE');
 const User           = require('@user/models/User').model;
 const Address        = require('@Address/models/Address').model;
 const addressService = require('@Address/service/addressService');
-const errorUtils = require('@util/errorUtils');
+const errorUtils     = require('@util/errorUtils');
 
 module.exports = exports = {
   /**
@@ -77,7 +77,8 @@ module.exports = exports = {
     try {
       const updatedUser = await User.findByIdAndUpdate(user, {$push: {addresses: address}}, {
         safe: true,
-        new: true
+        new: true,
+        runValidators: true
       });
       Logger.verbose(`update completed without error`);
       Logger.verbose(`updated doc: ${JSON.stringify(updatedUser)}`);
@@ -86,6 +87,27 @@ module.exports = exports = {
       Logger.warn(`error during object creation`);
       Logger.error(`error: ${err}`);
       return errorUtils.formatError('an error occurred while updating the user', err);
+    }
+  },
+  async updateUser(user, updateParams) {
+    'use strict';
+    Logger.info(`request made to update user`);
+    Logger.verbose(`user to be updated ${JSON.stringify(user)}`);
+    Logger.verbose(`params to be applied: ${JSON.stringify(updateParams)}`);
+    try {
+      const newUser = await User.findByIdAndUpdate(user, updateParams, {
+        runValidators: true,
+        new: true,
+      });
+      Logger.verbose(`update succeeded without error`);
+      Logger.verbose(`new user ${JSON.stringify(newUser)}`);
+      return newUser;
+    }catch(err){
+      Logger.warn(`error while updating user`);
+      Logger.verbose(`attempted to apply ${JSON.stringify(updateParams)}`);
+      Logger.verbose(`to user ${JSON.stringify(user)}`);
+      Logger.error(`error: ${err}`);
+      return errorUtils.formatError('an error has occurred while updating user', err);
     }
   },
   /**
@@ -100,26 +122,25 @@ module.exports = exports = {
     Logger.info(`attempting to validate address`);
     Logger.verbose(`details to be validated: ${JSON.stringify(addressDetails)}`);
     const formattedAddress = await addressService.validateAddress(addressDetails);
-    if(formattedAddress.error){
+    if (formattedAddress.error) {
       Logger.warn(`an error occurred while validating the address`);
       Logger.warn(`error message: ${formattedAddress.error.message}`);
       return formattedAddress;
     }
     return formattedAddress;
   },
-  async deleteUser(userId){
+  async deleteUser(userId) {
     'use strict';
     Logger.info(`request made ro delete user with id ${userId}`);
-    try{
-      await User.findByIdAndRemove({_id:userId});
+    try {
+      await User.findByIdAndRemove({_id: userId});
       Logger.verbose(`user assumed deleted`);
       return true;
-    }catch (err){
+    } catch (err) {
       Logger.warn(`there was an error while deleting the user`);
       Logger.error(`error: ${err}`);
       return errorUtils.formatError('error while deleting user', err);
     }
-
   }
 };
 
