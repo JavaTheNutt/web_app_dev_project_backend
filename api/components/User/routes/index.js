@@ -12,6 +12,7 @@ module.exports       = server => {
    * @memberOf module:user/router
    */
   server.post('/user/new', userController.createNewUser);
+  server.get('/user', userController.getCurrentUser);
 
   server.put('/user', userController.updateUser);
   /**
