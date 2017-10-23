@@ -89,5 +89,6 @@ describe('address service', () => {
       const result        = addressService.formatDetails(addressDetails);
       expect(result.error.message).to.equal('address text is required');
     });
-  })
+  });
+
 });

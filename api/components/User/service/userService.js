@@ -90,6 +90,19 @@ module.exports = exports = {
       return errorUtils.formatError('an error occurred while updating the user', err);
     }
   },
+  async deleteAddressById(userId, addressId){
+    'use strict';
+    Logger.info(`request made to delete an address by id`);
+    Logger.verbose(`deleting address ${addressId} from user ${userId}`);
+    const newUser = await exports.updateUser(userId, {$pullAll: {'addresses._id': addressId}});
+    if(newUser.error){
+      Logger.warn(`new user contains errors`);
+      return errorUtils.updateErrorMessage('error occurred during delete operation', newUser);
+    }
+    Logger.verbose(`delete assumed successful`);
+    return newUser;
+    
+  },
   async updateUser(user, updateParams) {
     'use strict';
     Logger.info(`request made to update user`);

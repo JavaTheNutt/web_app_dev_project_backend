@@ -19,6 +19,8 @@ module.exports = exports = {
   },
   updateErrorMessage(msg, err){
     'use strict';
+    Logger.info(`request made to update an error message`);
+    Logger.verbose(`attempting to add ${msg} to ${JSON.stringify(err)}`);
     return exports.formatError(msg, err.error.err)
   },
   /**

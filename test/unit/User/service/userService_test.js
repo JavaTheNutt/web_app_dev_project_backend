@@ -212,5 +212,38 @@ describe('user service', () => {
       const result = await userService.getUserById(userId);
       expect(result).to.eql(errorUtils.formatError('user returned is not valid'));
     });
+  });
+  describe('delete address', ()=>{
+    const addressId = ObjectId();
+    const userId = ObjectId();
+    let returnedUser, deleteStub;
+    beforeEach(()=>{
+      returnedUser = {
+        _id: userId,
+        email: 'test@test.com',
+        addresses:[        {_id: addressId,
+          text: 'some text here',
+          loc:{
+            type: 'Point',
+            coordinates:[10, 10]
+          }}
+        ]
+      };
+      deleteStub = sandbox.stub(userService, 'updateUser');
+    });
+    afterEach(()=>{
+      sandbox.restore();
+    });
+    it('should delete an address when passed a valid object id', async ()=>{
+      deleteStub.resolves(returnedUser);
+      const result = await userService.deleteAddressById(userId, addressId);
+      expect(result).to.eql(returnedUser);
+    });
+    it('should handle errors in the delete process', async ()=>{
+      const err = new Error('this is an error in the update process');
+      deleteStub.resolves(errorUtils.formatError('an error occurred during update', err));
+      const result = await userService.deleteAddressById(userId, addressId);
+      expect(result).to.eql(errorUtils.formatError('error occurred during delete operation', err));
+    })
   })
 });
