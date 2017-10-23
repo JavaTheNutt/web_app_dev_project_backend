@@ -245,5 +245,41 @@ describe('user service', () => {
       const result = await userService.deleteAddressById(userId, addressId);
       expect(result).to.eql(errorUtils.formatError('error occurred during delete operation', err));
     })
-  })
+  });
+  describe('fetch addresses', ()=>{
+    let fetchUserStub, returnedUser, userId;
+    beforeEach(()=>{
+      userId = ObjectId();
+      returnedUser = {
+        _id: userId,
+        email:'test@test.com',
+        addresses:[{
+          _id: 'someidhere',
+          loc:{}
+        },{
+          _id: 'someotheridhere',
+          loc:{}
+        }]
+      };
+      fetchUserStub = sandbox.stub(userService, 'getUserById')
+    });
+    afterEach(()=>{sandbox.restore()});
+    it('should return a list of addresses when availible', async ()=>{
+      fetchUserStub.resolves(returnedUser);
+      const result = await userService.fetchAddresses(userId);
+      expect(result).to.eql(returnedUser.addresses);
+    });
+    it('should alert the user if they have no address records', async ()=>{
+      returnedUser.addresses = null;
+      fetchUserStub.resolves(returnedUser);
+      const result = await userService.fetchAddresses(userId);
+      expect(result).to.eql(errorUtils.formatError('the user has no addresses'));
+    });
+    it('should deal with errors gracefully', async ()=>{
+      const err = new Error('im an error');
+      fetchUserStub.resolves(errorUtils.formatError('error occurred while fetching user', err));
+      const result = await userService.fetchAddresses(userId);
+      expect(result).to.eql(errorUtils.formatError('error occurred while fetching user', err));
+    });
+  });
 });

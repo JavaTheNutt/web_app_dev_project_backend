@@ -90,6 +90,14 @@ module.exports = exports = {
       return errorUtils.formatError('an error occurred while updating the user', err);
     }
   },
+  async fetchAddresses(userId){
+    'use strict';
+    Logger.info(`request recieved to fetch user addresses`);
+    Logger.verbose(`user: ${JSON.stringify(userId)}`);
+    const user = await exports.getUserById(userId);
+    Logger.verbose(`user: ${JSON.stringify(user)}`);
+    return  user.error ? user : (user.addresses || errorUtils.formatError('the user has no addresses'))
+  },
   async deleteAddressById(userId, addressId){
     'use strict';
     Logger.info(`request made to delete an address by id`);
