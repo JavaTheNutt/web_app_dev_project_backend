@@ -17,6 +17,10 @@ module.exports = exports = {
     Logger.verbose(`error to be returned: ${JSON.stringify(returnedError)}`);
     return returnedError;
   },
+  updateErrorMessage(msg, err){
+    'use strict';
+    return exports.formatError(msg, err.error.err)
+  },
   /**
    * Format error to be sent to the client
    * @param message {string} custom error message

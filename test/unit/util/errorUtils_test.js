@@ -51,5 +51,18 @@ describe('error utils', ()=>{
       const sendableFormattedError = errorUtils.formatSendableErrorFromObject(formattedError);
       expect(sendableFormattedError).to.eql({error:{message: `${message}`}})
     });
+  });
+  describe('update error message', ()=>{
+    it('should correctly handle updating an error message when an error is present', ()=>{
+      const err = new Error('this is an error');
+      const error = errorUtils.formatError('this is the old message', err);
+      const updatedErr = errorUtils.updateErrorMessage('this is a new message', error);
+      expect(updatedErr).to.eql(errorUtils.formatError('this is a new message', err))
+    });
+    it('should correctly handle updating an error message when an error is not present', ()=>{
+      const error = errorUtils.formatError('this is the old message');
+      const updatedErr = errorUtils.updateErrorMessage('this is a new message', error);
+      expect(updatedErr).to.eql(errorUtils.formatError('this is a new message'))
+    })
   })
 });
