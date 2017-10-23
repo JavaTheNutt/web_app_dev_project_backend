@@ -282,4 +282,37 @@ describe('user service', () => {
       expect(result).to.eql(errorUtils.formatError('error occurred while fetching user', err));
     });
   });
+  describe('fetch single address', ()=>{
+    let fetchUserStub, returnedAddresses, userId, address1, address2;
+    beforeEach(()=>{
+      userId = ObjectId();
+      address1 = {
+        _id: ObjectId(),
+        loc:{}
+      };
+      address2 = {
+        _id: ObjectId(),
+        loc:{}
+      };
+      returnedAddresses = [address1, address2];
+      fetchUserStub = sandbox.stub(userService, 'fetchAddresses')
+    });
+    afterEach(()=>{sandbox.restore()});
+    it('should return a list of addresses when availible', async ()=>{
+      fetchUserStub.resolves(returnedAddresses);
+      const result = await userService.fetchSingleAddress(userId, address1._id);
+      expect(result).to.eql(address1);
+    });
+    it('should alert the user if they have no address records', async ()=>{
+      fetchUserStub.resolves([]);
+      const result = await userService.fetchSingleAddress(userId, address1._id);
+      expect(result).to.eql(errorUtils.formatError('address is not found'));
+    });
+    it('should deal with errors gracefully', async ()=>{
+      const err = new Error('im an error');
+      fetchUserStub.resolves(errorUtils.formatError('error occurred while fetching user', err));
+      const result = await userService.fetchSingleAddress(userId);
+      expect(result).to.eql(errorUtils.formatError('error occurred while fetching user', err));
+    });
+  })
 });

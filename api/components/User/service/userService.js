@@ -90,6 +90,13 @@ module.exports = exports = {
       return errorUtils.formatError('an error occurred while updating the user', err);
     }
   },
+  async fetchSingleAddress(userId, addressId){
+    'use strict';
+    Logger.info(`request made to fetch single address`);
+    Logger.verbose(`fetching address with id ${addressId} fro user ${userId}`);
+    const addresses = await exports.fetchAddresses(userId);
+    return addresses.error ? addresses: (addresses.find(address=> address._id.toString() === addressId.toString()) || errorUtils.formatError('address is not found'))
+  },
   async fetchAddresses(userId){
     'use strict';
     Logger.info(`request recieved to fetch user addresses`);
