@@ -127,6 +127,16 @@ module.exports    = {
     }
     Logger.verbose(`user assumed updated`);
     return res.status(200).send(updatedUser);
+  },
+  async fetchAllAddresses(req, res, next){
+    'use strict';
+    Logger.info(`request called to fetch all addresses`);
+    const addresses = await userService.fetchAddresses(req.body.customAuthUser.user);
+    if(addresses.error){
+      Logger.warn(`address fetch has errors`);
+      return res.status(500).send(errorUtils.formatSendableErrorFromObject(addresses))
+    }
+    return res.status(200).send(addresses);
   }
 };
 

@@ -483,5 +483,57 @@ describe('user controller', function () {
       expect(statusStub).to.be.calledBefore(sendStub);
       expect(deleteAddressStub).to.not.be.called;
     })
+  });
+  describe('fetch all addresses', ()=>{
+    'use strict';
+    'use strict';
+    let fetchAddressesStub, req, res, next, sendStub, sendStubContainer, statusStub, fakeUser;
+    beforeEach(() => {
+      fetchAddressesStub = sandbox.stub(userService, 'fetchAddresses');
+      req               = {
+        body: {customAuthUser: {user: ObjectId()}}
+      };
+      sendStub = sandbox.stub();
+      sendStubContainer = {send: sendStub};
+      statusStub = sandbox.stub().returns(sendStubContainer);
+      res = {
+        send: sendStub,
+        status: statusStub,
+      };
+      next = sandbox.spy();
+      fakeUser = {
+        _id: req.body.customAuthUser.user,
+        email: 'test@test.com',
+        addresses:[{
+          _id: 'someidhere',
+          loc:{}
+        },{
+          _id: 'someotheridhere',
+          loc:{}
+        }]
+      }
+    });
+    afterEach(() => {
+      sandbox.restore()
+    });
+    it('should call res.send with a status of 200 and return all addresses', async() => {
+      fetchAddressesStub.resolves(fakeUser.addresses);
+      await userController.fetchAllAddresses(req, res, next);
+      expect(statusStub).to.be.calledOnce;
+      expect(statusStub).to.be.calledWith(200);
+      expect(sendStub).to.be.calledOnce;
+      expect(sendStub).to.be.calledWith(fakeUser.addresses);
+      expect(statusStub).to.be.calledBefore(sendStub);
+    });
+    it('should call res.send with a status of 500 when an error is thrown during the fetch operation', async()=>{
+      const err = new Error('i was thrown while deleting address');
+      fetchAddressesStub.resolves(errorUtils.formatError('error occurred during delete operation', err));
+      await userController.fetchAllAddresses(req, res, next);
+      expect(statusStub).to.be.calledOnce;
+      expect(statusStub).to.be.calledWith(500);
+      expect(sendStub).to.be.calledOnce;
+      expect(sendStub).to.be.calledWith(errorUtils.formatSendableError('error occurred during delete operation', err));
+      expect(statusStub).to.be.calledBefore(sendStub);
+    });
   })
 });
