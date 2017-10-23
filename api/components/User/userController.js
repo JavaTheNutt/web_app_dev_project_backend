@@ -8,6 +8,8 @@ const _           = require('lodash');
 const userService = require('@user/service/userService');
 const authService = require('@Auth/service/authService');
 const errorUtils  = require('@util/errorUtils');
+
+const oidValidation = require('@user/models/validation/modelValidation').validateObjectId;
 module.exports    = {
   /**
    * Create new User
@@ -106,6 +108,25 @@ module.exports    = {
     }
     Logger.verbose(`user assumed fetched without error`);
     return res.status(200).send(user);
+  },
+  async deleteAddress(req, res, next){
+    'use strict';
+    Logger.info(`request recieved to delete address`);
+    if(!req.params || !req.params.id){
+      Logger.warn(`missing data for request`);
+      return res.status(400).send(errorUtils.formatSendableError('address id is required'));
+    }
+    if(!oidValidation(req.params.id)){
+      Logger.warn(`id is not valid format`);
+      return res.status(400).send(errorUtils.formatSendableError('address id is invalid format'));
+    }
+    const updatedUser = await userService.deleteAddressById(req.body.customAuthUser.user, req.params.id);
+    if(updatedUser.error){
+      Logger.warn(`updated user contains errors`);
+      return res.status(500).send(errorUtils.formatSendableErrorFromObject(updatedUser));
+    }
+    Logger.verbose(`user assumed updated`);
+    return res.status(200).send(updatedUser);
   }
 };
 
