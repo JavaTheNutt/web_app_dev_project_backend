@@ -400,5 +400,92 @@ describe('user controller', () => {
       expect(sendStub).to.be.calledWith(errorUtils.formatSendableError('error occurred while fetching all addresses', err));
       expect(statusStub).to.be.calledBefore(sendStub);
     });
-  })
+  });
+  describe('fetch one address', ()=>{
+    'use strict';
+    let fetchAddressStub, req, res, next, sendStub, sendStubContainer, statusStub, fakeUser, fakeAddress;
+    beforeEach(() => {
+      fetchAddressStub = sandbox.stub(User, 'findById');
+      req               = {
+        params: {
+          id: ObjectId()
+        },
+        body: {customAuthUser: {user: ObjectId()}}
+      };
+      sendStub = sandbox.stub();
+      sendStubContainer = {send: sendStub};
+      statusStub = sandbox.stub().returns(sendStubContainer);
+      res = {
+        send: sendStub,
+        status: statusStub,
+      };
+      fakeAddress = {
+        _id: req.params.id,
+        text:'this is the address you tried to fetch',
+        loc:{}
+      };
+      next = sandbox.spy();
+      fakeUser = {
+        _id: req.body.customAuthUser.user,
+        email: 'test@test.com',
+        addresses:[fakeAddress,{
+          _id: 'someotheridhere',
+          loc:{}
+        }]
+      }
+    });
+    afterEach(() => {
+      sandbox.restore()
+    });
+    it('should call res.send with a status of 200 when an address is successfully fetched', async() => {
+      fetchAddressStub.resolves(fakeUser);
+      await userController.fetchSingleAddress(req, res, next);
+      expect(statusStub).to.be.calledOnce;
+      expect(statusStub).to.be.calledWith(200);
+      expect(sendStub).to.be.calledOnce;
+      expect(sendStub).to.be.calledWith(fakeAddress);
+      expect(statusStub).to.be.calledBefore(sendStub);
+    });
+    it('should call res.send with a status of 500 when an error is thrown during the delete process', async()=>{
+      const err = new Error('i was thrown while fetching address');
+      fetchAddressStub.throws(err);
+      await userController.fetchSingleAddress(req, res, next);
+      expect(statusStub).to.be.calledOnce;
+      expect(statusStub).to.be.calledWith(500);
+      expect(sendStub).to.be.calledOnce;
+      expect(sendStub).to.be.calledWith(errorUtils.formatSendableError('error occurred while fetching user', err));
+      expect(statusStub).to.be.calledBefore(sendStub);
+    });
+    it('should call res.send with 400 when there is no id param', async()=>{
+      req.params.id = null;
+      await userController.fetchSingleAddress(req, res, next);
+      expect(statusStub).to.be.calledOnce;
+      expect(statusStub).to.be.calledWith(400);
+      expect(sendStub).to.be.calledOnce;
+      expect(sendStub).to.be.calledWith(errorUtils.formatSendableError('address id is required'));
+      expect(statusStub).to.be.calledBefore(sendStub);
+      expect(fetchAddressStub).to.not.be.called;
+    });
+    it('should call res.send with 400 when there are no params', async()=>{
+      req.params = null;
+      await userController.fetchSingleAddress(req, res, next);
+      expect(statusStub).to.be.calledOnce;
+      expect(statusStub).to.be.calledWith(400);
+      expect(sendStub).to.be.calledOnce;
+      expect(sendStub).to.be.calledWith(errorUtils.formatSendableError('address id is required'));
+      expect(statusStub).to.be.calledBefore(sendStub);
+      expect(fetchAddressStub).to.not.be.called;
+    });
+    it('should call res.send with 400 when id param cannot be coerced into an object id', async()=>{
+      req.params.id = 'a';
+      await userController.fetchSingleAddress(req, res, next);
+      expect(statusStub).to.be.calledOnce;
+      expect(statusStub).to.be.calledWith(400);
+      expect(sendStub).to.be.calledOnce;
+      expect(sendStub).to.be.calledWith(errorUtils.formatSendableError('address id is invalid format'));
+      expect(statusStub).to.be.calledBefore(sendStub);
+      expect(fetchAddressStub).to.not.be.called;
+    })
+  });
+
 });
