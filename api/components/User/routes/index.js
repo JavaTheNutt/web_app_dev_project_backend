@@ -22,5 +22,6 @@ module.exports       = server => {
    * @memberOf module:user/router
    */
   server.post('/user/address', userController.addAddress);
+  server.get('/user/address', userController.fetchAllAddresses)
 
 };
