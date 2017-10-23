@@ -94,7 +94,7 @@ module.exports = exports = {
     'use strict';
     Logger.info(`request made to delete an address by id`);
     Logger.verbose(`deleting address ${addressId} from user ${userId}`);
-    const newUser = await exports.updateUser(userId, {$pullAll: {'addresses._id': addressId}});
+    const newUser = await exports.updateUser(userId, {$pull: {addresses:{_id: addressId}}});
     if(newUser.error){
       Logger.warn(`new user contains errors`);
       return errorUtils.updateErrorMessage('error occurred during delete operation', newUser);

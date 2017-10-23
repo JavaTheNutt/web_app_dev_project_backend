@@ -15,6 +15,8 @@ module.exports       = server => {
   server.get('/user', userController.getCurrentUser);
 
   server.put('/user', userController.updateUser);
+
+  server.delete('/user/address/:id', userController.deleteAddress);
   /**
    * Add an address to a user
    * @memberOf module:user/router
