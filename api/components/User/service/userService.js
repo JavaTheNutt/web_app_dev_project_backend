@@ -97,6 +97,7 @@ module.exports = exports = {
     const addresses = await exports.fetchAddresses(userId);
     return addresses.error ? addresses: (addresses.find(address=> address._id.toString() === addressId.toString()) || errorUtils.formatError('address is not found'))
   },
+
   async fetchAddresses(userId){
     'use strict';
     Logger.info(`request recieved to fetch user addresses`);

@@ -128,6 +128,26 @@ module.exports    = {
     Logger.verbose(`user assumed updated`);
     return res.status(200).send(updatedUser);
   },
+  async fetchSingleAddress(req, res, next){
+    'use strict';
+    Logger.info(`request recieved to fetch single address`);
+    if(!req.params || !req.params.id){
+      Logger.warn(`missing data for request`);
+      return res.status(400).send(errorUtils.formatSendableError('address id is required'));
+    }
+    if(!oidValidation(req.params.id)){
+      Logger.warn(`id is not valid format`);
+      return res.status(400).send(errorUtils.formatSendableError('address id is invalid format'));
+    }
+    Logger.verbose(`object id is assumed valid`);
+    const address = await userService.fetchSingleAddress(req.body.customAuthUser.user, req.params.id);
+    if(address.error){
+      Logger.warn(`fetched address contains errors`);
+      return res.status(500).send(errorUtils.formatSendableErrorFromObject(address));
+    }
+    Logger.verbose(`address assumed fetched`);
+    return res.status(200).send(address);
+  },
   async fetchAllAddresses(req, res, next){
     'use strict';
     Logger.info(`request called to fetch all addresses`);
