@@ -272,5 +272,81 @@ describe('user controller', () => {
       sandbox.restore();
     })
   });
-
+  describe('delete address', ()=>{
+    let deleteAddressStub, req, res, next, sendStub, sendStubContainer, statusStub, fakeUser;
+    beforeEach(() => {
+      deleteAddressStub = sandbox.stub(User, 'findOneAndUpdate');
+      req               = {
+        params: {
+          id: ObjectId()
+        },
+        body: {customAuthUser: {user: ObjectId()}}
+      };
+      sendStub = sandbox.stub();
+      sendStubContainer = {send: sendStub};
+      statusStub = sandbox.stub().returns(sendStubContainer);
+      res = {
+        send: sendStub,
+        status: statusStub,
+      };
+      next = sandbox.spy();
+      fakeUser = {
+        _id: req.body.customAuthUser.user,
+        email: 'test@test.com',
+        addresses:[]
+      }
+    });
+    afterEach(() => {
+      sandbox.restore()
+    });
+    it('should call res.send with a status of 200 when an address is successfully deleted', async() => {
+      deleteAddressStub.resolves(fakeUser);
+      await userController.deleteAddress(req, res, next);
+      expect(statusStub).to.be.calledOnce;
+      expect(statusStub).to.be.calledWith(200);
+      expect(sendStub).to.be.calledOnce;
+      expect(sendStub).to.be.calledWith(fakeUser);
+      expect(statusStub).to.be.calledBefore(sendStub);
+    });
+    it('should call res.send with a status of 500 when an error is thrown during the delete process', async()=>{
+      const err = new Error('i was thrown while deleting address');
+      deleteAddressStub.throws(err);
+      await userController.deleteAddress(req, res, next);
+      expect(statusStub).to.be.calledOnce;
+      expect(statusStub).to.be.calledWith(500);
+      expect(sendStub).to.be.calledOnce;
+      expect(sendStub).to.be.calledWith(errorUtils.formatSendableError('error occurred during delete operation', err));
+      expect(statusStub).to.be.calledBefore(sendStub);
+    });
+    it('should call res.send with 400 when there is no id param', async()=>{
+      req.params.id = null;
+      await userController.deleteAddress(req, res, next);
+      expect(statusStub).to.be.calledOnce;
+      expect(statusStub).to.be.calledWith(400);
+      expect(sendStub).to.be.calledOnce;
+      expect(sendStub).to.be.calledWith(errorUtils.formatSendableError('address id is required'));
+      expect(statusStub).to.be.calledBefore(sendStub);
+      expect(deleteAddressStub).to.not.be.called;
+    });
+    it('should call res.send with 400 when there are no params', async()=>{
+      req.params = null;
+      await userController.deleteAddress(req, res, next);
+      expect(statusStub).to.be.calledOnce;
+      expect(statusStub).to.be.calledWith(400);
+      expect(sendStub).to.be.calledOnce;
+      expect(sendStub).to.be.calledWith(errorUtils.formatSendableError('address id is required'));
+      expect(statusStub).to.be.calledBefore(sendStub);
+      expect(deleteAddressStub).to.not.be.called;
+    });
+    it('should call res.send with 400 when id param cannot be coerced into an object id', async()=>{
+      req.params.id = 'a';
+      await userController.deleteAddress(req, res, next);
+      expect(statusStub).to.be.calledOnce;
+      expect(statusStub).to.be.calledWith(400);
+      expect(sendStub).to.be.calledOnce;
+      expect(sendStub).to.be.calledWith(errorUtils.formatSendableError('address id is invalid format'));
+      expect(statusStub).to.be.calledBefore(sendStub);
+      expect(deleteAddressStub).to.not.be.called;
+    })
+  })
 });
