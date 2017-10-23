@@ -532,7 +532,7 @@ describe('user controller', function () {
       expect(statusStub).to.be.calledOnce;
       expect(statusStub).to.be.calledWith(500);
       expect(sendStub).to.be.calledOnce;
-      expect(sendStub).to.be.calledWith(errorUtils.formatSendableError('error occurred during delete operation', err));
+      expect(sendStub).to.be.calledWith(errorUtils.formatSendableError('error occurred while fetching all addresses', err));
       expect(statusStub).to.be.calledBefore(sendStub);
     });
   })

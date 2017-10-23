@@ -134,7 +134,8 @@ module.exports    = {
     const addresses = await userService.fetchAddresses(req.body.customAuthUser.user);
     if(addresses.error){
       Logger.warn(`address fetch has errors`);
-      return res.status(500).send(errorUtils.formatSendableErrorFromObject(addresses))
+
+      return res.status(500).send(errorUtils.formatSendableErrorFromObject(errorUtils.updateErrorMessage('error occurred while fetching all addresses', addresses)))
     }
     return res.status(200).send(addresses);
   }
