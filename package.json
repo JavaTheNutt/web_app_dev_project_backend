@@ -4,8 +4,10 @@
   "description": "rest api for web development backend",
   "main": "api/index.js",
   "scripts": {
-    "unit": "find ./test/unit -name '*_test.js' | cross-env NODE_ENV=test xargs nyc mocha -R spec",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "unit": "find ./test/unit -name '*_test.js' | cross-env NODE_ENV=test LOG_LEVEL=silent xargs nyc mocha -R spec",
+    "internalIntegration": "find ./test/integration/internal -name '*_test.js' | cross-env NODE_ENV=test LOG_LEVEL=silent xargs nyc mocha -R spec",
+    "integration": "npm run internalIntegration",
+    "test": "npm run unit && npm run integration",
     "dev": "nodemon api/index.js",
     "start": "cross-env NODE_ENV=production node api/index.js",
     "docs": "jsdoc -r -d docs/jsdocs api"

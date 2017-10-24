@@ -177,6 +177,10 @@ module.exports = exports = {
     }
     return formattedAddress;
   },
+  async deleteUserRecord(userId){
+    'use strict';
+
+  },
   async deleteUser(userId) {
     'use strict';
     Logger.info(`request made ro delete user with id ${userId}`);

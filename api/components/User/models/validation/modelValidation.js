@@ -7,6 +7,7 @@ const emailValidator = require('email-validator');
 const ObjectId       = require('mongoose').Types.ObjectId;
 const mongoose       = require('mongoose');
 
+//fixme add integration tests for validation
 /**
  * Check if an email is valid
  * @param emailAddress {String} the address to be checked

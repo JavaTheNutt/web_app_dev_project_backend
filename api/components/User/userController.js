@@ -143,7 +143,8 @@ module.exports    = {
     const address = await userService.fetchSingleAddress(req.body.customAuthUser.user, req.params.id);
     if(address.error){
       Logger.warn(`fetched address contains errors`);
-      return res.status(500).send(errorUtils.formatSendableErrorFromObject(address));
+      address.error.message === 'address is not found' ? res.status(404) : res.status(500);
+      return res.send(errorUtils.formatSendableErrorFromObject(address));
     }
     Logger.verbose(`address assumed fetched`);
     return res.status(200).send(address);
@@ -152,15 +153,18 @@ module.exports    = {
     'use strict';
     Logger.info(`request called to fetch all addresses`);
     const addresses = await userService.fetchAddresses(req.body.customAuthUser.user);
+    Logger.verbose(`returned addresses: ${JSON.stringify(addresses)}`);
     if(addresses.error){
       Logger.warn(`address fetch has errors`);
-
       return res.status(500).send(errorUtils.formatSendableErrorFromObject(errorUtils.updateErrorMessage('error occurred while fetching all addresses', addresses)))
+    }
+    if(Array.isArray(addresses) && addresses.length ===0){
+      Logger.warn(`address array is empty`);
+      return res.status(200).send({message: 'this user has no addresses'});
     }
     return res.status(200).send(addresses);
   }
 };
-
 
 /**
  * Check if required params are present on request to create user

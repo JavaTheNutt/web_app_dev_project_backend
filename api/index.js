@@ -64,5 +64,10 @@ app.use((err, req, res, next) => {
   'use strict';
   Logger.warn(`the default error handler has been invoked. An unexpected error has occurred.`);
   Logger.error(`error: ${JSON.stringify(err)}`);
-  res.status(500).send('there was an error here');
+  res.status(500).send({error: 'an unexpected error has occurred'});
+});
+app.use((req, res, next)=>{
+  'use strict';
+  Logger.warn(`default route handler called, returning 404`);
+  res.status(404).send({error: "the requested resource was not found"})
 });

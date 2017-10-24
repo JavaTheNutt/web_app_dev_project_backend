@@ -32,6 +32,11 @@ module.exports = exports = {
       return errorUtils.formatError('address validation failed', err);
     }
   },
+  /**
+   *
+   * @param addressDetails
+   * @returns {*}
+   */
   formatDetails(addressDetails) {
     'use strict';
     Logger.info(`attempting to format address details`);

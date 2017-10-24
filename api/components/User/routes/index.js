@@ -24,5 +24,4 @@ module.exports       = server => {
    */
   server.post('/user/address', userController.addAddress);
   server.get('/user/address', userController.fetchAllAddresses);
-
 };
