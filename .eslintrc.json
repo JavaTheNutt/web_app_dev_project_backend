@@ -1,0 +1,56 @@
+{
+  "env": {
+    "node": true,
+    "mocha": true
+  },
+  "parserOptions": {
+    "ecmaVersion": 8
+  },
+  "plugins": [
+    "json"
+  ],
+  "globals": {
+    "Promise": true
+  },
+  "extends": "eslint:recommended",
+  "rules": {
+    "no-useless-concat": "error",
+    "require-jsdoc": "error",
+    "require-await": "error",
+    "arrow-spacing":"error",
+    "prefer-rest-params":"error",
+    "arrow-parens": [
+      "error",
+      "as-needed"
+    ],
+    "arrow-body-style": [
+      "error",
+      "as-needed"
+    ],
+    "indent": [
+      "error",
+      4
+    ],
+    "no-var": "error",
+    "prefer-const": "error",
+    "prefer-arrow-callback": "error",
+    "consistent-return": "error",
+    "eqeqeq": "error",
+    "linebreak-style": [
+      "error",
+      "windows"
+    ],
+    "quotes": [
+      "error",
+      "single"
+    ],
+    "semi": [
+      "error",
+      "always"
+    ],
+    "object-shorthand": [
+      "error",
+      "always"
+    ]
+  }
+}

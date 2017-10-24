@@ -11,8 +11,6 @@ const app                    = require('express')();
 const cors                   = require('cors');
 const bodyParser             = require('body-parser');
 const config                 = require('../config/config');
-const firebaseServiceAccount = require('../config/firebaseServiceKey.json'); //not included in repo, needs to be
-                                                                             // created on clone
 const Logger         = require('@util/Logger')('INDEX');
 const mongoose       = require('mongoose');
 const authMiddleware = require('@Auth/authMiddleware');
@@ -29,16 +27,17 @@ app.use(cors());
 mongoose.Promise = Promise;
 mongoose.connect(config.db.uri, {useMongoClient: true});
 const db = mongoose.connection;
+/*eslint no-console: off*/
 db.on('error', console.error.bind(console, 'connection error:'));
 db.on('open', () => {
-  'use strict';
-  Logger.info(`database connection opened`);
+    'use strict';
+    Logger.info('database connection opened');
 });
 
 //set up firebase
 admin.initializeApp({
-  credential: admin.credential.cert(config.firebase.credential),
-  databaseUrl: config.firebase.databaseUrl
+    credential: admin.credential.cert(config.firebase.credential),
+    databaseUrl: config.firebase.databaseUrl
 });
 
 //set flag on new user request
@@ -52,17 +51,22 @@ require('./router')(app);
 
 //create server
 const server = app.listen(config.port, () => {
-  'use strict';
-  Logger.info(`server started at ${server.address().address} on port ${server.address().port}`);
+    'use strict';
+    Logger.info(`server started at ${server.address().address} on port ${server.address().port}`);
 });
 
 //set up error logger
 app.use(Logger.errorLogger);
 
 //default error handler
-app.use((err, req, res, next) => {
-  'use strict';
-  Logger.warn(`the default error handler has been invoked. An unexpected error has occurred.`);
-  Logger.error(`error: ${JSON.stringify(err)}`);
-  res.status(500).send('there was an error here');
+app.use((err, req, res) => {
+    'use strict';
+    Logger.warn('the default error handler has been invoked. An unexpected error has occurred.');
+    Logger.error(`error: ${JSON.stringify(err)}`);
+    res.status(500).send({error: 'an unexpected error has occurred'});
+});
+app.use((req, res) => {
+    'use strict';
+    Logger.warn('default route handler called, returning 404');
+    res.status(404).send({error: 'the requested resource was not found'});
 });
