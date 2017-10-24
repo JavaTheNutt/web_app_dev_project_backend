@@ -10,7 +10,8 @@
     "test": "npm run unit && npm run integration",
     "dev": "nodemon api/index.js",
     "start": "cross-env NODE_ENV=production node api/index.js",
-    "docs": "jsdoc -r -d docs/jsdocs api"
+    "docs": "jsdoc -r -d docs/jsdocs api",
+    "lint": "eslint --fix *"
   },
   "repository": {
     "type": "git",
@@ -39,6 +40,8 @@
   },
   "devDependencies": {
     "chai": "^4.1.1",
+    "eslint": "^4.9.0",
+    "eslint-plugin-json": "^1.2.0",
     "jsdoc": "^3.5.5",
     "mocha": "^3.5.0",
     "nodemon": "^1.12.1",

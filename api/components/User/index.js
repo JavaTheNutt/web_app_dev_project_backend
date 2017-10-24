@@ -4,6 +4,6 @@
  * @param server {Object}
  * @module user
  */
-module.exports = (server) => {
-  require('./routes')(server);
+module.exports = server => {
+    require('./routes')(server);
 };

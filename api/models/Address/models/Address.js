@@ -4,27 +4,26 @@
  */
 
 const mongoose = require('mongoose');
-const Logger   = require('@util/Logger')('ADDRESS_MODEL');
 
 const AddressSchema = mongoose.Schema({
-  text: {
-    type: String,
-    required: true
-  },
-  loc: {
-    type: {
-      type: String,
-      enum: ['Point']
+    text: {
+        type: String,
+        required: true
     },
-    coordinates: {
-      type: [Number]
+    loc: {
+        type: {
+            type: String,
+            enum: ['Point']
+        },
+        coordinates: {
+            type: [Number]
+        }
     }
-  }
 });
 AddressSchema.index({loc: '2dsphere'});
 
 const AddressModel = mongoose.model('Address', AddressSchema);
 module.exports     = {
-  schema: AddressSchema,
-  model: AddressModel
+    schema: AddressSchema,
+    model: AddressModel
 };

@@ -1,0 +1,9 @@
+# Created by .ignore support plugin (hsz.mobi)
+/docs/
+/node_modules/
+/.nyc_output/
+/.idea/
+/data
+/coverage
+/log
+README.md

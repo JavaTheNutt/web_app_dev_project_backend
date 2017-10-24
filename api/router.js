@@ -12,11 +12,11 @@ const Logger = require('@util/Logger')('MAIN_ROUTER');
  * @param server {Object} the server instance
  * @memberOf module:router
  */
-module.exports = (server) => {
-  'use strict';
-  getDirectories().forEach(componentPath => {
-    require(componentPath)(server);
-  });
+module.exports = server => {
+    'use strict';
+    getDirectories().forEach(componentPath => {
+        require(componentPath)(server);
+    });
 };
 /**
  * Filter to determine if entry is a directory
@@ -32,8 +32,8 @@ const isDir          = source => fs.statSync(source).isDirectory();
  * @return {Array} list of directories in the 'components' directory
  */
 const getDirectories = () => {
-  'use strict';
-  const componentDir = path.join(__dirname, '/components');
-  Logger.verbose(`component directory: ${componentDir}`);
-  return fs.readdirSync(componentDir).map(name => path.join(componentDir, name)).filter(isDir);
+    'use strict';
+    const componentDir = path.join(__dirname, '/components');
+    Logger.verbose(`component directory: ${componentDir}`);
+    return fs.readdirSync(componentDir).map(name => path.join(componentDir, name)).filter(isDir);
 };
