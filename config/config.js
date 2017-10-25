@@ -25,5 +25,6 @@ module.exports = {
     db:{
         uri: connectionString
     },
-    firebase: privateConfig.firebaseOpts
+    firebase: privateConfig.firebaseOpts,
+    firebaseClient: privateConfig.firebaseTestClient
 };

@@ -70,3 +70,4 @@ app.use((req, res) => {
     Logger.warn('default route handler called, returning 404');
     res.status(404).send({error: 'the requested resource was not found'});
 });
+module.exports = app;
