@@ -1,9 +1,9 @@
 require('module-alias/register');
-const chai      = require('chai');
-const expect    = chai.expect;
-const supertest = require('supertest');
-const app       = require('@root');
-const util      = require('./util');
+const chai        = require('chai');
+const expect      = chai.expect;
+const supertest   = require('supertest');
+const app         = require('@root');
+const util        = require('./util');
 describe('user controller', () => {
     'use strict';
     let firebaseToken;
@@ -30,7 +30,11 @@ describe('user controller', () => {
     });
     describe('user exists', () => {
         beforeEach(async () => {
-
+            await util.userInit();
+        });
+        it('should fetch the current user',async () => {
+            const response = await supertest(app).get('/user').set('token', firebaseToken).expect(200);
+            expect(response.body.error).to.not.exist;
         });
     });
 });

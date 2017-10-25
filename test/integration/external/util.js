@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const dbUri    = require('@config/config').db.uri;
 const firebaseClient = require('@config/config').firebaseClient;
 const firebase = require('firebase');
-const userController = require('@user/userController');
+const userService = require('@user/service/userService');
 module.exports = {
     async mongoSetup() {
         'use strict';
@@ -38,9 +38,10 @@ module.exports = {
         await firebase.auth().createUserWithEmailAndPassword('iamauserthatispurelyfortesting@supertestuser.com', 'wwwwww');
         return firebase.auth().currentUser.getIdToken(true);
     },
-    async firebaseInitWithUser(){
+    async userInit(){
         'use strict';
-
+        const id = firebase.auth().currentUser.uid;
+        await userService.handleCreateUser('iamauserthatispurelyfortesting@supertestuser.com', id);
     },
     async firebaseTeardown(){
         'use strict';
