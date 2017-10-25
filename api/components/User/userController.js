@@ -23,7 +23,7 @@ module.exports      = {
         if (!checkCreateRequest(req)) {
             Logger.warn('error while validating params, returning 400');
             res.status(500);
-            return res.send({error: {message: 'token was parsed successfully but is missing details'}});
+            return res.send(errorUtils.formatSendableError('token was parsed successfully but is missing details'));
         }
         Logger.verbose('new user details assumed correct');
         const savedUser = await userService.createUser(req.body.customAuthUser);

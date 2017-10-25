@@ -10,16 +10,30 @@ const userService    = require('@user/service/userService');
 const User           = require('@user/models/User').model;
 const Address        = require('@Address/models/Address').model;
 const addressService = require('@Address/service/addressService');
-const errorUtils = require('@util/errorUtils');
+const authService    = require('@Auth/service/authService');
+const errorUtils     = require('@util/errorUtils');
 describe('user service', () => {
     'use strict';
+
+    /*describe('handle user creation', () => {
+        let createUserStub, createAuthStub, setCustomUserClaim, sendStub, sendStubContainer, statusStub, deleteUserStub,
+            deleteAuthStub, setCustomClaimsStub;
+        beforeEach(() => {
+            createUserStub = sandbox.stub(userService, 'createUser');
+            createAuthStub = sandbox.stub(authService, 'createAuthUser');
+        });
+        it('should call create user, create auth, and create claims');
+        it('should not call create auth or create claims if the user save fails');
+        it('should not call create claims if auth save fails, but should call delete user');
+        it('should call both delete user and delete auth if adding claims fails');
+    });*/
     describe('user creation', () => {
         let userDetails, saveStub, fakeError, err;
         beforeEach(() => {
-            userDetails   = {email: 'test@test.com'};
-            saveStub      = sandbox.stub(User.prototype, 'save');
-            err = new Error('this is a firebase error');
-            fakeError = errorUtils.formatError('an error occurred during the user save operation', err);
+            userDetails = {email: 'test@test.com'};
+            saveStub    = sandbox.stub(User.prototype, 'save');
+            err         = new Error('this is a firebase error');
+            fakeError   = errorUtils.formatError('an error occurred during the user save operation', err);
         });
         afterEach(() => {
             sandbox.restore();
@@ -43,17 +57,20 @@ describe('user service', () => {
         let findByIdAndRemoveStub, userId;
         beforeEach(() => {
             findByIdAndRemoveStub = sandbox.stub(User, 'findByIdAndRemove');
-            userId = ObjectId();
+            userId                = ObjectId();
         });
         afterEach(() => {
             sandbox.restore();
         });
         it('should return true when a user is successfully deleted', async () => {
-            findByIdAndRemoveStub.resolves({_id: 'someidhere', email: 'test@test.com'});
+            findByIdAndRemoveStub.resolves({
+                _id: 'someidhere',
+                email: 'test@test.com'
+            });
             const result = await userService.deleteUser(userId);
             expect(result).to.be.true;
         });
-        it('should return an error object to the user when the delete is unsuccessful', async() => {
+        it('should return an error object to the user when the delete is unsuccessful', async () => {
             const err = new Error('this is an error');
             findByIdAndRemoveStub.throws(err);
             const result = await userService.deleteUser(userId);
@@ -63,15 +80,23 @@ describe('user service', () => {
     describe('update user', () => {
         let updateStub, userId, updateParams;
         beforeEach(() => {
-            updateStub = sandbox.stub(User, 'findByIdAndUpdate');
-            updateParams = {firstName: 'joe', surname: 'bloggs'};
-            userId = ObjectId();
+            updateStub   = sandbox.stub(User, 'findByIdAndUpdate');
+            updateParams = {
+                firstName: 'joe',
+                surname: 'bloggs'
+            };
+            userId       = ObjectId();
         });
         afterEach(() => {
             sandbox.restore();
         });
         it('should update a user to the correct values', async () => {
-            const updatedUser = {_id: userId, firstName: updateParams.firstName, surname: updateParams.surname, email: 'test@test.com'};
+            const updatedUser = {
+                _id: userId,
+                firstName: updateParams.firstName,
+                surname: updateParams.surname,
+                email: 'test@test.com'
+            };
             updateStub.resolves(updatedUser);
             const result = await userService.updateUser(userId, updateParams);
             expect(result).to.eql(updatedUser);
@@ -91,8 +116,13 @@ describe('user service', () => {
             fakeUserId          = ObjectId();
             fakeAddress         = {text: '123 fake street'};
             validatedAddress    = {data: fakeAddress};
-            updatedUser         = {data:{email: 'test@test.com', addresses: [validatedAddress]}};
-            fakeError = errorUtils.formatError('an error has occurred');
+            updatedUser         = {
+                data: {
+                    email: 'test@test.com',
+                    addresses: [validatedAddress]
+                }
+            };
+            fakeError           = errorUtils.formatError('an error has occurred');
         });
         it('should handle address validation errors gracefully', async () => {
             validateAddressStub.resolves(fakeError);
@@ -141,7 +171,7 @@ describe('user service', () => {
             const err = new Error('this is an error');
             updateStub.throws(err);
             const fakeError = errorUtils.formatError('an error occurred while updating the user', err);
-            const response = await userService.addAddress(fakeUserId, addressDetails);
+            const response  = await userService.addAddress(fakeUserId, addressDetails);
             expect(response).to.eql(fakeError);
         });
         afterEach(() => {
@@ -178,7 +208,7 @@ describe('user service', () => {
         const userId = ObjectId();
         let findStub, returnedUser;
         beforeEach(() => {
-            findStub = sandbox.stub(User, 'findById');
+            findStub     = sandbox.stub(User, 'findById');
             returnedUser = {
                 _id: userId,
                 email: 'test@test.com'
@@ -187,23 +217,23 @@ describe('user service', () => {
         afterEach(() => {
             sandbox.restore();
         });
-        it('should return the user who made the request',async () => {
+        it('should return the user who made the request', async () => {
             findStub.resolves(returnedUser);
             const result = await userService.getUserById(userId);
             expect(result).to.eql(returnedUser);
         });
-        it('should a properly formatted error in case of error', async() => {
+        it('should a properly formatted error in case of error', async () => {
             const err = new Error('find user by id failed');
             findStub.throws(err);
             const result = await userService.getUserById(userId);
             expect(result).to.eql(errorUtils.formatError('error occurred while fetching user', err));
         });
-        it('should return a properly formatted error when returned user is undefined',async () => {
+        it('should return a properly formatted error when returned user is undefined', async () => {
             findStub.resolves(undefined);
             const result = await userService.getUserById(userId);
             expect(result).to.eql(errorUtils.formatError('user returned is not valid'));
         });
-        it('should return a properly formatted error when returned user is empty',async () => {
+        it('should return a properly formatted error when returned user is empty', async () => {
             findStub.resolves({});
             const result = await userService.getUserById(userId);
             expect(result).to.eql(errorUtils.formatError('user returned is not valid'));
@@ -211,21 +241,22 @@ describe('user service', () => {
     });
     describe('delete address', () => {
         const addressId = ObjectId();
-        const userId = ObjectId();
+        const userId    = ObjectId();
         let returnedUser, deleteStub;
         beforeEach(() => {
             returnedUser = {
                 _id: userId,
                 email: 'test@test.com',
-                addresses:[        {_id: addressId,
+                addresses: [{
+                    _id: addressId,
                     text: 'some text here',
-                    loc:{
+                    loc: {
                         type: 'Point',
-                        coordinates:[10, 10]
-                    }}
-                ]
+                        coordinates: [10, 10]
+                    }
+                }]
             };
-            deleteStub = sandbox.stub(userService, 'updateUser');
+            deleteStub   = sandbox.stub(userService, 'updateUser');
         });
         afterEach(() => {
             sandbox.restore();
@@ -245,21 +276,23 @@ describe('user service', () => {
     describe('fetch addresses', () => {
         let fetchUserStub, returnedUser, userId;
         beforeEach(() => {
-            userId = ObjectId();
-            returnedUser = {
+            userId        = ObjectId();
+            returnedUser  = {
                 _id: userId,
-                email:'test@test.com',
-                addresses:[{
+                email: 'test@test.com',
+                addresses: [{
                     _id: 'someidhere',
-                    loc:{}
-                },{
+                    loc: {}
+                }, {
                     _id: 'someotheridhere',
-                    loc:{}
+                    loc: {}
                 }]
             };
             fetchUserStub = sandbox.stub(userService, 'getUserById');
         });
-        afterEach(() => {sandbox.restore();});
+        afterEach(() => {
+            sandbox.restore();
+        });
         it('should return a list of addresses when availible', async () => {
             fetchUserStub.resolves(returnedUser);
             const result = await userService.fetchAddresses(userId);
@@ -281,19 +314,21 @@ describe('user service', () => {
     describe('fetch single address', () => {
         let fetchUserStub, returnedAddresses, userId, address1, address2;
         beforeEach(() => {
-            userId = ObjectId();
-            address1 = {
+            userId            = ObjectId();
+            address1          = {
                 _id: ObjectId(),
-                loc:{}
+                loc: {}
             };
-            address2 = {
+            address2          = {
                 _id: ObjectId(),
-                loc:{}
+                loc: {}
             };
             returnedAddresses = [address1, address2];
-            fetchUserStub = sandbox.stub(userService, 'fetchAddresses');
+            fetchUserStub     = sandbox.stub(userService, 'fetchAddresses');
         });
-        afterEach(() => {sandbox.restore();});
+        afterEach(() => {
+            sandbox.restore();
+        });
         it('should return a list of addresses when availible', async () => {
             fetchUserStub.resolves(returnedAddresses);
             const result = await userService.fetchSingleAddress(userId, address1._id);

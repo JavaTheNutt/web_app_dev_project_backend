@@ -4,14 +4,15 @@
   "description": "rest api for web development backend",
   "main": "api/index.js",
   "scripts": {
-    "unit": "find ./test/unit -name '*_test.js' | cross-env NODE_ENV=test LOG_LEVEL=silent xargs nyc mocha -R spec",
-    "internalIntegration": "find ./test/integration/internal -name '*_test.js' | cross-env NODE_ENV=test LOG_LEVEL=silent xargs nyc mocha -R spec",
+    "unit": "find ./test/unit -name '*_test.js' | cross-env NODE_ENV=test LOG_LEVEL=silent xargs nyc mocha --compilers js:babel-core/register -R spec",
+    "internalIntegration": "find ./test/integration/internal -name '*_test.js' | cross-env NODE_ENV=test LOG_LEVEL=silent xargs nyc mocha -R spec ",
     "integration": "npm run internalIntegration",
     "test": "npm run unit && npm run integration",
-    "dev": "nodemon api/index.js",
-    "start": "cross-env NODE_ENV=production node api/index.js",
+    "dev": "nodemon dist/index.js",
+    "start": "cross-env NODE_ENV=production node dist/index.js",
     "docs": "jsdoc -r -d docs/jsdocs api",
-    "lint": "eslint --fix *"
+    "lint": "eslint --fix .",
+    "compile": "babel api -w -d dist"
   },
   "repository": {
     "type": "git",
@@ -39,6 +40,9 @@
     "winston": "^2.4.0"
   },
   "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-core": "^6.26.0",
+    "babel-preset-env": "^1.6.1",
     "chai": "^4.1.1",
     "eslint": "^4.9.0",
     "eslint-plugin-json": "^1.2.0",
@@ -51,12 +55,12 @@
     "supertest": "^3.0.0"
   },
   "_moduleAliases": {
-    "@root": "./api",
+    "@root": "./dist",
     "@test": "./test",
-    "@util": "./api/util",
-    "@user": "./api/components/User",
-    "@Auth": "./api/middleware/Auth",
+    "@util": "./dist/util",
+    "@user": "./dist/components/User",
+    "@Auth": "./dist/middleware/Auth",
     "@config": "./config",
-    "@Address": "./api/models/Address"
+    "@Address": "./dist/models/Address"
   }
 }
