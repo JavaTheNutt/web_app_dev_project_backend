@@ -15,18 +15,73 @@ const errorUtils     = require('@util/errorUtils');
 describe('user service', () => {
     'use strict';
 
-    /*describe('handle user creation', () => {
-        let createUserStub, createAuthStub, setCustomUserClaim, sendStub, sendStubContainer, statusStub, deleteUserStub,
-            deleteAuthStub, setCustomClaimsStub;
+    describe('handle user creation', () => {
+        let createUserStub, createAuthStub, deleteUserStub, deleteAuthStub, setCustomClaimsStub;
+        const returnedUser = {
+            _id: 'someidhere',
+            email: 'test@test.com'
+        };
+        const returnedAuth = {
+            _id: 'someotheridhere',
+            user: returnedUser._id,
+            firebaseId: 'someFirebaseIdHere'
+        };
         beforeEach(() => {
-            createUserStub = sandbox.stub(userService, 'createUser');
-            createAuthStub = sandbox.stub(authService, 'createAuthUser');
+            createUserStub      = sandbox.stub(userService, 'createUser');
+            createAuthStub      = sandbox.stub(authService, 'createAuthUser');
+            setCustomClaimsStub = sandbox.stub(authService, 'setCustomClaims');
+            deleteUserStub      = sandbox.stub(userService, 'deleteUser');
+            deleteAuthStub      = sandbox.stub(authService, 'deleteAuthRecordById');
         });
-        it('should call create user, create auth, and create claims');
-        it('should not call create auth or create claims if the user save fails');
-        it('should not call create claims if auth save fails, but should call delete user');
-        it('should call both delete user and delete auth if adding claims fails');
-    });*/
+        afterEach(() => {
+            sandbox.restore();
+        });
+        it('should call create user, create auth, and create claims when all pass', async () => {
+            setCustomClaimsStub.resolves(true);
+            createUserStub.resolves(returnedUser);
+            createAuthStub.resolves(returnedAuth);
+            const result = await userService.handleCreateUser(returnedUser.email, returnedAuth.firebaseId);
+            expect(setCustomClaimsStub).to.be.calledOnce;
+            expect(createAuthStub).to.be.calledOnce;
+            expect(createUserStub).to.be.calledOnce;
+            expect(deleteAuthStub).to.not.be.called;
+            expect(deleteUserStub).to.not.be.called;
+            expect(result).to.eql(returnedUser);
+        });
+        it('should not call create auth or create claims if the user save fails', async () => {
+            createUserStub.resolves(errorUtils.formatError('an error has occurred'));
+            const result = await userService.handleCreateUser(returnedUser.email, returnedAuth.firebaseId);
+            expect(setCustomClaimsStub).to.not.be.called;
+            expect(createAuthStub).to.not.be.called;
+            expect(createUserStub).to.be.calledOnce;
+            expect(deleteAuthStub).to.not.be.called;
+            expect(deleteUserStub).to.not.be.called;
+            expect(result).to.eql(errorUtils.formatError('an error has occurred'));
+        });
+        it('should not call create claims if auth save fails, but should call delete user', async () => {
+            createUserStub.resolves(returnedUser);
+            createAuthStub.resolves(errorUtils.formatError('an error has occurred'));
+            const result = await userService.handleCreateUser(returnedUser.email, returnedAuth.firebaseId);
+            expect(setCustomClaimsStub).to.not.be.called;
+            expect(createAuthStub).to.be.calledOnce;
+            expect(createUserStub).to.be.calledOnce;
+            expect(deleteAuthStub).to.not.be.called;
+            expect(deleteUserStub).to.be.calledOnce;
+            expect(result).to.eql(errorUtils.formatError('an error has occurred'));
+        });
+        it('should call both delete user and delete auth if adding claims fails', async () => {
+            setCustomClaimsStub.resolves(errorUtils.formatError('an error has occurred'));
+            createUserStub.resolves(returnedUser);
+            createAuthStub.resolves(returnedAuth);
+            const result = await userService.handleCreateUser(returnedUser.email, returnedAuth.firebaseId);
+            expect(setCustomClaimsStub).to.be.calledOnce;
+            expect(createAuthStub).to.be.calledOnce;
+            expect(createUserStub).to.be.calledOnce;
+            expect(deleteAuthStub).to.be.calledOnce;
+            expect(deleteUserStub).to.be.calledOnce;
+            expect(result).to.eql(errorUtils.formatError('an error has occurred'));
+        });
+    });
     describe('user creation', () => {
         let userDetails, saveStub, fakeError, err;
         beforeEach(() => {

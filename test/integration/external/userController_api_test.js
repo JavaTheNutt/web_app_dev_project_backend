@@ -9,10 +9,6 @@ describe('user controller', () => {
     let firebaseToken;
     before(async () => {
         firebaseToken = await util.firebaseInit();
-        await util.mongoSetup();
-    });
-    beforeEach(async () => {
-
     });
     afterEach(() => {
         util.clearCollections(['user_auth', 'users']);
@@ -33,6 +29,8 @@ describe('user controller', () => {
         });
     });
     describe('user exists', () => {
+        beforeEach(async () => {
 
+        });
     });
 });

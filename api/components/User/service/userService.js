@@ -8,6 +8,7 @@ const User           = require('@user/models/User').model;
 const addressService = require('@Address/service/addressService');
 const errorUtils     = require('@util/errorUtils');
 const _              = require('lodash');
+const authService    = require('@Auth/service/authService');
 
 module.exports = exports = {
     /**
@@ -31,6 +32,37 @@ module.exports = exports = {
             Logger.error(`error: ${err}`);
             return errorUtils.formatError('an error occurred during the user save operation', err);
         }
+    },
+    async handleCreateUser(email, firebaseId) {
+        'use strict';
+        const savedUser = await exports.createUser({email});
+        if (savedUser.error) {
+            Logger.warn('there was an error saving the user');
+            return errorUtils.formatSendableErrorFromObject(savedUser);
+        }
+        Logger.verbose('user assumed created');
+        Logger.verbose(`new user: ${JSON.stringify(savedUser)}`);
+        const savedAuth = await authService.createAuthUser({
+            email,
+            user: savedUser._id,
+            firebaseId
+        });
+        if (savedAuth.error) {
+            Logger.warn('there was an error saving the auth object');
+            await exports.deleteUser(savedUser._id);
+            return errorUtils.formatSendableErrorFromObject(savedAuth);
+        }
+        Logger.verbose('auth object assumed created');
+        Logger.verbose(`new auth: ${JSON.stringify(savedAuth)}`);
+        Logger.verbose('user has been successfully created');
+        const claimsSuccessful = await authService.setCustomClaims(savedAuth.firebaseId, {user: savedAuth.user});
+        if (claimsSuccessful.error) {
+            Logger.warn('adding custom auth claim failed');
+            exports.deleteUser(savedUser._id);
+            authService.deleteAuthRecordById(savedAuth._id);
+            return errorUtils.formatSendableErrorFromObject(claimsSuccessful);
+        }
+        return savedUser;
     },
     /**
      * Wrapper for address validation and insertion
