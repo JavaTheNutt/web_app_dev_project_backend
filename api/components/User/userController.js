@@ -26,32 +26,10 @@ module.exports      = {
             return res.send(errorUtils.formatSendableError('token was parsed successfully but is missing details'));
         }
         Logger.verbose('new user details assumed correct');
-        const savedUser = await userService.createUser(req.body.customAuthUser);
+        const savedUser = await userService.handleCreateUser(req.body.customAuthUser.email, req.body.customAuthUser.firebaseId);
         if (savedUser.error) {
-            Logger.warn('there was an error saving the user');
-            return res.status(500).send(errorUtils.formatSendableErrorFromObject(savedUser));
-        }
-        Logger.verbose('user assumed created');
-        Logger.verbose(`new user: ${JSON.stringify(savedUser)}`);
-        const savedAuth = await authService.createAuthUser({
-            email: req.body.customAuthUser.email,
-            user: savedUser._id,
-            firebaseId: req.body.customAuthUser.firebaseId
-        });
-        if (savedAuth.error) {
-            Logger.warn('there was an error saving the auth object');
-            await userService.deleteUser(savedUser._id);
-            return res.status(500).send(errorUtils.formatSendableErrorFromObject(savedAuth));
-        }
-        Logger.verbose('auth object assumed created');
-        Logger.verbose(`new auth: ${JSON.stringify(savedAuth)}`);
-        Logger.verbose('user has been successfully created');
-        const claimsSuccessful = await authService.setCustomClaims(savedAuth.firebaseId, {user: savedAuth.user});
-        if (claimsSuccessful.error) {
-            Logger.warn('adding custom auth claim failed');
-            userService.deleteUser(savedUser._id);
-            authService.deleteAuthRecordById(savedAuth._id);
-            return res.status(500).send(errorUtils.formatSendableErrorFromObject(claimsSuccessful));
+            Logger.warn(`saved user contains errors, error: ${JSON.stringify(savedUser)}`);
+            return res.status(savedUser.error.status || 500).send(savedUser);
         }
         return res.status(201).send(savedUser);
     },
@@ -152,7 +130,7 @@ module.exports      = {
         if (addresses.error) {
             Logger.warn('address fetch has errors');
             return res.status(500).
-                send(errorUtils.formatSendableErrorFromObject(errorUtils.updateErrorMessage('error occurred while fetching all addresses', addresses)));
+            send(errorUtils.formatSendableErrorFromObject(errorUtils.updateErrorMessage('error occurred while fetching all addresses', addresses)));
         }
         if (Array.isArray(addresses) && addresses.length === 0) {
             Logger.warn('address array is empty');
