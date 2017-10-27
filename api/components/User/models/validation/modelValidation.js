@@ -13,8 +13,8 @@ const emailValidator = require('email-validator');
  * @memberOf module:user/models/validation
  */
 function validateEmail(emailAddress) {
-    Logger.info(`checking if ${emailAddress} is valid`);
-    return emailValidator.validate(emailAddress);
+  Logger.info(`checking if ${emailAddress} is valid`);
+  return emailValidator.validate(emailAddress);
 }
 
 /**
@@ -24,12 +24,12 @@ function validateEmail(emailAddress) {
  * @memberOf module: user/models/validation
  */
 function validateOptionalObjectId(id) {
-    'use strict';
-    Logger.info('checking if optional id is in valid format');
-    if (id === null || id === undefined || id === '') {
-        return true;
-    }
-    return validateObjectId(id);
+  'use strict';
+  Logger.info('checking if optional id is in valid format');
+  if (id === null || id === undefined || id === '') {
+    return true;
+  }
+  return validateObjectId(id);
 }
 
 /**
@@ -39,9 +39,9 @@ function validateOptionalObjectId(id) {
  * @memberOf module: user/models/validation
  */
 function validateObjectId(id) {
-    'use strict';
-    Logger.info(`checking if ${id} is valid object id`);
-    return /^[a-fA-F0-9]{24}$/.test(id) /*&& mongoose.Types.ObjectId.isValid(strValue)*/;
+  'use strict';
+  Logger.info(`checking if ${id} is valid object id`);
+  return /^[a-fA-F0-9]{24}$/.test(id) /*&& mongoose.Types.ObjectId.isValid(strValue)*/;
 }
 
 /**
@@ -50,7 +50,7 @@ function validateObjectId(id) {
  *     validateOptionalObjectId: module.validateOptionalObjectId}}
  */
 module.exports = {
-    validateEmail,
-    validateObjectId,
-    validateOptionalObjectId
+  validateEmail,
+  validateObjectId,
+  validateOptionalObjectId
 };

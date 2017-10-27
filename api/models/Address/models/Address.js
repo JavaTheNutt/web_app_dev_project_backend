@@ -6,24 +6,24 @@
 const mongoose = require('mongoose');
 
 const AddressSchema = mongoose.Schema({
-    text: {
-        type: String,
-        required: true
+  text: {
+    type: String,
+    required: true
+  },
+  loc: {
+    type: {
+      type: String,
+      enum: ['Point']
     },
-    loc: {
-        type: {
-            type: String,
-            enum: ['Point']
-        },
-        coordinates: {
-            type: [Number]
-        }
+    coordinates: {
+      type: [Number]
     }
+  }
 });
 AddressSchema.index({loc: '2dsphere'});
 
 const AddressModel = mongoose.model('Address', AddressSchema);
 module.exports     = {
-    schema: AddressSchema,
-    model: AddressModel
+  schema: AddressSchema,
+  model: AddressModel
 };

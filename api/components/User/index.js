@@ -5,5 +5,5 @@
  * @module user
  */
 module.exports = server => {
-    require('./routes')(server);
+  require('./routes')(server);
 };

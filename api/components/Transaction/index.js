@@ -7,5 +7,5 @@
  * @return {void}
  */
 module.exports = server => {
-    require('./routes/index')(server);
+  require('./routes/index')(server);
 };
