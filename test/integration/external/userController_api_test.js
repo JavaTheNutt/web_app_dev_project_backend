@@ -35,6 +35,12 @@ describe('user controller', () => {
         it('should fetch the current user',async () => {
             const response = await supertest(app).get('/user').set('token', firebaseToken).expect(200);
             expect(response.body.error).to.not.exist;
+            expect(response.body).to.include.keys('_id', 'email', 'addresses');
         });
+        it('should be able to add an address');
+        it('should be able to fetch all addresses');
+        it('should be able to fetch one address by id');
+        it('should be able to update the current user');
+        it('should be able to delete an address by id');
     });
 });

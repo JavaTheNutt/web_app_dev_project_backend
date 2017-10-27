@@ -6,7 +6,6 @@
 const Logger      = require('@util/Logger')('USER_CTRL');
 const _           = require('lodash');
 const userService = require('@user/service/userService');
-const authService = require('@Auth/service/authService');
 const errorUtils  = require('@util/errorUtils');
 
 const oidValidation = require('@user/models/validation/modelValidation').validateObjectId;
@@ -130,7 +129,7 @@ module.exports      = {
         if (addresses.error) {
             Logger.warn('address fetch has errors');
             return res.status(500).
-            send(errorUtils.formatSendableErrorFromObject(errorUtils.updateErrorMessage('error occurred while fetching all addresses', addresses)));
+                send(errorUtils.formatSendableErrorFromObject(errorUtils.updateErrorMessage('error occurred while fetching all addresses', addresses)));
         }
         if (Array.isArray(addresses) && addresses.length === 0) {
             Logger.warn('address array is empty');
