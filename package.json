@@ -13,7 +13,8 @@
     "start": "cross-env NODE_ENV=production node dist/index.js",
     "docs": "jsdoc -r -d docs/jsdocs api",
     "lint": "eslint --fix .",
-    "compile": "babel api -w -d dist"
+    "compile": "babel api -w -d dist",
+    "compileOnce": "babel api -d dist"
   },
   "repository": {
     "type": "git",
