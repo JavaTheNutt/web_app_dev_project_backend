@@ -11,9 +11,6 @@ describe('user controller', () => {
   before(async () => {
     firebaseToken = await util.firebaseInit();
   });
-  afterEach(() => {
-    util.clearCollections(['user_auth', 'users']);
-  });
   after(async () => {
     util.closeConnection();
     await util.firebaseTeardown();
@@ -30,8 +27,12 @@ describe('user controller', () => {
     });
   });
   describe('user exists', () => {
+    let userId;
     beforeEach(async () => {
-      await util.userInit();
+      userId = await util.userInit();
+    });
+    afterEach(() => {
+      util.clearCollections(['user_auth', 'users']);
     });
     it('should fetch the current user', async () => {
       const response = await supertest(app).get('/user').set('token', firebaseToken).expect(200);
@@ -101,11 +102,46 @@ describe('user controller', () => {
       expect(response.body.surname).to.equal('bloggs');
     });
     describe('user has an address', () => {
-      it('should be able to fetch all addresses');
-      it('should be able to fetch one address by id');
-      it('should be able to delete an address by id');
+      let addressId;
+      beforeEach(async () => {
+        addressId = await util.addressInit(userId);
+      });
+      describe('fetch all addresses', () => {
+        it('should be able to fetch all addresses', async () => {
+          const response = await supertest(app).get('/user/address').set('token', firebaseToken).expect(200);
+          expect(response.body.error).to.not.exist;
+          expect(response.body).to.be.an('array');
+          expect(response.body).to.have.length(1);
+        });
+      });
+      describe('fetch one address by id', () => {
+        it('should be able to fetch one address by id', async () => {
+          const response = await supertest(app).get(`/user/address/${addressId}`).set('token', firebaseToken).
+            expect(200);
+          expect(response.body.error).to.not.exist;
+          expect(response.body).to.include.keys('_id', 'text', 'loc');
+        });
+        it('should return 400 when the object id is invalid format', async () => {
+          const response = await supertest(app).get('/user/address/aaaa').set('token', firebaseToken).expect(400);
+          expect(response.body.error.message).to.equal('address id is invalid format');
+        });
+        it('should return 404 when the address is not found', async () => {
+          const response = await supertest(app).get(`/user/address/${userId}`).set('token', firebaseToken).expect(404);
+          expect(response.body.error.message).to.equal('address is not found');
+        });
+      });
+      describe('delete one address by id', () => {
+        it('should be able to delete an address by id', async () => {
+          const response = await supertest(app).delete(`/user/address/${addressId}`).set('token', firebaseToken).
+            expect(200);
+          expect(response.body.error).to.not.exist;
+          expect(response.body.addresses).to.be.an('array').and.be.empty;
+        });
+        it('should return 400 when the object id is invalid format', async () => {
+          const response = await supertest(app).delete('/user/address/aaaa').set('token', firebaseToken).expect(400);
+          expect(response.body.error.message).to.equal('address id is invalid format');
+        });
+      });
     });
-
-
   });
 });

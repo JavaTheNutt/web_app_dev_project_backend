@@ -1,22 +1,9 @@
 const mongoose = require('mongoose');
-const dbUri    = require('@config/config').db.uri;
 const firebaseClient = require('@config/config').firebaseClient;
 const firebase = require('firebase');
 const userService = require('@user/service/userService');
+const addressService = require('@Address/service/addressService');
 module.exports = {
-  async mongoSetup() {
-    'use strict';
-    mongoose.Promise = Promise;
-    try {
-      const conn = await  mongoose.connect(dbUri, {useMongoClient: true});
-      mongoose.connection.on('open', async () => {
-        await conn.connection.db.dropDatabase();
-      });
-      return true;
-    } catch (err) {
-      return false;
-    }
-  },
   clearCollections(collectionNames) {
     'use strict';
     try {
@@ -41,7 +28,15 @@ module.exports = {
   async userInit(){
     'use strict';
     const id = firebase.auth().currentUser.uid;
-    await userService.handleCreateUser('iamauserthatispurelyfortesting@supertestuser.com', id);
+    const email = firebase.auth().currentUser.email;
+    const user = await userService.handleCreateUser(email, id);
+    return user._id;
+  },
+  async addressInit(userId){
+    'use strict';
+    const address = await addressService.validateAddress({text: '321, fake street', loc:{type:'Point', coordinates:[25, 30]}});
+    await userService.addAddress(userId, address);
+    return address._id;
   },
   async firebaseTeardown(){
     'use strict';
