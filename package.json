@@ -5,8 +5,9 @@
   "main": "api/index.js",
   "scripts": {
     "unit": "find ./test/unit -name '*_test.js' | cross-env NODE_ENV=test LOG_LEVEL=silent xargs nyc mocha --compilers js:babel-core/register -R spec",
-    "internalIntegration": "find ./test/integration/internal -name '*_test.js' | cross-env NODE_ENV=test LOG_LEVEL=silent xargs nyc mocha -R spec ",
-    "integration": "npm run internalIntegration",
+    "internalIntegration": "find ./test/integration/internal -name '*_test.js' | cross-env NODE_ENV=test LOG_LEVEL=silent xargs nyc mocha --compilers js:babel-core/register -R spec ",
+    "externalIntegration": "find ./test/integration/external -name '*_test.js' | cross-env NODE_ENV=test LOG_LEVEL=silent xargs nyc mocha --timeout 5000 --compilers js:babel-core/register -R spec ",
+    "integration": "npm run internalIntegration && npm run externalIntegration",
     "test": "npm run unit && npm run integration",
     "dev": "nodemon dist/index.js",
     "start": "cross-env NODE_ENV=production node dist/index.js",
