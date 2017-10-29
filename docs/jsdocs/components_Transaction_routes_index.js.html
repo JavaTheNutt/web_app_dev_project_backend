@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Home</title>
+    <title>JSDoc: Source: components/Transaction/routes/index.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,32 +17,37 @@
 
 <div id="main">
 
-    <h1 class="page-title">Home</h1>
+    <h1 class="page-title">Source: components/Transaction/routes/index.js</h1>
 
     
 
 
 
     
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * Transaction Router
+ * @module transaction/router
+ */
 
+const Logger = require('@util/Logger')('USER_ROUTER');
 
-    <h3> </h3>
-
-
-
-
-
-
-
-
-
-
-    
-
-
-
-
-
+module.exports = server => {
+  /**
+   * Create new user route
+   * @memberOf module:user/router
+   */
+  server.get('/transaction', (req, res) => {
+    'use strict';
+    Logger.info('get request retrieved by transaction controller');
+    res.status(200);
+    return res.send('hello from user route');
+  });
+};
+</code></pre>
+        </article>
+    </section>
 
 
 

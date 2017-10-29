@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Home</title>
+    <title>JSDoc: Source: models/Address/models/Address.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,32 +17,47 @@
 
 <div id="main">
 
-    <h1 class="page-title">Home</h1>
+    <h1 class="page-title">Source: models/Address/models/Address.js</h1>
 
     
 
 
 
     
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * Address model
+ * @module address/models
+ */
 
+const mongoose = require('mongoose');
 
-    <h3> </h3>
+const AddressSchema = mongoose.Schema({
+  text: {
+    type: String,
+    required: true
+  },
+  loc: {
+    type: {
+      type: String,
+      enum: ['Point']
+    },
+    coordinates: {
+      type: [Number]
+    }
+  }
+});
+AddressSchema.index({loc: '2dsphere'});
 
-
-
-
-
-
-
-
-
-
-    
-
-
-
-
-
+const AddressModel = mongoose.model('Address', AddressSchema);
+module.exports     = {
+  schema: AddressSchema,
+  model: AddressModel
+};
+</code></pre>
+        </article>
+    </section>
 
 
 

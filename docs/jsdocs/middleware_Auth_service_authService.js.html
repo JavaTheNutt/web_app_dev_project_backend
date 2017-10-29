@@ -1,4 +1,32 @@
-/**
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: middleware/Auth/service/authService.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: middleware/Auth/service/authService.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
  * This module provides utils required by the auth middleware.
  * @module auth/service
  */
@@ -13,7 +41,7 @@ module.exports   = exports = {
    * It will also try to add the user claim if it does not already exist
    * @param token {Object} decoded firebase token
    * @param isNewUser {Boolean} the flag to determine if this is a request to create a new user
-   * @returns {Promise.<{firebaseId: (*|string|string|string), email}>} the claims
+   * @returns {Promise.&lt;{firebaseId: (*|string|string|string), email}>} the claims
    * @memberOf module:auth/service
    */
   async handleClaimValidation(token, isNewUser) {
@@ -42,7 +70,7 @@ module.exports   = exports = {
   /**
    * Wrapper to fetch user id from from a firebase id.
    * @param firebaseId {String} the firebase id of the user
-   * @returns {Promise.<*>} The id of the user if successful, null otherwise
+   * @returns {Promise.&lt;*>} The id of the user if successful, null otherwise
    *
    * @memberOf module:auth/service
    */
@@ -65,14 +93,14 @@ module.exports   = exports = {
   /**
    * Handle validation and decoding of tokens
    * @param token {String} the encrypted firebase token
-   * @returns {Promise.<*>} the decoded token if successful, false otherwise
+   * @returns {Promise.&lt;*>} the decoded token if successful, false otherwise
    *
    * @memberOf module:auth/service
    */
   async validateToken(token) {
     'use strict';
     Logger.info('request received to validate authentication token');
-    if (!token || typeof token !== 'string' || token.length <= 5) {
+    if (!token || typeof token !== 'string' || token.length &lt;= 5) {
       Logger.warn('token is not valid format');
       return errorUtils.formatError('token is not valid format');
     }
@@ -91,7 +119,7 @@ module.exports   = exports = {
   /**
    * Wrapper for token decoding
    * @param token {String} the encrypted token
-   * @returns {Promise.<*>} the decoded token if successful, false otherwise
+   * @returns {Promise.&lt;*>} the decoded token if successful, false otherwise
    *
    * @memberOf module:auth/service
    */
@@ -126,7 +154,7 @@ module.exports   = exports = {
    * Wrapper for setting custom claims on firebase
    * @param firebaseId
    * @param claims
-   * @returns {Promise.<boolean|object>}
+   * @returns {Promise.&lt;boolean|object>}
    *
    * @memberOf module:auth/service
    */
@@ -146,7 +174,7 @@ module.exports   = exports = {
   /**
    * Create a user claim to be set on firebase
    * @param firebaseId {String}
-   * @returns {Promise.<*>} The claims constaining the userId if it can be found, false otherwise
+   * @returns {Promise.&lt;*>} The claims constaining the userId if it can be found, false otherwise
    *
    * @memberOf module:auth/service
    */
@@ -173,7 +201,7 @@ module.exports   = exports = {
   /**
    * Wrapper for creating user auth model
    * @param authDetails {Object} the details to be used to create a new user
-   * @returns {Promise.<Object>} the new user if successful, false otherwise
+   * @returns {Promise.&lt;Object>} the new user if successful, false otherwise
    *
    * @memberOf module:auth/service
    */
@@ -195,7 +223,7 @@ module.exports   = exports = {
   /**
    * wrapper for fetching an auth object by firebase id
    * @param firebaseId {String} the firebase id
-   * @returns {Promise.<*>} The Auth record if successful, false otherwise
+   * @returns {Promise.&lt;*>} The Auth record if successful, false otherwise
    *
    * @memberOf module:auth/service
    */
@@ -222,7 +250,7 @@ module.exports   = exports = {
   /**
    * wrapper to delete auth record by id
    * @param authId {ObjectId} the auth records identifier
-   * @returns {Promise.<*>}
+   * @returns {Promise.&lt;*>}
    */
   async deleteAuthRecordById(authId) {
     'use strict';
@@ -254,3 +282,26 @@ function formatAuthDetails(details) {
     user: details.user
   };
 }
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-address_models.html">address/models</a></li><li><a href="module-auth_middleware.html">auth/middleware</a></li><li><a href="module-auth_models.html">auth/models</a></li><li><a href="module-auth_service.html">auth/service</a></li><li><a href="module-router.html">router</a></li><li><a href="module-transaction_router.html">transaction/router</a></li><li><a href="module-user.html">user</a></li><li><a href="module-user_models.html">user/models</a></li><li><a href="module-user_models_validation.html">user/models/validation</a></li><li><a href="module-user_router.html">user/router</a></li><li><a href="module-user_service.html">user/service</a></li><li><a href="module-user_userController.html">user/userController</a></li></ul><h3>Global</h3><ul><li><a href="global.html#formatDetails">formatDetails</a></li><li><a href="global.html#formatError">formatError</a></li><li><a href="global.html#formatSendableError">formatSendableError</a></li><li><a href="global.html#formatSendableErrorFromObject">formatSendableErrorFromObject</a></li><li><a href="global.html#validateAddress">validateAddress</a></li><li><a href="global.html#winston">winston</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Sun Oct 29 2017 12:54:52 GMT+0000 (GMT Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Home</title>
+    <title>JSDoc: Source: components/Transaction/index.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,32 +17,29 @@
 
 <div id="main">
 
-    <h1 class="page-title">Home</h1>
+    <h1 class="page-title">Source: components/Transaction/index.js</h1>
 
     
 
 
 
     
-
-
-    <h3> </h3>
-
-
-
-
-
-
-
-
-
-
-    
-
-
-
-
-
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * This will serve to abstract module route details away from the router, so that route defintions can be initilized
+ * for this module
+ * @param server the express server
+ * @type{express.server}
+ * @module transaction/router
+ * @return {void}
+ */
+module.exports = server => {
+  require('./routes/index')(server);
+};
+</code></pre>
+        </article>
+    </section>
 
 
 

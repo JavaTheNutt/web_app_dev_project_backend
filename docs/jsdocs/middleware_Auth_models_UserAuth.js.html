@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Home</title>
+    <title>JSDoc: Source: middleware/Auth/models/UserAuth.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,32 +17,66 @@
 
 <div id="main">
 
-    <h1 class="page-title">Home</h1>
+    <h1 class="page-title">Source: middleware/Auth/models/UserAuth.js</h1>
 
     
 
 
 
     
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * This Model will represent the authentication details for a User.
+ *
+ * @module auth/models
+ */
+const mongoose       = require('mongoose');
+const validator      = require('@user/models/validation/modelValidation');
+/**
+ * Schema definition for user model
+ */
+const UserAuthSchema = mongoose.Schema({
+  email: {
+    type: String,
+    required: true,
+    validate: {
+      validator: validator.validateEmail,
+      message: 'Email is poorly formatted'
+    }
+  },
+  user: {
+    type: String, //currently cannot store this as an ObjectId as any twelve character string will be parsed to a 24
+    // character objectId, which will pass validation. see this:
+    // https://github.com/Automattic/mongoose/issues/1959
+    required: false,
+    validate: {
+      validator: validator.validateOptionalObjectId,
+      message: 'Object Id is improperly formatted'
+    }
+  },
+  firebaseId: {
+    type: String,
+    required: true
+  }
+}, {collection: 'user_auth'});
 
+/**
+ * Model definition for user model
+ */
+const UserAuthModel = mongoose.model('UserAuth', UserAuthSchema);
 
-    <h3> </h3>
-
-
-
-
-
-
-
-
-
-
-    
-
-
-
-
-
+/**
+ * Export both module and schema
+ * @type {{schema: Schema, model: model}}
+ */
+module.exports = {
+  schema: UserAuthSchema,
+  model: UserAuthModel
+};
+</code></pre>
+        </article>
+    </section>
 
 
 
