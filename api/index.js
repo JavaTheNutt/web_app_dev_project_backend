@@ -6,11 +6,11 @@
 //This module allows me to set aliases in my package.json, to let me use absolute
 // paths https://github.com/ilearnio/module-alias
 require('module-alias/register');
-const admin                  = require('firebase-admin');
-const app                    = require('express')();
-const cors                   = require('cors');
-const bodyParser             = require('body-parser');
-const config                 = require('../config/config');
+const admin          = require('firebase-admin');
+const app            = require('express')();
+const cors           = require('cors');
+const bodyParser     = require('body-parser');
+const config         = require('../config/config');
 const Logger         = require('@util/Logger')('INDEX');
 const mongoose       = require('mongoose');
 const authMiddleware = require('@Auth/authMiddleware');

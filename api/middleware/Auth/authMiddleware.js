@@ -8,12 +8,12 @@ const authService = require('@Auth/service/authService');
 const errorUtils  = require('@util/errorUtils');
 module.exports    = exports = {
   /**
-     * The middleware that will capture requests for new users and add a flag to the requests
-     * @param req {Object} the request
-     * @param res {Object} the response
-     * @param next {Function} the next callback
-     * @memberOf module:auth/middleware
-     */
+   * The middleware that will capture requests for new users and add a flag to the requests
+   * @param req {Object} the request
+   * @param res {Object} the response
+   * @param next {Function} the next callback
+   * @memberOf module:auth/middleware
+   */
   authenticateNew(req, res, next) {
     'use strict';
     Logger.info('middleware called for new user route');
@@ -21,12 +21,12 @@ module.exports    = exports = {
     next();
   },
   /**
-     * Main application authentication middleware that will be called on every request
-     * @param req {Object} the request
-     * @param res {Object} the response
-     * @param next {Function} the next callback
-     * @memberOf module:auth/middleware
-     */
+   * Main application authentication middleware that will be called on every request
+   * @param req {Object} the request
+   * @param res {Object} the response
+   * @param next {Function} the next callback
+   * @memberOf module:auth/middleware
+   */
   async authenticate(req, res, next) {
     'use strict';
     Logger.info('authentication middleware invoked');

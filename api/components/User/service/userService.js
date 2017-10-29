@@ -12,11 +12,11 @@ const authService    = require('@Auth/service/authService');
 
 module.exports = exports = {
   /**
-     * Create a new user record
-     * @param userDetails {object} the details required to make a new user
-     * @returns {Promise.<Object>}
-     * @memberOf module:user/service
-     */
+   * Create a new user record
+   * @param userDetails {object} the details required to make a new user
+   * @returns {Promise.<Object>}
+   * @memberOf module:user/service
+   */
   async createUser(userDetails) {
     'use strict';
     Logger.info('request to create user recieved');
@@ -65,13 +65,13 @@ module.exports = exports = {
     return savedUser;
   },
   /**
-     * Wrapper for address validation and insertion
-     * @param user {ObjectId} the id of the user
-     * @param address {Object} geospatial address to be saved
-     * @returns {Promise.<*>} the updated user if successful, false otherwise
-     *
-     * @memberOf module:user/service
-     */
+   * Wrapper for address validation and insertion
+   * @param user {ObjectId} the id of the user
+   * @param address {Object} geospatial address to be saved
+   * @returns {Promise.<*>} the updated user if successful, false otherwise
+   *
+   * @memberOf module:user/service
+   */
   async handleAddAddress(user, address) {
     'use strict';
     Logger.info('request made to add address to user');
@@ -94,13 +94,13 @@ module.exports = exports = {
     return updatedUser;
   },
   /**
-     * Wrapper around adding an address to a user
-     * @param user {ObjectId} the id of the user
-     * @param address {Object} the address to be added
-     * @returns {Promise.<*>} the updated user if successful, false otherwise
-     *
-     * @memberOf module:user/service
-     */
+   * Wrapper around adding an address to a user
+   * @param user {ObjectId} the id of the user
+   * @param address {Object} the address to be added
+   * @returns {Promise.<*>} the updated user if successful, false otherwise
+   *
+   * @memberOf module:user/service
+   */
   async addAddress(user, address) {
     'use strict';
     Logger.info('request made to add address to user');
@@ -122,11 +122,11 @@ module.exports = exports = {
     }
   },
   /**
-     * fetch a single address for a user
-     * @param userId {ObjectId}
-     * @param addressId {ObjectId}
-     * @returns {Promise.<*|{error: {message: string}}>}
-     */
+   * fetch a single address for a user
+   * @param userId {ObjectId}
+   * @param addressId {ObjectId}
+   * @returns {Promise.<*|{error: {message: string}}>}
+   */
   async fetchSingleAddress(userId, addressId) {
     'use strict';
     Logger.info('request made to fetch single address');
@@ -138,10 +138,10 @@ module.exports = exports = {
 
 
   /**
-     * fetch all addresses for a single user
-     * @param userId
-     * @returns {Promise.<Object|$pull.addresses|{_id}|Array|null|*|*>}
-     */
+   * fetch all addresses for a single user
+   * @param userId
+   * @returns {Promise.<Object|$pull.addresses|{_id}|Array|null|*|*>}
+   */
   async fetchAddresses(userId) {
     'use strict';
     Logger.info('request recieved to fetch user addresses');
@@ -151,11 +151,11 @@ module.exports = exports = {
     return user.error ? user : (user.addresses || errorUtils.formatError('the user has no addresses'));
   },
   /**
-     * delete a users address by its id
-     * @param userId {ObjectId} users object id
-     * @param addressId {ObjectId} address object id
-     * @returns {Promise.<*>}
-     */
+   * delete a users address by its id
+   * @param userId {ObjectId} users object id
+   * @param addressId {ObjectId} address object id
+   * @returns {Promise.<*>}
+   */
   async deleteAddressById(userId, addressId) {
     'use strict';
     Logger.info('request made to delete an address by id');
@@ -170,11 +170,11 @@ module.exports = exports = {
 
   },
   /**
-     * wrapper to update user by id
-     * @param user {ObjectId}
-     * @param updateParams {{}}
-     * @returns {Promise.<*>}
-     */
+   * wrapper to update user by id
+   * @param user {ObjectId}
+   * @param updateParams {{}}
+   * @returns {Promise.<*>}
+   */
   async updateUser(user, updateParams) {
     'use strict';
     Logger.info('request made to update user');
@@ -197,10 +197,10 @@ module.exports = exports = {
     }
   },
   /**
-     * wrapper to fetch user by id
-     * @param userId {ObjectId}
-     * @returns {Promise.<*>}
-     */
+   * wrapper to fetch user by id
+   * @param userId {ObjectId}
+   * @returns {Promise.<*>}
+   */
   async getUserById(userId) {
     'use strict';
     Logger.info('request recieved to fetch uer by id');
@@ -220,12 +220,12 @@ module.exports = exports = {
     }
   },
   /**
-     * Wrapper around address validation
-     * @param addressDetails {Object} the details to be validated
-     * @returns {Promise.<*>} Address if successful, false otherwise
-     *
-     * @memberOf module:user/service
-     */
+   * Wrapper around address validation
+   * @param addressDetails {Object} the details to be validated
+   * @returns {Promise.<*>} Address if successful, false otherwise
+   *
+   * @memberOf module:user/service
+   */
   async validateAddress(addressDetails) {
     'use strict';
     Logger.info('attempting to validate address');
@@ -239,10 +239,10 @@ module.exports = exports = {
     return formattedAddress;
   },
   /**
-     * Wrapper to delete user by id
-     * @param userId {ObjectId}
-     * @returns {Promise.<*>}
-     */
+   * Wrapper to delete user by id
+   * @param userId {ObjectId}
+   * @returns {Promise.<*>}
+   */
   async deleteUser(userId) {
     'use strict';
     Logger.info(`request made ro delete user with id ${userId}`);

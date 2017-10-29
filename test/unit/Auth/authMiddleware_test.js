@@ -6,7 +6,7 @@ const sinon          = require('sinon');
 const sandbox        = sinon.sandbox.create();
 const authMiddleware = require('@Auth/authMiddleware');
 const authService    = require('@Auth/service/authService');
-const errorUtils = require('@util/errorUtils');
+const errorUtils     = require('@util/errorUtils');
 describe('auth middleware', () => {
   'use strict';
   describe('new user auth', () => {
@@ -49,12 +49,14 @@ describe('auth middleware', () => {
       sandbox.restore();
     });
     it('should call next with no params when details are valid and token is not custom and not new', async () => {
-      verifyTokenStub.resolves({data:decodedToken});
-      handleClaimValidationStub.resolves({data:{
-        firebaseId: decodedToken.sub,
-        email: decodedToken.email,
-        user: 'somemongoidhere'
-      }});
+      verifyTokenStub.resolves({data: decodedToken});
+      handleClaimValidationStub.resolves({
+        data: {
+          firebaseId: decodedToken.sub,
+          email: decodedToken.email,
+          user: 'somemongoidhere'
+        }
+      });
       await authMiddleware.authenticate(req, res, next);
       expect(verifyTokenStub).to.be.calledOnce;
       expect(verifyTokenStub).to.be.calledWith(req.headers.token);

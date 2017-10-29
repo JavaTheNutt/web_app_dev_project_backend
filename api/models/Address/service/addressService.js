@@ -4,10 +4,10 @@ const _          = require('lodash');
 const errorUtils = require('@util/errorUtils');
 module.exports   = exports = {
   /**
-     * Create and validate a new address
-     * @param addressDetails the details to be validated
-     * @returns {Promise.<Object>} the created address if successful, false otherwise
-     */
+   * Create and validate a new address
+   * @param addressDetails the details to be validated
+   * @returns {Promise.<Object>} the created address if successful, false otherwise
+   */
   async validateAddress(addressDetails) {
     'use strict';
     Logger.info('attempting to validate address');
@@ -32,10 +32,10 @@ module.exports   = exports = {
     }
   },
   /**
-     *
-     * @param addressDetails
-     * @returns {*}
-     */
+   *
+   * @param addressDetails
+   * @returns {*}
+   */
   formatDetails(addressDetails) {
     'use strict';
     Logger.info('attempting to format address details');

@@ -11,11 +11,11 @@ const errorUtils  = require('@util/errorUtils');
 const oidValidation = require('@user/models/validation/modelValidation').validateObjectId;
 module.exports      = {
   /**
-     * Create new User
-     * @param req {Object} the request object
-     * @param res {Object} Response the response object
-     * @memberOf module:user/userController
-     */
+   * Create new User
+   * @param req {Object} the request object
+   * @param res {Object} Response the response object
+   * @memberOf module:user/userController
+   */
   async createNewUser(req, res) {
     'use strict';
     Logger.info('request made to create new user');
@@ -33,12 +33,12 @@ module.exports      = {
     return res.status(201).send(savedUser);
   },
   /**
-     * Controller for adding an address to a user
-     * @param req {Object} request
-     * @param res {Object} response
-     * @returns {Promise.<void>}
-     * @memberOf module:user/userController
-     */
+   * Controller for adding an address to a user
+   * @param req {Object} request
+   * @param res {Object} response
+   * @returns {Promise.<void>}
+   * @memberOf module:user/userController
+   */
   async addAddress(req, res) {
     'use strict';
     Logger.info('attempting to add address');

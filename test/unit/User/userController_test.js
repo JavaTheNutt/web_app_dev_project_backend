@@ -417,24 +417,24 @@ describe('user controller', () => {
         },
         body: {customAuthUser: {user: ObjectId()}}
       };
-      sendStub = sandbox.stub();
+      sendStub          = sandbox.stub();
       sendStubContainer = {send: sendStub};
-      statusStub = sandbox.stub().returns(sendStubContainer);
-      res = {
+      statusStub        = sandbox.stub().returns(sendStubContainer);
+      res               = {
         send: sendStub,
         status: statusStub,
       };
-      next = sandbox.spy();
-      fakeUser = {
+      next              = sandbox.spy();
+      fakeUser          = {
         _id: req.body.customAuthUser.user,
         email: 'test@test.com',
-        addresses:[]
+        addresses: []
       };
     });
     afterEach(() => {
       sandbox.restore();
     });
-    it('should call res.send with a status of 200 when an address is successfully deleted', async() => {
+    it('should call res.send with a status of 200 when an address is successfully deleted', async () => {
       deleteAddressStub.resolves(fakeUser);
       await userController.deleteAddress(req, res, next);
       expect(statusStub).to.be.calledOnce;
@@ -443,7 +443,7 @@ describe('user controller', () => {
       expect(sendStub).to.be.calledWith(fakeUser);
       expect(statusStub).to.be.calledBefore(sendStub);
     });
-    it('should call res.send with a status of 500 when an error is thrown during the delete process', async() => {
+    it('should call res.send with a status of 500 when an error is thrown during the delete process', async () => {
       const err = new Error('i was thrown while deleting address');
       deleteAddressStub.resolves(errorUtils.formatError('error occurred during delete operation', err));
       await userController.deleteAddress(req, res, next);
@@ -453,7 +453,7 @@ describe('user controller', () => {
       expect(sendStub).to.be.calledWith(errorUtils.formatSendableError('error occurred during delete operation', err));
       expect(statusStub).to.be.calledBefore(sendStub);
     });
-    it('should call res.send with 400 when there is no id param', async() => {
+    it('should call res.send with 400 when there is no id param', async () => {
       req.params.id = null;
       await userController.deleteAddress(req, res, next);
       expect(statusStub).to.be.calledOnce;
@@ -463,7 +463,7 @@ describe('user controller', () => {
       expect(statusStub).to.be.calledBefore(sendStub);
       expect(deleteAddressStub).to.not.be.called;
     });
-    it('should call res.send with 400 when there are no params', async() => {
+    it('should call res.send with 400 when there are no params', async () => {
       req.params = null;
       await userController.deleteAddress(req, res, next);
       expect(statusStub).to.be.calledOnce;
@@ -473,7 +473,7 @@ describe('user controller', () => {
       expect(statusStub).to.be.calledBefore(sendStub);
       expect(deleteAddressStub).to.not.be.called;
     });
-    it('should call res.send with 400 when id param cannot be coerced into an object id', async() => {
+    it('should call res.send with 400 when id param cannot be coerced into an object id', async () => {
       req.params.id = 'a';
       await userController.deleteAddress(req, res, next);
       expect(statusStub).to.be.calledOnce;
@@ -490,33 +490,33 @@ describe('user controller', () => {
     let fetchAddressesStub, req, res, next, sendStub, sendStubContainer, statusStub, fakeUser;
     beforeEach(() => {
       fetchAddressesStub = sandbox.stub(userService, 'fetchAddresses');
-      req               = {
+      req                = {
         body: {customAuthUser: {user: ObjectId()}}
       };
-      sendStub = sandbox.stub();
-      sendStubContainer = {send: sendStub};
-      statusStub = sandbox.stub().returns(sendStubContainer);
-      res = {
+      sendStub           = sandbox.stub();
+      sendStubContainer  = {send: sendStub};
+      statusStub         = sandbox.stub().returns(sendStubContainer);
+      res                = {
         send: sendStub,
         status: statusStub,
       };
-      next = sandbox.spy();
-      fakeUser = {
+      next               = sandbox.spy();
+      fakeUser           = {
         _id: req.body.customAuthUser.user,
         email: 'test@test.com',
-        addresses:[{
+        addresses: [{
           _id: 'someidhere',
-          loc:{}
-        },{
+          loc: {}
+        }, {
           _id: 'someotheridhere',
-          loc:{}
+          loc: {}
         }]
       };
     });
     afterEach(() => {
       sandbox.restore();
     });
-    it('should call res.send with a status of 200 and return all addresses', async() => {
+    it('should call res.send with a status of 200 and return all addresses', async () => {
       fetchAddressesStub.resolves(fakeUser.addresses);
       await userController.fetchAllAddresses(req, res, next);
       expect(statusStub).to.be.calledOnce;
@@ -525,37 +525,47 @@ describe('user controller', () => {
       expect(sendStub).to.be.calledWith(fakeUser.addresses);
       expect(statusStub).to.be.calledBefore(sendStub);
     });
-    it('should call res.send with a status of 500 when an error is thrown during the fetch operation', async() => {
+    it('should call res.send with a status of 500 when an error is thrown during the fetch operation', async () => {
       const err = new Error('i was thrown while deleting address');
       fetchAddressesStub.resolves(errorUtils.formatError('error occurred during delete operation', err));
       await userController.fetchAllAddresses(req, res, next);
       expect(statusStub).to.be.calledOnce;
       expect(statusStub).to.be.calledWith(500);
       expect(sendStub).to.be.calledOnce;
-      expect(sendStub).to.be.calledWith(errorUtils.formatSendableError('error occurred while fetching all addresses', err));
+      expect(sendStub).to.be.
+        calledWith(errorUtils.formatSendableError('error occurred while fetching all addresses', err));
       expect(statusStub).to.be.calledBefore(sendStub);
+    });
+    it('should call res.send with a status of 200 and a custom message when the user has no addresses', async () => {
+
+      fetchAddressesStub.resolves([]);
+      await userController.fetchAllAddresses(req, res, next);
+      expect(statusStub).to.be.calledOnce;
+      expect(sendStub).to.be.calledOnce;
+      expect(statusStub).to.be.calledWith(200);
+      expect(sendStub).to.be.calledWith({message: 'this user has no addresses'});
     });
   });
   describe('fetch one address', () => {
     'use strict';
     let fetchAddressStub, req, res, next, sendStub, sendStubContainer, statusStub, fakeAddress;
     beforeEach(() => {
-      fetchAddressStub = sandbox.stub(userService, 'fetchSingleAddress');
+      fetchAddressStub  = sandbox.stub(userService, 'fetchSingleAddress');
       req               = {
         params: {
           id: ObjectId()
         },
         body: {customAuthUser: {user: ObjectId()}}
       };
-      sendStub = sandbox.stub();
+      sendStub          = sandbox.stub();
       sendStubContainer = {send: sendStub};
-      statusStub = sandbox.stub().returns(sendStubContainer);
-      res = {
+      statusStub        = sandbox.stub().returns(sendStubContainer);
+      res               = {
         send: sendStub,
         status: statusStub,
       };
-      next = sandbox.spy();
-      fakeAddress = {
+      next              = sandbox.spy();
+      fakeAddress       = {
         _id: req.params.id,
         text: 'i23, fake street'
       };
@@ -563,7 +573,7 @@ describe('user controller', () => {
     afterEach(() => {
       sandbox.restore();
     });
-    it('should call res.send with a status of 200 when an address is successfully fetched', async() => {
+    it('should call res.send with a status of 200 when an address is successfully fetched', async () => {
       fetchAddressStub.resolves(fakeAddress);
       await userController.fetchSingleAddress(req, res, next);
       expect(statusStub).to.be.calledOnce;
@@ -572,7 +582,7 @@ describe('user controller', () => {
       expect(sendStub).to.be.calledWith(fakeAddress);
       expect(statusStub).to.be.calledBefore(sendStub);
     });
-    it('should call res.send with a status of 500 when an error is thrown during the delete process', async() => {
+    it('should call res.send with a status of 500 when an error is thrown during the delete process', async () => {
       const err = new Error('i was thrown while fetching address');
       fetchAddressStub.resolves(errorUtils.formatError('error occurred during delete operation', err));
       await userController.fetchSingleAddress(req, res, next);
@@ -582,7 +592,7 @@ describe('user controller', () => {
       expect(sendStub).to.be.calledWith(errorUtils.formatSendableError('error occurred during delete operation', err));
       expect(statusStub).to.be.calledBefore(sendStub);
     });
-    it('should call res.send with 400 when there is no id param', async() => {
+    it('should call res.send with 400 when there is no id param', async () => {
       req.params.id = null;
       await userController.fetchSingleAddress(req, res, next);
       expect(statusStub).to.be.calledOnce;
@@ -592,7 +602,7 @@ describe('user controller', () => {
       expect(statusStub).to.be.calledBefore(sendStub);
       expect(fetchAddressStub).to.not.be.called;
     });
-    it('should call res.send with 400 when there are no params', async() => {
+    it('should call res.send with 400 when there are no params', async () => {
       req.params = null;
       await userController.fetchSingleAddress(req, res, next);
       expect(statusStub).to.be.calledOnce;
@@ -602,7 +612,7 @@ describe('user controller', () => {
       expect(statusStub).to.be.calledBefore(sendStub);
       expect(fetchAddressStub).to.not.be.called;
     });
-    it('should call res.send with 400 when id param cannot be coerced into an object id', async() => {
+    it('should call res.send with 400 when id param cannot be coerced into an object id', async () => {
       req.params.id = 'a';
       await userController.fetchSingleAddress(req, res, next);
       expect(statusStub).to.be.calledOnce;

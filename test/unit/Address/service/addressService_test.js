@@ -2,7 +2,7 @@ require('module-alias/register');
 const chai   = require('chai');
 const expect = chai.expect;
 chai.use(require('sinon-chai'));
-const sinon    = require('sinon');
+const sinon = require('sinon');
 
 const sandbox        = sinon.sandbox.create();
 const addressService = require('@Address/service/addressService');
@@ -13,16 +13,16 @@ describe('address service', () => {
   describe('validate address', () => {
     let validateStub, addressDetails, formatStub, formattedDetails;
     beforeEach(() => {
-      addressDetails = {
+      addressDetails       = {
         text: '123 fake street'
       };
-      formattedDetails = Object.assign({}, addressDetails);
+      formattedDetails     = Object.assign({}, addressDetails);
       formattedDetails.loc = {
         type: 'Point',
         coordinates: [0, 0]
       };
-      validateStub   = sandbox.stub(Address.prototype, 'validate');
-      formatStub = sandbox.stub(addressService, 'formatDetails');
+      validateStub         = sandbox.stub(Address.prototype, 'validate');
+      formatStub           = sandbox.stub(addressService, 'formatDetails');
     });
     it('should return true when an address is valid', async () => {
       formatStub.returns(formattedDetails);
@@ -40,9 +40,9 @@ describe('address service', () => {
       expect(validateStub).to.be.calledOnce;
     });
     it('should handle formatting errors gracefully', async () => {
-      formatStub.returns({error:{message: 'address text is required'}});
+      formatStub.returns({error: {message: 'address text is required'}});
       const result = await addressService.validateAddress(addressDetails);
-      expect(result).to.eql({error:{message: 'address text is required'}});
+      expect(result).to.eql({error: {message: 'address text is required'}});
       expect(validateStub).to.not.be.called;
     });
     afterEach(() => {

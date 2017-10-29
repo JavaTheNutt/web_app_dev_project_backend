@@ -8,7 +8,7 @@ const admin       = require('firebase-admin');
 const sandbox     = sinon.sandbox.create();
 const authService = require('@Auth/service/authService');
 const userAuth    = require('@Auth/models/UserAuth').model;
-const errorUtils = require('@util/errorUtils');
+const errorUtils  = require('@util/errorUtils');
 describe('auth service', () => {
   'use strict';
   describe('handle claim validation', () => {
@@ -97,7 +97,7 @@ describe('auth service', () => {
       sandbox.restore();
     });
     it('should return false when an invalid object is passed', async () => {
-      const result = await authService.validateToken({token:'sometoken'});
+      const result = await authService.validateToken({token: 'sometoken'});
       expect(result).to.eql(errorUtils.formatError('token is not valid format'));
     });
     it('should return false a single chracter is passed', async () => {
@@ -202,7 +202,8 @@ describe('auth service', () => {
     beforeEach(() => {
       verifyStub          = sandbox.stub();
       verifyStubContainer = {verifyIdToken: verifyStub};
-      /*authStub            =*/ sandbox.stub(admin, 'auth').returns(verifyStubContainer);
+      /*authStub            =*/
+      sandbox.stub(admin, 'auth').returns(verifyStubContainer);
     });
     afterEach(() => {
       sandbox.restore();
@@ -223,12 +224,13 @@ describe('auth service', () => {
     });
   });
   describe('set custom claims', () => {
-    let setCustomClaimsStub, claimsStubContainer,/* authStub,*/ claims;
+    let setCustomClaimsStub, claimsStubContainer, /* authStub,*/ claims;
     beforeEach(() => {
       setCustomClaimsStub = sandbox.stub();
       claimsStubContainer = {setCustomUserClaims: setCustomClaimsStub};
-      /*authStub            =*/ sandbox.stub(admin, 'auth').returns(claimsStubContainer);
-      claims              = {
+      /*authStub            =*/
+      sandbox.stub(admin, 'auth').returns(claimsStubContainer);
+      claims = {
         user: ObjectID()
       };
     });
@@ -290,6 +292,9 @@ describe('auth service', () => {
       const result = await authService.createUserClaim(returnedAuth.firebaseId);
       expect(result).to.eql(errorUtils.formatError('no user field attached to auth record'));
     });
+    it('handles errors from set custom claims gracefully', async () => {
+
+    });
     afterEach(() => {
       sandbox.restore();
     });
@@ -333,7 +338,12 @@ describe('auth service', () => {
     });
     it('should handle errors non existant records', async () => {
       const err = new Error('an error has occurred');
-      fetchAuthByFirebaseIdStub.resolves({error: {message: 'there was an error while fetching specified auth record', err}});
+      fetchAuthByFirebaseIdStub.resolves({
+        error: {
+          message: 'there was an error while fetching specified auth record',
+          err
+        }
+      });
       const result = await authService.fetchUserIdFromFirebaseId(returnedAuth.firebaseId);
       expect(result).to.eql(errorUtils.formatError('there was an error while fetching specified auth record', err));
     });
@@ -348,17 +358,22 @@ describe('auth service', () => {
     let findByIdAndRemoveStub, authId;
     beforeEach(() => {
       findByIdAndRemoveStub = sandbox.stub(userAuth, 'findByIdAndRemove');
-      authId = ObjectID();
+      authId                = ObjectID();
     });
     afterEach(() => {
       sandbox.restore();
     });
     it('should return true when an object is deleted', async () => {
-      findByIdAndRemoveStub.resolves({_id: authId, email: 'test@test.com', user:'someobjectidhere', firebaseId: 'somefirebaseidhere'});
+      findByIdAndRemoveStub.resolves({
+        _id: authId,
+        email: 'test@test.com',
+        user: 'someobjectidhere',
+        firebaseId: 'somefirebaseidhere'
+      });
       const result = await authService.deleteAuthRecordById(authId);
       expect(result).to.be.true;
     });
-    it('should handle errors while deleting', async() => {
+    it('should handle errors while deleting', async () => {
       const err = new Error('an error has occurred');
       findByIdAndRemoveStub.throws(err);
       const result = await authService.deleteAuthRecordById(authId);
