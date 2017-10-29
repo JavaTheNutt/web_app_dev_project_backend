@@ -12,15 +12,34 @@ module.exports       = server => {
    * @memberOf module:user/router
    */
   server.post('/user/new', userController.createNewUser);
+  /**
+   * Fetch the details of the user who made the request
+   * @memberOf module:user/router
+   */
   server.get('/user', userController.getCurrentUser);
+  /**
+   * Update the user who made the request
+   * @memberOf module:user/router
+   */
   server.put('/user', userController.updateUser);
+  /**
+   * Delete an address from a user specified by address ID
+   * @memberOf module:user/router
+   */
   server.delete('/user/address/:id', userController.deleteAddress);
+  /**
+   * Delete address from a user specified by address ID
+   */
   server.get('/user/address/:id', userController.fetchSingleAddress);
   /**
    * Add an address to a user
    * @memberOf module:user/router
    */
   server.post('/user/address', userController.addAddress);
+  /**
+   * Fetch all addresses for a user
+   * @memberOf module:user/router
+   */
   server.get('/user/address', userController.fetchAllAddresses);
 
 };

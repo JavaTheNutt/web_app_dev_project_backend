@@ -33,6 +33,13 @@ module.exports = exports = {
       return errorUtils.formatError('an error occurred during the user save operation', err);
     }
   },
+  /**
+   * High level abstraction for creating a user which handles creating user and auth records, as well as adding claims to the users token and also rollback if any of the steps fails
+   * @param email {string} the users email address
+   * @param firebaseId {string} the users firebase ID
+   * @returns {Promise.<object>} the saved user if successful, a formatted error otherwise
+   * @memberOf module:user/service
+   */
   async handleCreateUser(email, firebaseId) {
     'use strict';
     const savedUser = await exports.createUser({email});
@@ -126,6 +133,7 @@ module.exports = exports = {
    * @param userId {ObjectId}
    * @param addressId {ObjectId}
    * @returns {Promise.<*|{error: {message: string}}>}
+   * @memberOf module:user/service
    */
   async fetchSingleAddress(userId, addressId) {
     'use strict';
@@ -141,6 +149,7 @@ module.exports = exports = {
    * fetch all addresses for a single user
    * @param userId
    * @returns {Promise.<Object|$pull.addresses|{_id}|Array|null|*|*>}
+   * @memberOf module:user/service
    */
   async fetchAddresses(userId) {
     'use strict';
@@ -155,6 +164,7 @@ module.exports = exports = {
    * @param userId {ObjectId} users object id
    * @param addressId {ObjectId} address object id
    * @returns {Promise.<*>}
+   * @memberOf module:user/service
    */
   async deleteAddressById(userId, addressId) {
     'use strict';
@@ -174,6 +184,7 @@ module.exports = exports = {
    * @param user {ObjectId}
    * @param updateParams {{}}
    * @returns {Promise.<*>}
+   * @memberOf module:user/service
    */
   async updateUser(user, updateParams) {
     'use strict';
@@ -200,6 +211,7 @@ module.exports = exports = {
    * wrapper to fetch user by id
    * @param userId {ObjectId}
    * @returns {Promise.<*>}
+   * @memberOf module:user/service
    */
   async getUserById(userId) {
     'use strict';
@@ -242,6 +254,7 @@ module.exports = exports = {
    * Wrapper to delete user by id
    * @param userId {ObjectId}
    * @returns {Promise.<*>}
+   * @memberOf module:user/service
    */
   async deleteUser(userId) {
     'use strict';
@@ -262,6 +275,7 @@ module.exports = exports = {
  * This function sanitises inputs to be saved
  * @param details{{email}}
  * @returns {{email}}
+ * @memberOf module:user/service
  */
 function formatDetails(details) {
   'use strict';

@@ -54,6 +54,13 @@ module.exports      = {
     Logger.verbose('user exists, returning new user');
     return res.status(200).send(returnedUser);
   },
+  /**
+   * Controller for updating a user
+   * @param req {object}
+   * @param res {object}
+   * @returns {Promise.<void>}
+   * @memberOf module:user/userController
+   */
   async updateUser(req, res) {
     'use strict';
     Logger.info('request made to update user');
@@ -69,6 +76,14 @@ module.exports      = {
     Logger.verbose('user assumed fetched, returning to client');
     return res.status(200).send(updatedUser);
   },
+  /**
+   * controller for fetching the user who made the request
+   * @param req {object}
+   * @param res {object}
+   * @returns {Promise.<void>}
+   *
+   * @memberOf module:user/userController
+   */
   async getCurrentUser(req, res) {
     'use strict';
     Logger.info('request recieved to fetch uer by id');
@@ -81,6 +96,13 @@ module.exports      = {
     Logger.verbose('user assumed fetched without error');
     return res.status(200).send(user);
   },
+  /**
+   * controller for deleting an address of the current user
+   * @param req {object}
+   * @param res {object}
+   * @returns {Promise.<void>}
+   * @memberOf module:user/userController
+   */
   async deleteAddress(req, res) {
     'use strict';
     Logger.info('request recieved to delete address');
@@ -100,6 +122,13 @@ module.exports      = {
     Logger.verbose('user assumed updated');
     return res.status(200).send(updatedUser);
   },
+  /**
+   * controller for fetching a single address for a user
+   * @param req {object}
+   * @param res {object}
+   * @returns {Promise.<void>}
+   * @memberOf module:user/userController
+   */
   async fetchSingleAddress(req, res) {
     'use strict';
     Logger.info('request recieved to fetch single address');
@@ -121,6 +150,13 @@ module.exports      = {
     Logger.verbose('address assumed fetched');
     return res.status(200).send(address);
   },
+  /**
+   * controller for fetching all addresss for the user who made the request
+   * @param req {object}
+   * @param res {object}
+   * @returns {Promise.<void>}
+   * @memberOf module:user/userController
+   */
   async fetchAllAddresses(req, res) {
     'use strict';
     Logger.info('request called to fetch all addresses');

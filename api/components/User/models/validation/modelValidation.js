@@ -5,7 +5,6 @@
 const Logger         = require('@root/util/Logger')('MODEL_VALIDATION');
 const emailValidator = require('email-validator');
 
-//fixme add integration tests for validation
 /**
  * Check if an email is valid
  * @param emailAddress {String} the address to be checked
