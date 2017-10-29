@@ -58,13 +58,15 @@ const server = app.listen(config.port, () => {
 //set up error logger
 app.use(Logger.errorLogger);
 
-//default error handler
+//default error handler to catch unexpected exceptions
 app.use((err, req, res) => {
   'use strict';
   Logger.warn('the default error handler has been invoked. An unexpected error has occurred.');
   Logger.error(`error: ${JSON.stringify(err)}`);
   res.status(500).send({error: 'an unexpected error has occurred'});
 });
+
+//catch 404 errors and return a standard error
 app.use((req, res) => {
   'use strict';
   Logger.warn('default route handler called, returning 404');
