@@ -2,7 +2,7 @@
 *A NodeJS REST API*
 
 ## Overview
-This GitHub repository contains the source code for the backend of my project for both my Web Applications Development and Agile Software Practices modules. 
+This GitHub repository contains the source code for the backend of my project for both my Web Applications Development and Agile Software Practices modules. A design document can be found [here](https://github.com/JavaTheNutt/web_app_dev_project_backend/tree/master/docs/documentation/DesignDoc.pdf)
 
 This project is Finance Tracker application that will be used to track finances for a specific user. 
 
@@ -56,3 +56,535 @@ These scripts are used to transpile the project to the developers local environm
 * `npm run lint`: run [eslint](https://eslint.org/) with the `--fix` flag to alert to style issues and fix if applicable
 ### Documentation
 * `npm run docs`: run [jsdoc](https://www.npmjs.com/package/jsdoc) to generate JSDocs for all functions
+
+***
+***
+# Agile Software Practices Information
+# Assignment 1 - API testing and Source Control.
+
+Name: Joe Wemyss
+
+## Overview.
+
+This is a backend API that will be used to track details of financial transactions for a single user. As of yet, this project basically just provides authentication for the application. 
+
+## API endpoints.
+
+ + GET /user - Get the current user based on the ID provided in the authentication token
+ + GET /user/address - Get all addresses for the user who made the request
+ + GET /user/address/:id - Get a specific address for the current user, based on ID
+ + POST /user/new - Create a new user with the details contained in the authentication token
+ + PUT /user - Update the user who made the request
+ + DELETE /user/address/:id - Delete the address with the specified ID of the user who made the request
+ + POST /user/address - Add an address to the user who made the request
+ 
+
+## Data storage.
+
+The database will contain two collections. These collections are __User__ and __UserAuth__. The reason for the two of them being kept in separate collections is because the contents of the __UserAuth__ collection will only ever be used internally in the application, and should never be leaked in a response.
+The __User__ collection is made up of some base details and an array of nested Mongoose Models for addresses, since it will be reused later in other parts of the application. The models so far look like this, once saved to the Database:
+
+### User
+The __User__ collection is comprised of these two mongoose models:
+#### Address
+```js
+const AddressSchema = mongoose.Schema({
+  text: {
+    type: String,
+    required: true
+  },
+  loc: {
+    type: {
+      type: String,
+      enum: ['Point']
+    },
+    coordinates: {
+      type: [Number]
+    }
+  }
+});
+AddressSchema.index({loc: '2dsphere'});
+
+```
+#### User
+```js
+const UserSchema = mongoose.Schema({
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+    validate: {
+      validator: function(emailAddress) {
+        return emailValidator.validate(emailAddress);
+      },
+      message: 'Email is poorly formatted'
+    }
+  },
+  firstName: String,
+  surname: String,
+  addresses: [Address]
+}, {collection: 'users'});
+```
+These models result in the below collection:
+```json
+{
+"_id":"59ee0f1ee9aaa102f05b7877",
+"email":"root@root.com",
+"addresses":[{
+	"_id": "59f8ac6e900c7812acd2833c",
+	"text":"20 Barrack St, Waterford, X91 FTP8, Ireland",
+	"loc":[{
+		"type":"Point",
+		"coordinates":[52.2572488, -7.116612699999999]
+	}]
+}],
+"firstName": "Joe",
+"surname": "Bloggs",
+"__v":0
+}
+```
+### User Auth
+The __UserAuth__ collection is made up of a single mongoose model. This model looks like this:
+```js
+const UserAuthSchema = mongoose.Schema({
+  email: {
+    type: String,
+    required: true,
+    validate: {
+      validator: function(emailAddress) {
+        return emailValidator.validate(emailAddress);
+      },
+      message: 'Email is poorly formatted'
+    }
+  },
+  user: {
+    type: String, 
+    required: false,
+    validate: {
+      validator: function (id) {
+  		return /^[a-fA-F0-9]{24}$/.test(id);
+	  },
+      message: 'Object Id is improperly formatted'
+    }
+  },
+  firebaseId: {
+    type: String,
+    required: true
+  }
+}, {collection: 'user_auth'});
+```
+This model produces a collection like this:
+```json
+{
+	"_id":"59ee0f1ee9aaa102f05b7878",
+	"email":"root@root.com",
+	"firebaseId":"Jj7VV5lOc8cccKUyMb4DcvhNzNI2",
+	"user":"59ee0f1ee9aaa102f05b7877",
+	"__v":0
+}
+```
+## Sample Test execution.
+Below are my three test suites, with a short explanation of each. All three can be run with a single command using `npm test`. The suites are organised by directory and are run by recursively scanning the specified directory and running all suites found within. Each one is also fed into Babel to cater to systems that do not support ES8 syntax.
+
+### Unit tests
+The unit tests test each function in absolute isolation. Each test tests a single function and all other function calls are stubbed.
+
+        $ npm run unit
+        
+        > webdev_backend_one@0.0.1 unit C:\Users\joewe\projects\node\webdev_backend_one
+        > find ./test/unit -name '*_test.js' | cross-env NODE_ENV=test LOG_LEVEL=silent xargs nyc mocha --compilers js:babel-core/register -R spec
+        
+        
+        
+          AddressModel
+            creation
+              √ should create a valid Address model with no geospatial coordinates
+              √ should create a valid Address model with geospatial coordinates
+              √ should create a valid Address model with geospatial coordinates, but no type specified
+              √ should throw an error when there is no text specified
+        
+          address service
+            validate address
+              √ should return true when an address is valid
+              √ should handle errors gracefully
+              √ should handle formatting errors gracefully
+            format details
+              √ should correctly format the details
+              √ should correctly set default values when no coordinates are provided
+              √ should return an error when there is no text provided
+        
+          auth middleware
+            new user auth
+              √ should set the is new flag on the request
+            app authentication
+              √ should call next with no params when details are valid and token is not custom and not new
+              √ should fail when no token is present
+              √ should fail when no headers are present
+              √ should return 401 when token is deemed invalid
+        
+          UserAuth model
+            √ should create a user auth model with all details
+            √ should create a user auth model with no user id
+            √ should fail when there is no email passed
+            √ should fail when there is no firebase id passed
+            √ should fail when email address is poorly formed
+            √ should fail when user id is poorly formed
+        
+          auth service
+            handle claim validation
+              √ should return the standard claims for new users
+              √ should add the custom claims to claims that are not for new users, but do not have custom claims
+              √ should return the custom auth object to be appended to the request
+              √ should handle no user being returned gracefully
+            jwt validation
+              √ should return false when an invalid object is passed
+              √ should return false a single chracter is passed
+              √ should return false when nothing is passed
+              √ should return true when it recieves a jwt to validate
+              √ should handle thrown errors gracefully
+              √ should handle unthrown errors gracefully
+            user auth creation
+              √ should create a new user when provided with correct details
+              √ should handle errors gracefully
+            fetch user auth by firebase id
+              √ should handle a successful fetch
+              √ should handle errors while querying
+              √ should handle empty responses gracefully
+            decode token
+              √ should return true when it recieves a jwt to validate
+              √ should handle errors gracefully
+            set custom claims
+              √ should call set custom claims
+              √ should handle errors gracefully
+            create user claim
+              √ returns a valid claim object
+              √ handles empty responses gracefully
+              √ handles responses with no user field gracefully
+              √ handles errors from set custom claims gracefully
+            check custom claims
+              √ should return true when user claim is present
+              √ should return false when user claim is not present
+            fetch user id from firebase id
+              √ should recieve a firebase id and return a user id
+              √ should handle errors non existant records
+              √ should handle records with no user field
+            delete auth record by id
+              √ should return true when an object is deleted
+              √ should handle errors while deleting
+        
+          user model
+            √ should create a user with one address
+            √ should create a user with two addresses
+            √ should fail when no email is passed
+            √ should fail when a poorly formed email is passed
+        
+          model validation
+            email validation
+              √ returns false with incorrect emails
+              √ returns true for valid emails
+            object id validation
+              √ should return true for valid object ids
+              √ should return false for invalid object ids
+            optional object id validation
+              √ should return true if a valid id is passed
+              √ should return true when params are undefined
+              √ should return true when params are null
+              √ should return true when params are empty string
+              √ should return false when params are invalid object id
+        
+          user service
+            handle user creation
+              √ should call create user, create auth, and create claims when all pass
+              √ should not call create auth or create claims if the user save fails
+              √ should not call create claims if auth save fails, but should call delete user
+              √ should call both delete user and delete auth if adding claims fails
+            user creation
+              √ should successfully return a newly created user when passed correct details
+              √ should handle errors gracefully
+            delete user
+              √ should return true when a user is successfully deleted
+              √ should return an error object to the user when the delete is unsuccessful
+            update user
+              √ should update a user to the correct values
+              √ should handle update errors gracefully
+            handle add address
+              √ should handle address validation errors gracefully
+              √ should handle user update errors gracefully
+              √ should return an saved user object when passed correct details
+            add address
+              √ should successfully add an address with just a name
+              √ should gracefully handle errors
+            validate address
+              √ should handle a correct validation
+              √ should handle invalid responses gracefully
+            fetch by user id
+              √ should return the user who made the request
+              √ should a properly formatted error in case of error
+              √ should return a properly formatted error when returned user is undefined
+              √ should return a properly formatted error when returned user is empty
+            delete address
+              √ should delete an address when passed a valid object id
+              √ should handle errors in the delete process
+            fetch addresses
+              √ should return a list of addresses when availible
+              √ should alert the user if they have no address records
+              √ should deal with errors gracefully
+            fetch single address
+              √ should return a list of addresses when availible
+              √ should alert the user if they have no address records
+              √ should deal with errors gracefully
+        
+          user controller
+            create new user
+              √ should call res.send with a status of 201 when all details are present
+              error checking
+                validation
+                  √ should call res.send with a status of 500 when there is no user email
+                  √ should call res.send with a status of 500 when there is no firebase id
+                errors
+                  user save operation
+                    √ should call res.send with 500 when user save fails because of a thrown error
+                    √ should call res.send with 500 when user save fails because of an unthrown error
+                  auth save operation
+                    √ should call res.send with 500 when auth save fails because of a thrown error
+                    √ should call res.send with 500 when auth save fails because of an unthrown error
+                  add auth claims
+                    √ should call res.send with 500 when adding custom claims fails
+                  cleanup
+                    √ should return the original error when the delete user operation fails during the auth save operation
+                    √ should return the original error if the delete user operation fails during claims creation
+                    √ should return the original error if the delete auth operation fails during claims creation
+                    √ should return the original error if the both delete auth and delete user operations fail during claims creation
+            add address
+              √ should call res.send with a status of 200 when adding an address is successful
+              √ should handle an error response from add address service
+            update user
+              √ should a copy of the new user with a status of 200 when user is updated
+              √ should return a properly formatted error object in the case of an error
+              √ should return a properly formatted error when there are no update params
+              √ should return a properly formatted error when update params are empty
+            fetch current user
+              √ should return 200 when user fetch is successful
+              √ should return 500 when user save fails becuase of an error
+              √ should return 500 when user save fails without an error
+            delete address
+              √ should call res.send with a status of 200 when an address is successfully deleted
+              √ should call res.send with a status of 500 when an error is thrown during the delete process
+              √ should call res.send with 400 when there is no id param
+              √ should call res.send with 400 when there are no params
+              √ should call res.send with 400 when id param cannot be coerced into an object id
+            fetch all addresses
+              √ should call res.send with a status of 200 and return all addresses
+              √ should call res.send with a status of 500 when an error is thrown during the fetch operation
+              √ should call res.send with a status of 200 and a custom message when the user has no addresses
+            fetch one address
+              √ should call res.send with a status of 200 when an address is successfully fetched
+              √ should call res.send with a status of 500 when an error is thrown during the delete process
+              √ should call res.send with 400 when there is no id param
+              √ should call res.send with 400 when there are no params
+              √ should call res.send with 400 when id param cannot be coerced into an object id
+        
+          error utils
+            format error
+              √ should correctly return an error object with an error
+              √ should correctly return an error object without an error
+            format sendable error
+              √ should format an error correctly to be delivered to the user when there is an error present
+              √ should format an error correctly to be delivered to the user when there is not an error present
+            format sendable error from object
+              √ should format a sendable error from a created error object containing an error
+              √ should format a sendable error from a created error object not containing an error
+            update error message
+              √ should correctly handle updating an error message when an error is present
+              √ should correctly handle updating an error message when an error is not present
+        
+        
+          135 passing (1s)
+        
+        ----------------------------------------|----------|----------|----------|----------|----------------|
+        File                                    |  % Stmts | % Branch |  % Funcs |  % Lines |Uncovered Lines |
+        ----------------------------------------|----------|----------|----------|----------|----------------|
+        All files                               |    99.16 |    87.42 |      100 |    99.15 |                |
+         config                                 |    63.64 |    38.89 |      100 |    63.64 |                |
+          config.js                             |    55.56 |    38.89 |      100 |    55.56 |      8,9,11,17 |
+          privateConfig.js                      |      100 |      100 |      100 |      100 |                |
+         dist/components/User                   |      100 |    97.92 |      100 |      100 |                |
+          userController.js                     |      100 |    97.92 |      100 |      100 |            155 |
+         dist/components/User/models            |      100 |      100 |      100 |      100 |                |
+          User.js                               |      100 |      100 |      100 |      100 |                |
+         dist/components/User/models/validation |      100 |      100 |      100 |      100 |                |
+          modelValidation.js                    |      100 |      100 |      100 |      100 |                |
+         dist/components/User/service           |      100 |      100 |      100 |      100 |                |
+          userService.js                        |      100 |      100 |      100 |      100 |                |
+         dist/middleware/Auth                   |      100 |    81.82 |      100 |      100 |                |
+          authMiddleware.js                     |      100 |    81.82 |      100 |      100 |          37,52 |
+         dist/middleware/Auth/models            |      100 |      100 |      100 |      100 |                |
+          UserAuth.js                           |      100 |      100 |      100 |      100 |                |
+         dist/middleware/Auth/service           |      100 |      100 |      100 |      100 |                |
+          authService.js                        |      100 |      100 |      100 |      100 |                |
+         dist/models/Address/models             |      100 |      100 |      100 |      100 |                |
+          Address.js                            |      100 |      100 |      100 |      100 |                |
+         dist/models/Address/service            |      100 |    85.71 |      100 |      100 |                |
+          addressService.js                     |      100 |    85.71 |      100 |      100 |             65 |
+         dist/util                              |      100 |    66.67 |      100 |      100 |                |
+          Logger.js                             |      100 |       50 |      100 |      100 |    20,21,43,56 |
+          errorUtils.js                         |      100 |      100 |      100 |      100 |                |
+        ----------------------------------------|----------|----------|----------|----------|----------------|
+        
+### Internal Integration Tests
+These are really more Unit Tests, but in this case, they are only performed on a controller function. Controller functions have a one-to-one relationship with routes, so this essentially checks that the internal mechanics of a route works. Any global or route-specific middleware will be ignored in these tests. All external actors (such as database calls, or Firebase) have been stubbed.
+
+    $ npm run internalIntegration
+    
+    > webdev_backend_one@0.0.1 internalIntegration C:\Users\joewe\projects\node\webdev_backend_one
+    > find ./test/integration/internal -name '*_test.js' | cross-env NODE_ENV=test LOG_LEVEL=silent xargs nyc mocha --compilers js:babel-core/register -R spec
+    
+    
+    
+      user controller
+        add new user
+          √ should call res.send with a status of 200 when the operation is successful (38ms)
+          √ should call res.send with a status of 400 when user save fails
+          √ should call res.send with a status of 400 when auth save fails
+          √ should call res.send with a status of 400 when addition of custom claims fails
+        update user
+          √ should a copy of the new user with a status of 200 when user is updated
+          √ should return a properly formatted error object in the case of an error
+          √ should return a properly formatted error when there are no update params
+          √ should return a properly formatted error when update params are empty
+        fetch current user
+          √ should return 200 when user fetch is successful
+          √ should return 500 when user save fails becuase of an error
+          √ should return 500 when user save fails because of undefined value
+          √ should return 500 when user save fails because of empty value
+        add new address
+    (node:1268) DeprecationWarning: Mongoose: mpromise (mongoose's default promise library) is deprecated, plug in your own promise library instead: http://mongoosejs.com/docs/promises.html
+          √ should successfully add an address
+          √ should return a 400 error when address addition fails
+        delete address
+          √ should call res.send with a status of 200 when an address is successfully deleted
+          √ should call res.send with a status of 500 when an error is thrown during the delete process
+          √ should call res.send with 400 when there is no id param
+          √ should call res.send with 400 when there are no params
+          √ should call res.send with 400 when id param cannot be coerced into an object id
+        fetch all addresses
+          √ should call res.send with a status of 200 and return all addresses
+          √ should call res.send with a status of 500 when an error is thrown during the fetch operation
+        fetch one address
+          √ should call res.send with a status of 200 when an address is successfully fetched
+          √ should call res.send with a status of 500 when an error is thrown during the delete process
+          √ should call res.send with 400 when there is no id param
+          √ should call res.send with 400 when there are no params
+          √ should call res.send with 400 when id param cannot be coerced into an object id
+    
+    
+      26 passing (294ms)
+    
+    ----------------------------------------|----------|----------|----------|----------|----------------|
+    File                                    |  % Stmts | % Branch |  % Funcs |  % Lines |Uncovered Lines |
+    ----------------------------------------|----------|----------|----------|----------|----------------|
+    All files                               |    73.21 |    60.81 |       75 |    73.15 |                |
+     config                                 |    63.64 |    38.89 |      100 |    63.64 |                |
+      config.js                             |    55.56 |    38.89 |      100 |    55.56 |      8,9,11,17 |
+      privateConfig.js                      |      100 |      100 |      100 |      100 |                |
+     dist/components/User                   |    91.21 |    91.67 |      100 |    91.21 |                |
+      userController.js                     |    91.21 |    91.67 |      100 |    91.21 |... 197,198,199 |
+     dist/components/User/models            |      100 |      100 |      100 |      100 |                |
+      User.js                               |      100 |      100 |      100 |      100 |                |
+     dist/components/User/models/validation |    45.45 |        0 |    33.33 |    45.45 |                |
+      modelValidation.js                    |    45.45 |        0 |    33.33 |    45.45 |... 30,31,32,34 |
+     dist/components/User/service           |    92.86 |    84.62 |      100 |     92.8 |                |
+      userService.js                        |    92.86 |    84.62 |      100 |     92.8 |... 277,278,279 |
+     dist/middleware/Auth/models            |      100 |      100 |      100 |      100 |                |
+      UserAuth.js                           |      100 |      100 |      100 |      100 |                |
+     dist/middleware/Auth/service           |    28.21 |        0 |      100 |    28.21 |                |
+      authService.js                        |    28.21 |        0 |      100 |    28.21 |... 246,247,248 |
+     dist/models/Address/models             |      100 |      100 |      100 |      100 |                |
+      Address.js                            |      100 |      100 |      100 |      100 |                |
+     dist/models/Address/service            |       75 |    64.29 |      100 |       75 |                |
+      addressService.js                     |       75 |    64.29 |      100 |       75 |... 48,49,56,57 |
+     dist/util                              |      100 |    66.67 |      100 |      100 |                |
+      Logger.js                             |      100 |       50 |      100 |      100 |    20,21,43,56 |
+      errorUtils.js                         |      100 |      100 |      100 |      100 |                |
+    ----------------------------------------|----------|----------|----------|----------|----------------|
+    
+### External Integration Tests
+These tests are applied to each endpoint. These tests do not stub anything and as such, an appropriate mongo daemon must be running to handle database requests, similarly, a network connection is required for these tests as there will be external requests to authentication services.
+
+    $ npm run externalIntegration
+    
+    > webdev_backend_one@0.0.1 externalIntegration C:\Users\joewe\projects\node\webdev_backend_one
+    > find ./test/integration/external -name '*_test.js' | cross-env NODE_ENV=test LOG_LEVEL=silent xargs nyc mocha --timeout 5000 --compilers js:babel-core/register -R spec
+    
+    
+    
+      user controller
+        create new user
+          √ should return 201 when a user creation is successful (2400ms)
+          √ should return 401 when no token is attached
+        user exists
+          √ should fetch the current user (55ms)
+          √ should be able to add an address (628ms)
+          √ should be able to update the current user
+          user has an address
+            fetch all addresses
+              √ should be able to fetch all addresses
+            fetch one address by id
+              √ should be able to fetch one address by id
+              √ should return 400 when the object id is invalid format
+              √ should return 404 when the address is not found
+            delete one address by id
+              √ should be able to delete an address by id (40ms)
+              √ should return 400 when the object id is invalid format
+    
+    
+      11 passing (11s)
+    
+    ----------------------------------------|----------|----------|----------|----------|----------------|
+    File                                    |  % Stmts | % Branch |  % Funcs |  % Lines |Uncovered Lines |
+    ----------------------------------------|----------|----------|----------|----------|----------------|
+    All files                               |    73.15 |    60.38 |    86.36 |       73 |                |
+     config                                 |    63.64 |    38.89 |      100 |    63.64 |                |
+      config.js                             |    55.56 |    38.89 |      100 |    55.56 |      8,9,11,17 |
+      privateConfig.js                      |      100 |      100 |      100 |      100 |                |
+     dist                                   |    89.36 |      100 |    77.78 |    88.89 |                |
+      index.js                              |    85.29 |      100 |       50 |    85.29 | 69,70,71,78,79 |
+      router.js                             |      100 |      100 |      100 |      100 |                |
+     dist/components/Transaction            |      100 |      100 |      100 |      100 |                |
+      index.js                              |      100 |      100 |      100 |      100 |                |
+     dist/components/Transaction/routes     |       50 |      100 |       50 |       50 |                |
+      index.js                              |       50 |      100 |       50 |       50 |       18,19,20 |
+     dist/components/User                   |    70.97 |    68.75 |      100 |    70.97 |                |
+      index.js                              |      100 |      100 |      100 |      100 |                |
+      userController.js                     |    70.33 |    68.75 |      100 |    70.33 |... 197,198,199 |
+     dist/components/User/models            |      100 |      100 |      100 |      100 |                |
+      User.js                               |      100 |      100 |      100 |      100 |                |
+     dist/components/User/models/validation |    90.91 |       80 |      100 |    90.91 |                |
+      modelValidation.js                    |    90.91 |       80 |      100 |    90.91 |             32 |
+     dist/components/User/routes            |      100 |      100 |      100 |      100 |                |
+      index.js                              |      100 |      100 |      100 |      100 |                |
+     dist/components/User/service           |    69.05 |    61.54 |      100 |     68.8 |                |
+      userService.js                        |    69.05 |    61.54 |      100 |     68.8 |... 277,278,279 |
+     dist/middleware/Auth                   |    84.62 |    81.82 |      100 |    84.62 |                |
+      authMiddleware.js                     |    84.62 |    81.82 |      100 |    84.62 |    45,46,53,54 |
+     dist/middleware/Auth/models            |      100 |      100 |      100 |      100 |                |
+      UserAuth.js                           |      100 |      100 |      100 |      100 |                |
+     dist/middleware/Auth/service           |    57.26 |       60 |      100 |    57.26 |                |
+      authService.js                        |    57.26 |       60 |      100 |    57.26 |... 246,247,248 |
+     dist/models/Address/models             |      100 |      100 |      100 |      100 |                |
+      Address.js                            |      100 |      100 |      100 |      100 |                |
+     dist/models/Address/service            |       75 |    28.57 |      100 |       75 |                |
+      addressService.js                     |       75 |    28.57 |      100 |       75 |... 48,49,62,63 |
+     dist/util                              |     92.5 |    66.67 |      100 |     92.5 |                |
+      Logger.js                             |      100 |       50 |      100 |      100 |    20,21,43,56 |
+      errorUtils.js                         |    86.36 |      100 |      100 |    86.36 |       26,27,28 |
+    ----------------------------------------|----------|----------|----------|----------|----------------|
+
+
+## Extra features.
+* Stubbing/Mocking with SinonJS
+* Full code coverage with Istanbul/NYC
+* Supertest integration for API endpoint testing
+* Babel transpilation of tests when run
+* Adherence to "silent principal", but has a flag to turn on logging for debugging
+* ESLint integration for code style.
