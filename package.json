@@ -6,7 +6,7 @@
   "scripts": {
     "unit": "cross-env NODE_ENV=test LOG_LEVEL=silent nyc mocha ./test/unit -name '*_test.js' --recursive --compilers js:babel-core/register -R spec",
     "internalIntegration": "cross-env NODE_ENV=test LOG_LEVEL=silent nyc mocha ./test/integration/internal -name '*_test.js' --recursive --compilers js:babel-core/register -R spec ",
-    "externalIntegration": "cross-env NODE_ENV=test LOG_LEVEL=silent nyc mocha ./test/integration/external -name '*_test.js' --recursive --timeout 5000 --compilers js:babel-core/register -R spec ",
+    "externalIntegration": "cross-env NODE_ENV=test LOG_LEVEL=silent PORT=9191 nyc mocha ./test/integration/external -name '*_test.js' --recursive --timeout 5000 --compilers js:babel-core/register -R spec ",
     "integration": "npm run internalIntegration && npm run externalIntegration",
     "test": "npm run unit && npm run integration",
     "dev": "nodemon dist/index.js",
