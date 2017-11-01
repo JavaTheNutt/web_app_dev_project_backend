@@ -96,6 +96,14 @@ describe('user controller', () => {
       expect(res.send).to.be.calledOnce;
       expect(res.send).to.be.calledWith(expectedResponse);
     });
+    it('should call res.send with an error of 500 when required auth details are not present', async ()=>{
+      req.body.customAuthUser = {};
+      await userController.createNewUser(req, res, next);
+      expect(res.status).to.be.calledOnce;
+      expect(res.status).to.be.calledWith(500);
+      expect(res.send).to.be.calledOnce;
+      expect(res.send).to.be.calledWith(errorUtils.formatSendableError('token was parsed successfully but is missing details'));
+    });
     afterEach(() => {
       sandbox.restore();
     });
@@ -364,6 +372,7 @@ describe('user controller', () => {
       expect(statusStub).to.be.calledBefore(sendStub);
       expect(deleteAddressStub).to.not.be.called;
     });
+    //it('should call res.send with a status of 200 when the ')
   });
   describe('fetch all addresses', () => {
     'use strict';
