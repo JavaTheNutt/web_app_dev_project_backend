@@ -17,12 +17,12 @@ describe('user controller', () => {
   'use strict';
   describe('add new user', () => {
     let saveUserStub, saveAuthStub, req, res, next, sendStub, sendStubContainer, statusStub, fetchAuthStub,
-        setCustomUserClaimsStubContainer, setCustomUserClaimsStub;
+      setCustomUserClaimsStubContainer, setCustomUserClaimsStub, deleteUserStub, deleteAuthStub;
     beforeEach(() => {
-      saveUserStub = sandbox.stub(User.prototype, 'save');
-      saveAuthStub = sandbox.stub(UserAuth.prototype, 'save');
-      sandbox.stub(User, 'findByIdAndRemove');
-      sandbox.stub(UserAuth, 'findByIdAndRemove');
+      saveUserStub                     = sandbox.stub(User.prototype, 'save');
+      saveAuthStub                     = sandbox.stub(UserAuth.prototype, 'save');
+      deleteUserStub                   = sandbox.stub(User, 'findByIdAndRemove');
+      deleteAuthStub                   = sandbox.stub(UserAuth, 'findByIdAndRemove');
       req                              = {
         body: {
           customAuthUser: {
@@ -96,13 +96,65 @@ describe('user controller', () => {
       expect(res.send).to.be.calledOnce;
       expect(res.send).to.be.calledWith(expectedResponse);
     });
-    it('should call res.send with an error of 500 when required auth details are not present', async ()=>{
+    it('should call res.send with an error of 500 when required auth details are not present', async () => {
       req.body.customAuthUser = {};
       await userController.createNewUser(req, res, next);
       expect(res.status).to.be.calledOnce;
       expect(res.status).to.be.calledWith(500);
       expect(res.send).to.be.calledOnce;
-      expect(res.send).to.be.calledWith(errorUtils.formatSendableError('token was parsed successfully but is missing details'));
+      expect(res.send).to.be.
+        calledWith(errorUtils.formatSendableError('token was parsed successfully but is missing details'));
+    });
+    it('should call res.send with the original error when user deletion fails', async () => {
+      const saveUserError   = new Error('an error has occurred while saving the user');
+      const deleteUserError = new Error('an error occurred while deleting the user');
+      saveUserStub.throws(saveUserError);
+      deleteUserStub.throws(deleteUserError);
+      await userController.createNewUser(req, res, next);
+      expect(res.status).to.be.calledOnce;
+      expect(res.status).to.be.calledWith(500);
+      expect(res.send).to.be.calledOnce;
+      expect(res.send).to.be.
+        calledWith(errorUtils.formatSendableError('an error occurred during the user save operation', saveUserError));
+    });
+    it('should call res.send with the original error when auth deletion fails', async () => {
+      const saveAuthError   = new Error('an error has occurred while saving the user');
+      const deleteUserError = new Error('an error occurred while deleting the user');
+      saveAuthStub.throws(saveAuthError);
+      deleteAuthStub.throws(deleteUserError);
+      await userController.createNewUser(req, res, next);
+      expect(res.status).to.be.calledOnce;
+      expect(res.status).to.be.calledWith(500);
+      expect(res.send).to.be.calledOnce;
+      expect(res.send).to.be.
+        calledWith(errorUtils.formatSendableError('an error occurred while saving auth record', saveAuthError));
+    });
+    it('should call res.send with the original error when both user and auth deletion fails', async () => {
+      const saveAuthError   = new Error('an error has occurred while saving the user');
+      const deleteUserError = new Error('an error occurred while deleting the user');
+      const deleteAuthError = new Error('an error occurred while deleting the auth record');
+      saveAuthStub.throws(saveAuthError);
+      deleteUserStub.throws(deleteUserError);
+      deleteAuthStub.throws(deleteAuthError);
+      await userController.createNewUser(req, res, next);
+      expect(res.status).to.be.calledOnce;
+      expect(res.status).to.be.calledWith(500);
+      expect(res.send).to.be.calledOnce;
+      expect(res.send).to.be.
+        calledWith(errorUtils.formatSendableError('an error occurred while saving auth record', saveAuthError));
+    });
+    it('should call delete user when save auth fails', async () => {
+      const saveAuthError = new Error('an error has occurred while saving the user');
+      saveAuthStub.throws(saveAuthError);
+      await userController.createNewUser(req, res, next);
+      expect(deleteUserStub).to.be.calledOnce;
+    });
+    it('should call delete user and delete auth when adding custom claims fails', async () => {
+      const saveAuthError = new Error('an error has occurred while saving the user');
+      setCustomUserClaimsStub.throws(saveAuthError);
+      await userController.createNewUser(req, res, next);
+      expect(deleteUserStub).to.be.calledOnce;
+      expect(deleteAuthStub).to.be.calledOnce;
     });
     afterEach(() => {
       sandbox.restore();
@@ -281,16 +333,16 @@ describe('user controller', () => {
       expect(statusStub).to.be.calledWith(400);
       expect(sendStub).to.be.calledOnce;
       expect(sendStub).to.be.
-      calledWith(errorUtils.formatSendableError('an error occurred while updating the user', err));
+        calledWith(errorUtils.formatSendableError('an error occurred while updating the user', err));
     });
-    it('should return a 400 error when the address is poorly formatted', async ()=>{
+    it('should return a 400 error when the address is poorly formatted', async () => {
       req.body.address = {street: 'barrack street'};
       await userController.addAddress(req, res, next);
       expect(statusStub).to.be.calledOnce;
       expect(statusStub).to.be.calledWith(400);
       expect(sendStub).to.be.calledOnce;
       expect(sendStub).to.be.
-      calledWith(errorUtils.formatSendableError('address text is required'));
+        calledWith(errorUtils.formatSendableError('address text is required'));
     });
     afterEach(() => {
       sandbox.restore();
@@ -372,7 +424,6 @@ describe('user controller', () => {
       expect(statusStub).to.be.calledBefore(sendStub);
       expect(deleteAddressStub).to.not.be.called;
     });
-    //it('should call res.send with a status of 200 when the ')
   });
   describe('fetch all addresses', () => {
     'use strict';
@@ -423,7 +474,7 @@ describe('user controller', () => {
       expect(statusStub).to.be.calledWith(500);
       expect(sendStub).to.be.calledOnce;
       expect(sendStub).to.be.
-      calledWith(errorUtils.formatSendableError('error occurred while fetching all addresses', err));
+        calledWith(errorUtils.formatSendableError('error occurred while fetching all addresses', err));
       expect(statusStub).to.be.calledBefore(sendStub);
     });
     it('should send a custom message when the user has no addresses', async () => {
@@ -434,7 +485,7 @@ describe('user controller', () => {
       expect(statusStub).to.be.calledWith(200);
       expect(sendStub).to.be.calledOnce;
       expect(sendStub).to.be.
-      calledWith({message: 'this user has no addresses'});
+        calledWith({message: 'this user has no addresses'});
       expect(statusStub).to.be.calledBefore(sendStub);
     });
   });
