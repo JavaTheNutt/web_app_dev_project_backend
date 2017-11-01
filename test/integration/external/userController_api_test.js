@@ -44,36 +44,6 @@ describe('user controller', () => {
         set('token', firebaseToken).expect(200);
       expect(response.body.error).to.not.exist;
       expect(response.body.addresses).to.have.length.above(0);
-      /* expect(response.body.addresses).to.deep.include({
-                 text: '123, fake street',
-                 loc: {
-                     type: 'Point',
-                     coordinates: [0, 0]
-                 }
-             });*/
-      /* expect(response.body.addresses).to.have.members({
-                 text: '123, fake street',
-                 loc: {
-                     type: 'Point',
-                     coordinates: [0, 0]
-                 }
-             });*/
-
-      /*expect(response.body.addresses).to.contain.something.that.deep.has.members({
-                text: '123, fake street',
-                loc: {
-                    type: 'Point',
-                    coordinates: [0, 0]
-                }
-            });*/
-      /*expect(response.body.addresses).to.contain.something.that.deep.contains.members({
-                text: '123, fake street',
-                loc: {
-                    type: 'Point',
-                    coordinates: [0, 0]
-                }
-            });*/
-      //This comes closest to what I want to achieve
       /*expect(response.body.addresses).to.contain.something.that.deep.includes({
                 text: '123, fake street',
                 loc: {
@@ -89,6 +59,17 @@ describe('user controller', () => {
           coordinates: [0, 0]
         }
       });
+    });
+    //FIXME: CHANGE TEST PORT!!!!!!
+    it('should return 400 when there is no address attached to the request', async () => {
+      const response = await supertest(app).post('/user/address').send({foo: {bar: '123, fake street'}}).
+        set('token', firebaseToken).expect(400);
+      expect(response.body.error.message).to.equal('address validation failed: Cannot read property \'text\' of undefined');
+    });
+    it('should return 400 when the address does not contain a text field', async () => {
+      const response = await supertest(app).post('/user/address').send({address: {foo: '123, fake street'}}).
+        set('token', firebaseToken).expect(400);
+      expect(response.body.error.message).to.equal('address text is required');
     });
     it('should be able to update the current user', async () => {
       const response = await supertest(app).put('/user').send({
