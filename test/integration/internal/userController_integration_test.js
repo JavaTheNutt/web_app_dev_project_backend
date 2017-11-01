@@ -325,6 +325,15 @@ describe('user controller', () => {
       expect(sendStub).to.be.calledOnce;
       expect(sendStub).to.be.calledWith(amendedUser);
     });
+    it('should successfully add an address without geospatial coordinates', async () => {
+      req.body.address.geo = null;
+      findOneAndUpdateStub.resolves(amendedUser);
+      await userController.addAddress(req, res, next);
+      expect(statusStub).to.be.calledOnce;
+      expect(statusStub).to.be.calledWith(200);
+      expect(sendStub).to.be.calledOnce;
+      expect(sendStub).to.be.calledWith(amendedUser);
+    });
     it('should return a 400 error when address addition fails', async () => {
       const err = new Error('an error has occurred');
       findOneAndUpdateStub.throws(err);
@@ -335,7 +344,7 @@ describe('user controller', () => {
       expect(sendStub).to.be.
         calledWith(errorUtils.formatSendableError('an error occurred while updating the user', err));
     });
-    it('should return a 400 error when the address is poorly formatted', async () => {
+    it('should return a 400 error when the address does not contain a field \'text\'', async () => {
       req.body.address = {street: 'barrack street'};
       await userController.addAddress(req, res, next);
       expect(statusStub).to.be.calledOnce;
@@ -343,6 +352,16 @@ describe('user controller', () => {
       expect(sendStub).to.be.calledOnce;
       expect(sendStub).to.be.
         calledWith(errorUtils.formatSendableError('address text is required'));
+    });
+    it('should return a 400 error when the address contains coordinates that are not numbers', async () => {
+      req.body.address.geo.lat = 'a';
+      req.body.address.geo.lng = 'b';
+      await userController.addAddress(req, res, next);
+      const sendCallArgs = sendStub.getCalls()[0].args[0];
+      expect(statusStub).to.be.calledOnce;
+      expect(statusStub).to.be.calledWith(400);
+      expect(sendStub).to.be.calledOnce;
+      expect(sendCallArgs.error).to.exist;
     });
     afterEach(() => {
       sandbox.restore();
@@ -426,7 +445,6 @@ describe('user controller', () => {
     });
   });
   describe('fetch all addresses', () => {
-    'use strict';
     'use strict';
     let fetchAddressesStub, req, res, next, sendStub, sendStubContainer, statusStub, fakeUser;
     beforeEach(() => {

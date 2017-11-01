@@ -60,7 +60,6 @@ describe('user controller', () => {
         }
       });
     });
-    //FIXME: CHANGE TEST PORT!!!!!!
     it('should return 400 when there is no address attached to the request', async () => {
       const response = await supertest(app).post('/user/address').send({foo: {bar: '123, fake street'}}).
         set('token', firebaseToken).expect(400);
