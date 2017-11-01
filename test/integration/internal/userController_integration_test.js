@@ -4,7 +4,8 @@ const expect = chai.expect;
 chai.use(require('sinon-chai'));
 const sinon    = require('sinon');
 const sandbox  = sinon.sandbox.create();
-const ObjectId = require('mongoose').Types.ObjectId;
+const mongoose = require('mongoose');
+const ObjectId = mongoose.Types.ObjectId;
 
 const User           = require('@user/models/User').model;
 const userController = require('@user/userController');
@@ -16,14 +17,12 @@ describe('user controller', () => {
   'use strict';
   describe('add new user', () => {
     let saveUserStub, saveAuthStub, req, res, next, sendStub, sendStubContainer, statusStub,
-      fetchAuthStub, /*authStub,*/
-      setCustomUserClaimsStubContainer, setCustomUserClaimsStub/*, deleteUserStub, deleteAuthStub*/;
+      fetchAuthStub,
+      setCustomUserClaimsStubContainer, setCustomUserClaimsStub;
     beforeEach(() => {
       saveUserStub = sandbox.stub(User.prototype, 'save');
       saveAuthStub = sandbox.stub(UserAuth.prototype, 'save');
-      /*deleteUserStub = */
       sandbox.stub(User, 'findByIdAndRemove');
-      /*deleteAuthStub = */
       sandbox.stub(UserAuth, 'findByIdAndRemove');
       req                              = {
         body: {
@@ -44,7 +43,6 @@ describe('user controller', () => {
       fetchAuthStub                    = sandbox.stub(UserAuth, 'findOne');
       setCustomUserClaimsStub          = sandbox.stub();
       setCustomUserClaimsStubContainer = {setCustomUserClaims: setCustomUserClaimsStub};
-      /*authStub                         =*/
       sandbox.stub(admin, 'auth').returns(setCustomUserClaimsStubContainer);
     });
     it('should call res.send with a status of 200 when the operation is successful', async () => {
@@ -222,6 +220,9 @@ describe('user controller', () => {
     });
   });
   describe('add new address', () => {
+    //will be testing the validation of Address model, so need to ensure that mongoose uses ES6 promises instead of mPromise
+    mongoose.Promise = Promise;
+    
     let findOneAndUpdateStub, addressToBeAdded, req, res, next, sendStub, sendStubContainer, statusStub, amendedUser;
     beforeEach(() => {
       sendStub             = sandbox.stub();
