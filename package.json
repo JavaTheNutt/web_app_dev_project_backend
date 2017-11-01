@@ -4,9 +4,9 @@
   "description": "rest api for web development backend",
   "main": "api/index.js",
   "scripts": {
-    "unit": "find ./test/unit -name '*_test.js' | cross-env NODE_ENV=test LOG_LEVEL=silent xargs nyc mocha --compilers js:babel-core/register -R spec",
-    "internalIntegration": "find ./test/integration/internal -name '*_test.js' | cross-env NODE_ENV=test LOG_LEVEL=silent xargs nyc mocha --compilers js:babel-core/register -R spec ",
-    "externalIntegration": "find ./test/integration/external -name '*_test.js' | cross-env NODE_ENV=test LOG_LEVEL=silent xargs nyc mocha --timeout 5000 --compilers js:babel-core/register -R spec ",
+    "unit": "cross-env NODE_ENV=test LOG_LEVEL=silent nyc mocha ./test/unit -name '*_test.js' --recursive --compilers js:babel-core/register -R spec",
+    "internalIntegration": "cross-env NODE_ENV=test LOG_LEVEL=silent nyc mocha ./test/integration/internal -name '*_test.js' --recursive --compilers js:babel-core/register -R spec ",
+    "externalIntegration": "cross-env NODE_ENV=test LOG_LEVEL=silent nyc mocha ./test/integration/external -name '*_test.js' --recursive --timeout 5000 --compilers js:babel-core/register -R spec ",
     "integration": "npm run internalIntegration && npm run externalIntegration",
     "test": "npm run unit && npm run integration",
     "dev": "nodemon dist/index.js",
