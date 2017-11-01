@@ -16,9 +16,8 @@ const admin          = require('firebase-admin');
 describe('user controller', () => {
   'use strict';
   describe('add new user', () => {
-    let saveUserStub, saveAuthStub, req, res, next, sendStub, sendStubContainer, statusStub,
-      fetchAuthStub,
-      setCustomUserClaimsStubContainer, setCustomUserClaimsStub;
+    let saveUserStub, saveAuthStub, req, res, next, sendStub, sendStubContainer, statusStub, fetchAuthStub,
+        setCustomUserClaimsStubContainer, setCustomUserClaimsStub;
     beforeEach(() => {
       saveUserStub = sandbox.stub(User.prototype, 'save');
       saveAuthStub = sandbox.stub(UserAuth.prototype, 'save');
@@ -220,9 +219,10 @@ describe('user controller', () => {
     });
   });
   describe('add new address', () => {
-    //will be testing the validation of Address model, so need to ensure that mongoose uses ES6 promises instead of mPromise
+    //will be testing the validation of Address model, so need to ensure that mongoose uses ES6 promises instead of
+    // mPromise
     mongoose.Promise = Promise;
-    
+
     let findOneAndUpdateStub, addressToBeAdded, req, res, next, sendStub, sendStubContainer, statusStub, amendedUser;
     beforeEach(() => {
       sendStub             = sandbox.stub();
@@ -273,7 +273,16 @@ describe('user controller', () => {
       expect(statusStub).to.be.calledWith(400);
       expect(sendStub).to.be.calledOnce;
       expect(sendStub).to.be.
-        calledWith(errorUtils.formatSendableError('an error occurred while updating the user', err));
+      calledWith(errorUtils.formatSendableError('an error occurred while updating the user', err));
+    });
+    it('should return a 400 error when the address is poorly formatted', async ()=>{
+      req.body.address = {street: 'barrack street'};
+      await userController.addAddress(req, res, next);
+      expect(statusStub).to.be.calledOnce;
+      expect(statusStub).to.be.calledWith(400);
+      expect(sendStub).to.be.calledOnce;
+      expect(sendStub).to.be.
+      calledWith(errorUtils.formatSendableError('address text is required'));
     });
     afterEach(() => {
       sandbox.restore();
@@ -405,7 +414,18 @@ describe('user controller', () => {
       expect(statusStub).to.be.calledWith(500);
       expect(sendStub).to.be.calledOnce;
       expect(sendStub).to.be.
-        calledWith(errorUtils.formatSendableError('error occurred while fetching all addresses', err));
+      calledWith(errorUtils.formatSendableError('error occurred while fetching all addresses', err));
+      expect(statusStub).to.be.calledBefore(sendStub);
+    });
+    it('should send a custom message when the user has no addresses', async () => {
+      fakeUser.addresses = [];
+      fetchAddressesStub.resolves(fakeUser);
+      await userController.fetchAllAddresses(req, res, next);
+      expect(statusStub).to.be.calledOnce;
+      expect(statusStub).to.be.calledWith(200);
+      expect(sendStub).to.be.calledOnce;
+      expect(sendStub).to.be.
+      calledWith({message: 'this user has no addresses'});
       expect(statusStub).to.be.calledBefore(sendStub);
     });
   });
