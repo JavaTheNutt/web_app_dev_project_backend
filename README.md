@@ -29,7 +29,7 @@ module.exports   = {
 };
 ```
 ### Build process
-This project was built using Node 8.6.0, which  supports a large set of ES8+ features. However, to ensure that the project can be built on any platform, all source code is transpiled through [babel](https://babeljs.io/) using the [babel-preset-env](https://github.com/babel/babel-preset-env) preset. If you **are** using Node 8+, this means that its is simply moving the files from `/api` to `/dist`. If you are using an older version of Node, babel will automatically determine which features need to be polyfilled while transpiling.
+This project was built using Node 8.6.0, which  supports a large set of ES8+ features. However, to ensure that the project can be built on any platform, all source code is transpiled through [babel](https://babeljs.io/) using the [babel-preset-env](https://github.com/babel/babel-preset-env) preset. If you **are** using Node 8+, this means that its is simply moving the files from `/api` to `/dist`. If you are using an older version of Node, babel will automatically determine which features need to be polyfilled while transpiling. It is worth noting that as of 02/11/2017, Node 8.9.0 is now a Long Term Support (LTS) release.
 The steps required to run the project are as follows:
 1. Clone the repo
 2. Run `npm install` (or `npm i`)
@@ -189,7 +189,7 @@ It is worth noting that I developed this project on a windows system, and my ori
 access to a true *NIX system to test if this method works on those, I kept my orignal scripts, which can be run by the same names but with `:nix` as a suffix. For example: `npm run test:nix` or `npm run unit:nix`.
 
 ### Unit tests
-The unit tests test each function in absolute isolation. Each test tests a single function and all other function calls are stubbed. This section has the highest coverage, since I can have stubbed functions return errors which currently are very difficult to emulate at a higher level.
+The unit tests test each function in absolute isolation. Each test tests a single function and all other function calls are stubbed. This section has the highest coverage, since I can have stubbed functions return errors which currently are very difficult to emulate at a higher level, or may not currently be thrown until more higher level functions are added.
 
         $ npm run unit
         
@@ -523,6 +523,8 @@ These are really more Unit Tests, but in this case, they are only performed on a
     
 ### External Integration Tests
 These tests are applied to each endpoint. These tests do not stub anything and as such, an appropriate mongo daemon must be running to handle database requests, similarly, a network connection is required for these tests as there will be external requests to authentication services. These tests have slightly higher coverage that the Internal Integration suite, since the authentication middleware and the database is invoked, but lower than the unit tests, since nothing is stubbed I cannot force errors to happen, I can only create the errors that a user could create.
+These tests also have a higher timeout time of 5 seconds to allow for network/database communication during tests. This is achieved through the mocha `--timeout 5000` flag.
+The describe blocks of this section are also structured slightly differently. Instead of having a describe block per function, they are arranged based on the current state of the application with regards to the user who is making the request, such as whether the user exists, or has addresses. 
 
     $ npm run externalIntegration
     
@@ -599,8 +601,12 @@ These tests are applied to each endpoint. These tests do not stub anything and a
 ## Extra features.
 * Stubbing/Mocking with SinonJS
 * External Integration tests run on a separate port to the main application to allow the tests to be run while the server is running
-* Full code coverage with Istanbul/NYC
-* Supertest integration for API endpoint testing
-* Babel transpilation of tests when run
-* Adherence to "silent principal", but has a flag to turn on logging for debugging
+* Full code coverage with Istanbul/NYC.
+* Supertest integration for API endpoint testing.
+* Increased timeout time during API tests to allow for network/database communication.
+* Babel transpilation of tests when run.
+* Full Babel transpilation of all source code to meet developers Node runtime.
+* Adherence to "silent principal", but has a flag to turn on logging for debugging. 
+* File logging during development to catch "text suite exited unexpectedly" errors that never reach the console.
+* Nodemon integration to to automate server restarts on file changes.
 * ESLint integration for code style.
