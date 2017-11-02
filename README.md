@@ -185,9 +185,11 @@ This model produces a collection like this:
 ```
 ## Sample Test execution.
 Below are my three test suites, with a short explanation of each. All three can be run with a single command using `npm test`. The suites are organised by directory and are run by recursively scanning the specified directory and running all suites found within. Each one is also fed into Babel to cater to systems that do not support ES8 syntax.
+It is worth noting that I developed this project on a windows system, and my orignal method of finding all tests (found in [this Gist](https://gist.github.com/timoxley/1721593)) only appears to work in Git Bash, which is an emulated Linux shell. I switched to a method that is compatible with Windows, but since I don't have
+access to a true *NIX system to test if this method works on those, I kept my orignal scripts, which can be run by the same names but with `:nix` as a suffix. For example: `npm run test:nix` or `npm run unit:nix`.
 
 ### Unit tests
-The unit tests test each function in absolute isolation. Each test tests a single function and all other function calls are stubbed.
+The unit tests test each function in absolute isolation. Each test tests a single function and all other function calls are stubbed. This section has the highest coverage, since I can have stubbed functions return errors which currently are very difficult to emulate at a higher level.
 
         $ npm run unit
         
@@ -433,7 +435,7 @@ The unit tests test each function in absolute isolation. Each test tests a singl
 
         
 ### Internal Integration Tests
-These are really more Unit Tests, but in this case, they are only performed on a controller function. Controller functions have a one-to-one relationship with routes, so this essentially checks that the internal mechanics of a route works. Any global or route-specific middleware will be ignored in these tests. All external actors (such as database calls, or Firebase) have been stubbed.
+These are really more Unit Tests, but in this case, they are only performed on a controller function. Controller functions have a one-to-one relationship with routes, so this essentially checks that the internal mechanics of a route works. Any global or route-specific middleware will be ignored in these tests. All external actors (such as database calls, or Firebase) have been stubbed. This section has the lowest overall coverage, since none of the authentication middleware is invoked, and since the Mongoose Model's save call is stubbed, its validators do not get called.
 
     $ npm run internalIntegration
     
@@ -520,7 +522,7 @@ These are really more Unit Tests, but in this case, they are only performed on a
 
     
 ### External Integration Tests
-These tests are applied to each endpoint. These tests do not stub anything and as such, an appropriate mongo daemon must be running to handle database requests, similarly, a network connection is required for these tests as there will be external requests to authentication services.
+These tests are applied to each endpoint. These tests do not stub anything and as such, an appropriate mongo daemon must be running to handle database requests, similarly, a network connection is required for these tests as there will be external requests to authentication services. These tests have slightly higher coverage that the Internal Integration suite, since the authentication middleware and the database is invoked, but lower than the unit tests, since nothing is stubbed I cannot force errors to happen, I can only create the errors that a user could create.
 
     $ npm run externalIntegration
     
@@ -596,7 +598,7 @@ These tests are applied to each endpoint. These tests do not stub anything and a
 
 ## Extra features.
 * Stubbing/Mocking with SinonJS
-* External Integration tests run on a seperate port to the main application to allow the tests to be run while the server is running
+* External Integration tests run on a separate port to the main application to allow the tests to be run while the server is running
 * Full code coverage with Istanbul/NYC
 * Supertest integration for API endpoint testing
 * Babel transpilation of tests when run
