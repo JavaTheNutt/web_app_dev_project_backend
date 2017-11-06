@@ -18,6 +18,7 @@ if(process.env.NODE_ENV === 'production'){
 }else{
   connectionString = process.env.NODE_ENV === 'test' ? 'mongodb://localhost:27017/finance_tracker_v1_test' : 'mongodb://localhost:27017/finance_tracker_v1';
 }
+const firebaseServiceKey = process.env.FIREBASE_SERVICE_KEY || privateConfig.firebaseOpts;
 module.exports = {
   port: process.env.PORT || 3000,
   env: process.env.NODE_ENV || 'development',
@@ -25,6 +26,6 @@ module.exports = {
   db:{
     uri: connectionString
   },
-  firebase: privateConfig.firebaseOpts,
+  firebase: firebaseServiceKey,
   firebaseClient: privateConfig.firebaseTestClient
 };
