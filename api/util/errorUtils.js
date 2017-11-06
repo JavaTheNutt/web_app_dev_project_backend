@@ -4,15 +4,20 @@ module.exports = exports = {
    * Format errors
    * @param message {string} the error message
    * @param err{Error|undefined} optional thrown error
+   * @param status{number|undefined} optional status code
    * @returns {{error: {message: string}}}
    */
-  formatError(message, err) {
+  formatError(message, err, status) {
     'use strict';
     Logger.verbose('request made to format error');
     const returnedError = {error: {message}};
     if (err) {
       Logger.verbose('error is present');
       returnedError.error.err = err;
+    }
+    if (status) {
+      Logger.verbose('status is present');
+      returnedError.error.status = status;
     }
     Logger.verbose(`error to be returned: ${JSON.stringify(returnedError)}`);
     return returnedError;

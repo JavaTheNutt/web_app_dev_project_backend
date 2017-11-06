@@ -23,6 +23,28 @@ describe('error utils', () => {
       const newError = errorUtils.formatError(message);
       expect(newError).to.eql({error: {message}});
     });
+    it('should correctly return an error object with an attached status code, and error', () => {
+      const err     = new Error('i am an error');
+      const message = 'not found';
+      const newErr  = errorUtils.formatError(message, err, 404);
+      expect(newErr).to.eql({
+        error: {
+          message,
+          err,
+          status: 404
+        }
+      });
+    });
+    it('should correctly return an error object with an attached status code and no error', () => {
+      const message = 'not found';
+      const newErr  = errorUtils.formatError(message, null, 404);
+      expect(newErr).to.eql({
+        error: {
+          message,
+          status: 404
+        }
+      });
+    });
   });
   describe('format sendable error', () => {
     it('should format an error correctly to be delivered to the user when there is an error present', () => {
