@@ -58,6 +58,11 @@ describe('error utils', () => {
       const newError = errorUtils.formatSendableError(message);
       expect(newError).to.eql({error: {message}});
     });
+    it('should strip  the status code before sending', () => {
+      const message  = 'this is a custom error message';
+      const newError = errorUtils.formatSendableError(message, null, 404);
+      expect(newError).to.eql({error: {message}});
+    });
   });
   describe('format sendable error from object', () => {
     let message, error;
@@ -75,6 +80,11 @@ describe('error utils', () => {
       const sendableFormattedError = errorUtils.formatSendableErrorFromObject(formattedError);
       expect(sendableFormattedError).to.eql({error: {message}});
     });
+    it('should format a sendable error from a created error object not containing an error, but containing a status code', () => {
+      const formattedError         = errorUtils.formatError(message, null, 404);
+      const sendableFormattedError = errorUtils.formatSendableErrorFromObject(formattedError);
+      expect(sendableFormattedError).to.eql({error: {message}});
+    });
   });
   describe('update error message', () => {
     it('should correctly handle updating an error message when an error is present', () => {
@@ -87,6 +97,23 @@ describe('error utils', () => {
       const error      = errorUtils.formatError('this is the old message');
       const updatedErr = errorUtils.updateErrorMessage('this is a new message', error);
       expect(updatedErr).to.eql(errorUtils.formatError('this is a new message'));
+    });
+    it('should correctly handle updating an error message when a status is present', () => {
+      const error      = errorUtils.formatError('this is the old message', null, 404);
+      const updatedErr = errorUtils.updateErrorMessage('this is a new message', error);
+      expect(updatedErr).to.eql(errorUtils.formatError('this is a new message', null, 404));
+    });
+  });
+  describe('update status code', () => {
+    it('should update a status code when a code already exists on the object', () => {
+      const error      = errorUtils.formatError('this is a message', null, 404);
+      const updatedErr = errorUtils.updateStatusCode(500, error);
+      expect(updatedErr).to.eql(errorUtils.formatError('this is a message', null, 500));
+    });
+    it('should update a status code when there is no existing code on the error', ()=>{
+      const error      = errorUtils.formatError('this is a message', null);
+      const updatedErr = errorUtils.updateStatusCode(500, error);
+      expect(updatedErr).to.eql(errorUtils.formatError('this is a message', null, 500));
     });
   });
 });

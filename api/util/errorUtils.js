@@ -22,11 +22,17 @@ module.exports = exports = {
     Logger.verbose(`error to be returned: ${JSON.stringify(returnedError)}`);
     return returnedError;
   },
+  updateStatusCode(code, err){
+    'use strict';
+    Logger.info(`request made to update an error status`);
+    Logger.verbose(`attempting to set status from ${JSON.stringify(err.error.status)} to ${JSON.stringify(code)}`);
+    return exports.formatError(err.error.message, err.error.err, code);
+  },
   updateErrorMessage(msg, err) {
     'use strict';
     Logger.info('request made to update an error message');
     Logger.verbose(`attempting to add ${msg} to ${JSON.stringify(err)}`);
-    return exports.formatError(msg, err.error.err);
+    return exports.formatError(msg, err.error.err, err.error.status);
   },
   /**
    * Format error to be sent to the client
