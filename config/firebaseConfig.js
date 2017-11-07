@@ -1,16 +1,20 @@
-const Logger  = require('../dist/util/Logger')('FIREBASE_CONFIG');
 let firebaseServiceKey, firebaseClientKey, firebaseOpts;
 if (!process.env.FIREBASE_SERVICE_KEY_PRIVATE_KEY) {
   const privateConfig = require('./privateConfig');
   firebaseOpts =  privateConfig.firebaseOpts;
   firebaseClientKey  = privateConfig.firebaseTestClient;
 } else {
-  Logger.verbose(`private key: ${JSON.stringify(process.env.FIREBASE_SERVICE_KEY_PRIVATE_KEY)}`);
+  let parsedKey;
+  try{
+    parsedKey =  JSON.parse(process.env.FIREBASE_SERVICE_KEY_PRIVATE_KEY);
+  }catch(err){
+    parsedKey = process.env.FIREBASE_SERVICE_KEY_PRIVATE_KEY;
+  }
   firebaseServiceKey = {
     type: process.env.FIREBASE_SERVICE_KEY_TYPE,
     project_id: process.env.FIREBASE_SERVICE_KEY_PROJECT_ID,
     private_key_id: process.env.FIREBASE_SERVICE_KEY_PRIVATE_KEY_ID,
-    private_key: JSON.parse(process.env.FIREBASE_SERVICE_KEY_PRIVATE_KEY),
+    private_key: parsedKey,
     client_email: process.env.FIREBASE_SERVICE_KEY_CLIENT_EMAIL,
     client_id: process.env.FIREBASE_SERVICE_KEY_CLIENT_ID,
     auth_uri: process.env.FIREBASE_SERVICE_KEY_AUTH_URI,
