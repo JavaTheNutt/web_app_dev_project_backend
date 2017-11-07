@@ -1,9 +1,11 @@
+const Logger  = require('../dist/util/Logger')
 let firebaseServiceKey, firebaseClientKey, firebaseOpts;
 if (!process.env.FIREBASE_SERVICE_KEY_PRIVATE_KEY) {
   const privateConfig = require('./privateConfig');
   firebaseOpts =  privateConfig.firebaseOpts;
   firebaseClientKey  = privateConfig.firebaseTestClient;
 } else {
+  Logger.verbose(`private key: ${JSON.stringify(process.env.FIREBASE_SERVICE_KEY_PRIVATE_KEY)}`);
   firebaseServiceKey = {
     type: process.env.FIREBASE_SERVICE_KEY_TYPE,
     project_id: process.env.FIREBASE_SERVICE_KEY_PROJECT_ID,
