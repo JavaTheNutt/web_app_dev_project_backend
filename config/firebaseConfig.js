@@ -1,4 +1,4 @@
-const Logger  = require('../dist/util/Logger')
+const Logger  = require('../dist/util/Logger')('FIREBASE_CONFIG');
 let firebaseServiceKey, firebaseClientKey, firebaseOpts;
 if (!process.env.FIREBASE_SERVICE_KEY_PRIVATE_KEY) {
   const privateConfig = require('./privateConfig');
