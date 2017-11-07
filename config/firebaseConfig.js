@@ -1,5 +1,5 @@
 let firebaseServiceKey, firebaseClientKey, firebaseOpts;
-if (!process.env.FIREBASE_SERVICE_KEY_TYPE) {
+if (!process.env.FIREBASE_SERVICE_KEY_PRIVATE_KEY) {
   const privateConfig = require('./privateConfig');
   firebaseOpts =  privateConfig.firebaseOpts;
   firebaseClientKey  = privateConfig.firebaseTestClient;
