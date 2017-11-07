@@ -29,7 +29,7 @@ describe('auth middleware', () => {
     beforeEach(() => {
       req                       = {
         headers: {
-          token: 'testtoken'
+          authorization: 'Bearer= testtoken'
         }
       };
       sendStub                  = {send: sandbox.stub()};
@@ -59,14 +59,14 @@ describe('auth middleware', () => {
       });
       await authMiddleware.authenticate(req, res, next);
       expect(verifyTokenStub).to.be.calledOnce;
-      expect(verifyTokenStub).to.be.calledWith(req.headers.token);
+      expect(verifyTokenStub).to.be.calledWith('testtoken');
       expect(handleClaimValidationStub).to.be.calledOnce;
       //expect(fetchUserStub).to.be.calledWith('somefirebaseidhere');
       expect(next).to.be.calledOnce;
 
     });
     it('should fail when no token is present', async () => {
-      req.headers.token = null;
+      req.headers.authorization = null;
       await authMiddleware.authenticate(req, res, next);
       expect(statusStub).to.be.calledOnce;
       expect(statusStub).to.be.calledWith(401);

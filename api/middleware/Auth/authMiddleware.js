@@ -31,12 +31,12 @@ module.exports    = exports = {
     'use strict';
     Logger.info('authentication middleware invoked');
     Logger.info(`is request for new user? ${req.isNewUser ? 'yes' : 'no'}`);
-    if (!req || !req.headers || !req.headers.token) {
+    if (!req || !req.headers || !req.headers.authorization) {
       Logger.warn('there is data missing from the request');
       return res.status(401).send(errorUtils.formatError('authentication failed'));
     }
     Logger.verbose('required data is present');
-    const decodedToken = await authService.validateToken(req.headers.token);
+    const decodedToken = await authService.validateToken(req.headers.authorization.substring(req.headers.authorization.indexOf('Bearer=') + 'Bearer='.length).trim());
     if (decodedToken.error) {
       Logger.warn('returned token has errors');
       return res.status(401).send(errorUtils.formatError('authentication failed'));
