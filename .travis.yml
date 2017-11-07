@@ -4,5 +4,6 @@ node_js:
   - "8"
 script:
   - "npm run compileOnce"
+  - "npm test"
 services:
   - mongodb
