@@ -1,4 +1,3 @@
-//const Logger  = require('$util/Logger');
 let firebaseServiceKey, firebaseClientKey, firebaseOpts;
 if (!process.env.FIREBASE_SERVICE_KEY_TYPE) {
   const privateConfig = require('./privateConfig');
@@ -9,7 +8,7 @@ if (!process.env.FIREBASE_SERVICE_KEY_TYPE) {
     type: process.env.FIREBASE_SERVICE_KEY_TYPE,
     project_id: process.env.FIREBASE_SERVICE_KEY_PROJECT_ID,
     private_key_id: process.env.FIREBASE_SERVICE_KEY_PRIVATE_KEY_ID,
-    private_key: JSON.parse(JSON.stringify(process.env.FIREBASE_SERVICE_KEY_PRIVATE_KEY)),
+    private_key: JSON.parse(process.env.FIREBASE_SERVICE_KEY_PRIVATE_KEY),
     client_email: process.env.FIREBASE_SERVICE_KEY_CLIENT_EMAIL,
     client_id: process.env.FIREBASE_SERVICE_KEY_CLIENT_ID,
     auth_uri: process.env.FIREBASE_SERVICE_KEY_AUTH_URI,
