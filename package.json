@@ -9,6 +9,7 @@
     "externalIntegration": "cross-env NODE_ENV=test LOG_LEVEL=silent PORT=9191 nyc mocha ./test/integration/external -name '*_test.js' --recursive --timeout 5000 --compilers js:babel-core/register -R spec ",
     "integration": "npm run internalIntegration && npm run externalIntegration",
     "test": "npm run unit && npm run integration",
+    "testInternal": "npm run unit && npm run internalIntegration",
     "unit:nix": "find ./test/unit -name '*_test.js' | cross-env NODE_ENV=test LOG_LEVEL=silent xargs nyc mocha --compilers js:babel-core/register -R spec",
     "internalIntegration:nix": "find ./test/integration/internal -name '*_test.js' | cross-env NODE_ENV=test LOG_LEVEL=silent xargs nyc mocha --compilers js:babel-core/register -R spec",
     "externalIntegration:nix": "find ./test/integration/external -name '*_test.js' | cross-env NODE_ENV=test LOG_LEVEL=silent PORT=9191 xargs nyc mocha --timeout 5000 --compilers js:babel-core/register -R spec",
