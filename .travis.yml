@@ -1,9 +1,14 @@
 language: node_js
 node_js:
-  - "node"
-  - "8"
+- node
+- '8'
 script:
-  - "npm run compileOnce"
-  - "npm run testInternal"
+- npm run compileOnce
+- npm run testInternal
 services:
-  - mongodb
+- mongodb
+deploy:
+  provider: heroku
+  api_key:
+    secure: p2tnZTKgE2/XRpGYfa1S8IxMTVjSTBtdogUSLCEhXJNZ8nDjJQXQdqFtOx0VNvlB0bjv2KRS1bVhh2TwAhJjQpyXp4TCBw2rDRIYsYQMpgKDqHSskJ+zlCrq4drLGsVlGV4uJvAPXkEbDVZUO8dGrIUPatVwcaFymN0S6eMH8FW7jIyUTWVPm5ErKYvM616PajjO0tJzc2TTJOsC7RrlJd2UaoxNXQI2PUF1LMM38c1M3wQTpEJltmqNtkh3G+kIDf4KlZJNslAdxlbV01E6rfjOfmYYlSJqk7Ubq9YV3V1evL/14QBmB0Q1bbEcHtSljlcLW61YteB/8Z0CBJbHfmIysRVuxPdt6vmbzCr5mwIk2/vZWhhTodocylj5TcaDWGT1U+Qg+q7KXZu44dv4HfPeC9PKIE981hh//AYvVcq2jCr/z9wTAY5A2YPzUQRcmKDv+dhajbXOcwDeP8FqmNu93y2Ox05oSPfSFQH6UwJtja6Iq7VxjV/IpVIzWqCvBi+43fZkcWXFuLFyFZtOaG3UeOX0eMj7XMAAsIm1vKjYBvqgix5Mrl4x2JCotPVy1tbkhOCljbk3efd/es6eE2iwuAYs8qRkjS/80KIwcbZx4yL6FBRHzI0VkzLRxfWO81W2KZU6siYDLdBotU6zBIc0tVQd9XZrRmkuyVRG86I=
+    app: blooming-fjord-15263
