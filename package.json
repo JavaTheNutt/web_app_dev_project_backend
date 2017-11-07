@@ -70,5 +70,9 @@
     "@Auth": "./dist/middleware/Auth",
     "@config": "./config",
     "@Address": "./dist/models/Address"
+  },
+  "engines": {
+    "node": "8.6.0",
+    "npm": "5.3.0"
   }
 }
