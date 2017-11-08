@@ -292,9 +292,6 @@ describe('auth service', () => {
       const result = await authService.createUserClaim(returnedAuth.firebaseId);
       expect(result).to.eql(errorUtils.formatError('no user field attached to auth record'));
     });
-    it('handles errors from set custom claims gracefully', async () => {
-
-    });
     afterEach(() => {
       sandbox.restore();
     });
@@ -378,6 +375,56 @@ describe('auth service', () => {
       findByIdAndRemoveStub.throws(err);
       const result = await authService.deleteAuthRecordById(authId);
       expect(result).to.eql(errorUtils.formatError('an error has occurred while removing user auth', err));
+    });
+  });
+  describe('strip Bearer', () => {
+    it('should return the token, minus the Bearer prefix', () => {
+      const newToken = authService.stripBearer('Bearer token');
+      expect(newToken).to.equal('token');
+    });
+    it('should return an error when the Bearer prefix is not found', () => {
+      const newToken = authService.stripBearer('token');
+      expect(newToken).to.eql(errorUtils.formatError('token does not conform to OAuth2 spec', null, 401));
+    });
+    it('should error when passed a malformed token', () => {
+      const newToken = authService.stripBearer('Bearer= token');
+      expect(newToken).to.eql(errorUtils.formatError('token does not conform to OAuth2 spec', null, 401));
+    });
+  });
+  describe('strip quotes', () => {
+    it('should remove escaped quotes from the token, when there are two sets of quotes', () => {
+      const newToken = authService.stripQuotes('"\\"token\\""');
+      expect(newToken).to.equal('"token"');
+    });
+    it('should remove escaped quotes from the token, when there is only one set of quotes', () => {
+      const newToken = authService.stripQuotes('\\"token\\"');
+      expect(newToken).to.equal('"token"');
+    });
+    it('should return the token as-is when not wrapped in escaped quotes', () => {
+      const newToken = authService.stripQuotes('"token"');
+      expect(newToken).to.equal('"token"');
+    });
+    it('should return the token as is when not wrapped in quotes', () => {
+      const newToken = authService.stripQuotes('token');
+      expect(newToken).to.equal('token');
+    });
+  });
+  describe('strip token', () => {
+    it('should strip a both Bearer and superflous quotes from the string', () => {
+      const newToken = authService.stripToken('Bearer "\\"token\\""');
+      expect(newToken).to.equal('"token"');
+    });
+    it('should error when Bearer is not present', () => {
+      const newToken = authService.stripToken('token');
+      expect(newToken).to.eql(errorUtils.formatError('token does not conform to OAuth2 spec', null, 401));
+    });
+    it('should strip Bearer without superflous quotes', () => {
+      const newToken = authService.stripToken('Bearer "token"');
+      expect(newToken).to.equal('"token"');
+    });
+    it('should strip Bearer with no quotes', () => {
+      const newToken = authService.stripToken('Bearer token');
+      expect(newToken).to.equal('token');
     });
   });
 });

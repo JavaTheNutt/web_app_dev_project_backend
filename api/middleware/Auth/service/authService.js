@@ -8,6 +8,38 @@ const Logger     = require('@util/Logger')('AUTH_SERVICE');
 const UserAuth   = require('@Auth/models/UserAuth').model;
 const errorUtils = require('@util/errorUtils');
 module.exports   = exports = {
+  stripBearer(token) {
+    'use strict';
+    Logger.info('request made to strip bearer from token');
+    Logger.verbose(`token: ${JSON.stringify(token)}`);
+    if(token.indexOf('Bearer ') !== 0) return errorUtils.formatError('token does not conform to OAuth2 spec', null, 401);
+    token = token.substring(token.indexOf('Bearer ') + 'Bearer '.length).trim();
+    Logger.verbose(`token is now: ${JSON.stringify(token)}`);
+    return token;
+  },
+  stripQuotes(token){
+    'use strict';
+    Logger.info('request made to strip superflous quotes from token');
+    Logger.verbose(`token is currently: ${JSON.stringify(token)}`);
+    /*token = token.indexOf('\\"') !== -1 ? token.substring(token.indexOf('\\"') + 1): token;
+    Logger.verbose(`token is now: ${JSON.stringify(token)}`);*/
+    token = token.lastIndexOf('\\"') !== -1 ? token.slice(token.indexOf('\\"') + 1,token.lastIndexOf('\\"')) + '"': token;
+    Logger.verbose(`token is now: ${token}`);
+    return token;
+  },
+  stripToken(token){
+    'use strict';
+    Logger.info('attempting to sanitise token');
+    Logger.verbose(`token: ${JSON.stringify(token)}`);
+    token = exports.stripBearer(token);
+    if(token.error){
+      Logger.warn('an erorr occured while stripping the token');
+      return token;
+    }
+    token = exports.stripQuotes(token);
+    Logger.verbose(`token is now: ${JSON.stringify(token)}`);
+    return token;
+  },
   /**
    * This function converts firebase tokens to the auth claims that will be used throughout the application.
    * It will also try to add the user claim if it does not already exist

@@ -156,3 +156,4 @@ $RECYCLE.BIN/
 /config/privateConfig.js
 /config/firebaseServiceKey.json
 /dist/
+/fetchKey.js

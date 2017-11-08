@@ -17,7 +17,7 @@ describe('user controller', () => {
   });
   describe('create new user', () => {
     it('should return 201 when a user creation is successful', async () => {
-      const response = await supertest(app).post('/user/new').set('Authorization', `Bearer= ${firebaseToken}`).expect(201);
+      const response = await supertest(app).post('/user/new').set('Authorization', `Bearer ${firebaseToken}`).expect(201);
       expect(response.body.error).to.not.exist;
       expect(response.body._id).to.exist;
     });
@@ -35,13 +35,13 @@ describe('user controller', () => {
       util.clearCollections(['user_auth', 'users']);
     });
     it('should fetch the current user', async () => {
-      const response = await supertest(app).get('/user').set('Authorization', `Bearer= ${firebaseToken}`).expect(200);
+      const response = await supertest(app).get('/user').set('Authorization', `Bearer ${firebaseToken}`).expect(200);
       expect(response.body.error).to.not.exist;
       expect(response.body).to.include.keys('_id', 'email', 'addresses');
     });
     it('should be able to add an address', async () => {
       const response = await supertest(app).post('/user/address').send({address: {text: '123, fake street'}}).
-        set('Authorization', `Bearer= ${firebaseToken}`).expect(200);
+        set('Authorization', `Bearer ${firebaseToken}`).expect(200);
       expect(response.body.error).to.not.exist;
       expect(response.body.addresses).to.have.length.above(0);
       /*expect(response.body.addresses).to.contain.something.that.deep.includes({
@@ -62,12 +62,12 @@ describe('user controller', () => {
     });
     it('should return 400 when there is no address attached to the request', async () => {
       const response = await supertest(app).post('/user/address').send({foo: {bar: '123, fake street'}}).
-        set('Authorization', `Bearer= ${firebaseToken}`).expect(400);
+        set('Authorization', `Bearer ${firebaseToken}`).expect(400);
       expect(response.body.error.message).to.equal('address validation failed: Cannot read property \'text\' of undefined');
     });
     it('should return 400 when the address does not contain a text field', async () => {
       const response = await supertest(app).post('/user/address').send({address: {foo: '123, fake street'}}).
-        set('Authorization', `Bearer= ${firebaseToken}`).expect(400);
+        set('Authorization', `Bearer ${firebaseToken}`).expect(400);
       expect(response.body.error.message).to.equal('address text is required');
     });
     it('should be able to update the current user', async () => {
@@ -76,7 +76,7 @@ describe('user controller', () => {
           firstName: 'joe',
           surname: 'bloggs'
         }
-      }).set('Authorization', `Bearer= ${firebaseToken}`).expect(200);
+      }).set('Authorization', `Bearer ${firebaseToken}`).expect(200);
       expect(response.body.error).to.not.exist;
       expect(response.body.firstName).to.equal('joe');
       expect(response.body.surname).to.equal('bloggs');
@@ -88,7 +88,7 @@ describe('user controller', () => {
       });
       describe('fetch all addresses', () => {
         it('should be able to fetch all addresses', async () => {
-          const response = await supertest(app).get('/user/address').set('Authorization', `Bearer= ${firebaseToken}`).expect(200);
+          const response = await supertest(app).get('/user/address').set('Authorization', `Bearer ${firebaseToken}`).expect(200);
           expect(response.body.error).to.not.exist;
           expect(response.body).to.be.an('array');
           expect(response.body).to.have.length(1);
@@ -96,29 +96,29 @@ describe('user controller', () => {
       });
       describe('fetch one address by id', () => {
         it('should be able to fetch one address by id', async () => {
-          const response = await supertest(app).get(`/user/address/${addressId}`).set('Authorization', `Bearer= ${firebaseToken}`).
+          const response = await supertest(app).get(`/user/address/${addressId}`).set('Authorization', `Bearer ${firebaseToken}`).
             expect(200);
           expect(response.body.error).to.not.exist;
           expect(response.body).to.include.keys('_id', 'text', 'loc');
         });
         it('should return 400 when the object id is invalid format', async () => {
-          const response = await supertest(app).get('/user/address/aaaa').set('Authorization', `Bearer= ${firebaseToken}`).expect(400);
+          const response = await supertest(app).get('/user/address/aaaa').set('Authorization', `Bearer ${firebaseToken}`).expect(400);
           expect(response.body.error.message).to.equal('address id is invalid format');
         });
         it('should return 404 when the address is not found', async () => {
-          const response = await supertest(app).get(`/user/address/${userId}`).set('Authorization', `Bearer= ${firebaseToken}`).expect(404);
+          const response = await supertest(app).get(`/user/address/${userId}`).set('Authorization', `Bearer ${firebaseToken}`).expect(404);
           expect(response.body.error.message).to.equal('address is not found');
         });
       });
       describe('delete one address by id', () => {
         it('should be able to delete an address by id', async () => {
-          const response = await supertest(app).delete(`/user/address/${addressId}`).set('Authorization', `Bearer= ${firebaseToken}`).
+          const response = await supertest(app).delete(`/user/address/${addressId}`).set('Authorization', `Bearer ${firebaseToken}`).
             expect(200);
           expect(response.body.error).to.not.exist;
           expect(response.body.addresses).to.be.an('array').and.be.empty;
         });
         it('should return 400 when the object id is invalid format', async () => {
-          const response = await supertest(app).delete('/user/address/aaaa').set('Authorization', `Bearer= ${firebaseToken}`).expect(400);
+          const response = await supertest(app).delete('/user/address/aaaa').set('Authorization', `Bearer ${firebaseToken}`).expect(400);
           expect(response.body.error.message).to.equal('address id is invalid format');
         });
       });

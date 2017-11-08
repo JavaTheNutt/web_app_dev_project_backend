@@ -110,7 +110,7 @@ describe('error utils', () => {
       const updatedErr = errorUtils.updateStatusCode(500, error);
       expect(updatedErr).to.eql(errorUtils.formatError('this is a message', null, 500));
     });
-    it('should update a status code when there is no existing code on the error', ()=>{
+    it('should update a status code when there is no existing code on the error', () => {
       const error      = errorUtils.formatError('this is a message', null);
       const updatedErr = errorUtils.updateStatusCode(500, error);
       expect(updatedErr).to.eql(errorUtils.formatError('this is a message', null, 500));

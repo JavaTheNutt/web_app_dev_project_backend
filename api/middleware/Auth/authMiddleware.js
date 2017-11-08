@@ -36,7 +36,7 @@ module.exports    = exports = {
       return res.status(401).send(errorUtils.formatError('authentication failed'));
     }
     Logger.verbose('required data is present');
-    const decodedToken = await authService.validateToken(req.headers.authorization.substring(req.headers.authorization.indexOf('Bearer=') + 'Bearer='.length).trim());
+    const decodedToken = await authService.validateToken(req.headers.authorization.substring(req.headers.authorization.indexOf('Bearer ') + 'Bearer '.length).trim());
     if (decodedToken.error) {
       Logger.warn('returned token has errors');
       return res.status(401).send(errorUtils.formatError('authentication failed'));
@@ -44,7 +44,7 @@ module.exports    = exports = {
     Logger.verbose('token is assumed valid');
     Logger.verbose(`decoded token: ${JSON.stringify(decodedToken)}`);
     const customUserAuth = await authService.handleClaimValidation(decodedToken, req.isNewUser);
-    Logger.verbose(`claims returned: ${JSON.stringify(customUserAuth)}`);
+    //Logger.verbose(`claims returned: ${JSON.stringify(customUserAuth)}`);
     if (!req.body) {
       Logger.info('request does not contain a body, creating body');
       req.body = {};

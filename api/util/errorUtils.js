@@ -24,7 +24,7 @@ module.exports = exports = {
   },
   updateStatusCode(code, err){
     'use strict';
-    Logger.info(`request made to update an error status`);
+    Logger.info('request made to update an error status');
     Logger.verbose(`attempting to set status from ${JSON.stringify(err.error.status)} to ${JSON.stringify(code)}`);
     return exports.formatError(err.error.message, err.error.err, code);
   },

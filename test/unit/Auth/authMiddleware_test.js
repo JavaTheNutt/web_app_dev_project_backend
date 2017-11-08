@@ -29,7 +29,7 @@ describe('auth middleware', () => {
     beforeEach(() => {
       req                       = {
         headers: {
-          authorization: 'Bearer= testtoken'
+          authorization: 'Bearer testtoken'
         }
       };
       sendStub                  = {send: sandbox.stub()};
