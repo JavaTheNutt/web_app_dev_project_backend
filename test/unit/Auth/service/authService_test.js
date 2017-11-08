@@ -394,15 +394,15 @@ describe('auth service', () => {
   describe('strip quotes', () => {
     it('should remove escaped quotes from the token, when there are two sets of quotes', () => {
       const newToken = authService.stripQuotes('"\\"token\\""');
-      expect(newToken).to.equal('"token"');
+      expect(newToken).to.equal('token');
     });
     it('should remove escaped quotes from the token, when there is only one set of quotes', () => {
       const newToken = authService.stripQuotes('\\"token\\"');
-      expect(newToken).to.equal('"token"');
+      expect(newToken).to.equal('token');
     });
     it('should return the token as-is when not wrapped in escaped quotes', () => {
       const newToken = authService.stripQuotes('"token"');
-      expect(newToken).to.equal('"token"');
+      expect(newToken).to.equal('token');
     });
     it('should return the token as is when not wrapped in quotes', () => {
       const newToken = authService.stripQuotes('token');
@@ -412,7 +412,7 @@ describe('auth service', () => {
   describe('strip token', () => {
     it('should strip a both Bearer and superflous quotes from the string', () => {
       const newToken = authService.stripToken('Bearer "\\"token\\""');
-      expect(newToken).to.equal('"token"');
+      expect(newToken).to.equal('token');
     });
     it('should error when Bearer is not present', () => {
       const newToken = authService.stripToken('token');
@@ -420,7 +420,7 @@ describe('auth service', () => {
     });
     it('should strip Bearer without superflous quotes', () => {
       const newToken = authService.stripToken('Bearer "token"');
-      expect(newToken).to.equal('"token"');
+      expect(newToken).to.equal('token');
     });
     it('should strip Bearer with no quotes', () => {
       const newToken = authService.stripToken('Bearer token');

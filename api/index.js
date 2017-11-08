@@ -14,6 +14,7 @@ const config         = require('../config/config');
 const Logger         = require('@util/Logger')('INDEX');
 const mongoose       = require('mongoose');
 const authMiddleware = require('@Auth/authMiddleware');
+const bearerToken = require('express-bearer-token');
 Logger.info(`log level : ${config.logLevel}`);
 
 //set the app to log every request
@@ -22,7 +23,7 @@ app.use(Logger.requestLogger);
 //global middleware setup
 app.use(bodyParser.json());
 app.use(cors());
-
+app.use(bearerToken());
 //mongoose setup
 mongoose.Promise = Promise;
 mongoose.connect(config.db.uri, {useMongoClient: true});
@@ -59,11 +60,12 @@ const server = app.listen(config.port, () => {
 app.use(Logger.errorLogger);
 
 //default error handler to catch unexpected exceptions
-app.use((err, req, res) => {
+// eslint-disable-next-line no-unused-vars
+app.use((err, req, res, next) => {
   'use strict';
   Logger.warn('the default error handler has been invoked. An unexpected error has occurred.');
   Logger.error(`error: ${JSON.stringify(err)}`);
-  res.status(500).send({error: 'an unexpected error has occurred'});
+  return res.status(500).send({error: 'an unexpected error has occurred'});
 });
 
 //catch 404 errors and return a standard error

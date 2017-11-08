@@ -25,6 +25,10 @@ module.exports   = exports = {
     Logger.verbose(`token is now: ${JSON.stringify(token)}`);*/
     token = token.lastIndexOf('\\"') !== -1 ? token.slice(token.indexOf('\\"') + 1,token.lastIndexOf('\\"')) + '"': token;
     Logger.verbose(`token is now: ${token}`);
+    if(token[0] === '"') token = token.substring(1);
+    Logger.verbose(`token is now: ${JSON.stringify(token)}`);
+    if(token[token.length -1] ==='"') token = token.substring(0, token.length -1);
+    Logger.verbose(`token is now: ${JSON.stringify(token)}`);
     return token;
   },
   stripToken(token){

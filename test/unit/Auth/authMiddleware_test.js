@@ -28,6 +28,7 @@ describe('auth middleware', () => {
     let req, res, next, statusStub, sendStub, verifyTokenStub, handleClaimValidationStub, decodedToken;
     beforeEach(() => {
       req                       = {
+        token: 'testtoken',
         headers: {
           authorization: 'Bearer testtoken'
         }

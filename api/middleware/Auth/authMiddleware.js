@@ -35,8 +35,15 @@ module.exports    = exports = {
       Logger.warn('there is data missing from the request');
       return res.status(401).send(errorUtils.formatError('authentication failed'));
     }
+    //Logger.verbose(`auth: ${req.headers.authorization}`);
+    Logger.verbose(`token: ${req.token}`);
     Logger.verbose('required data is present');
-    const decodedToken = await authService.validateToken(req.headers.authorization.substring(req.headers.authorization.indexOf('Bearer ') + 'Bearer '.length).trim());
+    /*const strippedToken = authService.stripToken(req.headers.authorization);
+    if(strippedToken.error){
+      Logger.warn(`there was an error while stripping the token`);
+      res.status(strippedToken.error.status || 401);
+    }*/
+    const decodedToken = await authService.validateToken(req.token);
     if (decodedToken.error) {
       Logger.warn('returned token has errors');
       return res.status(401).send(errorUtils.formatError('authentication failed'));
@@ -44,7 +51,7 @@ module.exports    = exports = {
     Logger.verbose('token is assumed valid');
     Logger.verbose(`decoded token: ${JSON.stringify(decodedToken)}`);
     const customUserAuth = await authService.handleClaimValidation(decodedToken, req.isNewUser);
-    //Logger.verbose(`claims returned: ${JSON.stringify(customUserAuth)}`);
+    Logger.verbose(`claims returned: ${JSON.stringify(customUserAuth)}`);
     if (!req.body) {
       Logger.info('request does not contain a body, creating body');
       req.body = {};
